@@ -9,7 +9,7 @@ const conn = mysql.createConnection({
     'port' : 3307,
     'database' : 'Insa5_App_final_3'
 })
-
+//
 // 5-3. DB 정보 연결 및 모듈 내보내기
 conn.connect()
 module.exports = conn
