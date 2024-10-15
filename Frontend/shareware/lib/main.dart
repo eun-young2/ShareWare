@@ -29,8 +29,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final List<String> warehouseImages = [
     'assets/warehouse1.jpg',
-    'assets/warehouse2.jpg',
-    'assets/warehouse3.jpg',
+   
   ];
 
   int _selectedIndex = 0;
