@@ -224,12 +224,137 @@ class MainPageContent extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.0),
-            // ... (기타 코드 생략)
+            SizedBox(
+              height: 90.0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 30.0),
+                      ),
+                      onPressed: () {},
+                      child: Text('이용안내'),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 30.0),
+                      ),
+                      onPressed: () {},
+                      child: Text('QR 입장코드 발급'),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 30.0),
+                      ),
+                      onPressed: () {},
+                      child: Text('고객센터'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '쉐어웨어',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '만의\n스마트한 ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      TextSpan(
+                        text: 'AI 무인관제',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                Text('V 이용시간 외 침입을 감지하여 경고 알림발송'),
+                SizedBox(height: 5.0),
+                Text('V 안전한 물품 보관'),
+                SizedBox(height: 5.0),
+                Text('V 다양한 창고 옵션'),
+                SizedBox(height: 5.0),
+                Text('V 빠른 고객 지원'),
+              ],
+            ),
+            SizedBox(height: 20.0),
+            Text(
+              '고객 리뷰',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            SizedBox(height: 10.0),
+            _buildReview('assets/profile1.png', '이순신', 5, '정말 유용하게 잘 사용하고 있습니다.'),
+            _buildReview('assets/profile2.png', '김유신', 4, '가격이 저렴하고 접근성이 좋습니다.'),
+            _buildReview('assets/profile3.png', '홍길동', 5, '고객 서비스가 매우 친절합니다.'),
           ],
         ),
       ),
     );
   }
 
-  // ... (기타 코드 생략)
+  Widget _buildReview(String imagePath, String name, int rating, String comment) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 25.0,
+          backgroundImage: AssetImage(imagePath),
+        ),
+        SizedBox(width: 10.0),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: List.generate(rating, (index) => Icon(Icons.star, color: Colors.orange)),
+              ),
+              Text(comment),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
