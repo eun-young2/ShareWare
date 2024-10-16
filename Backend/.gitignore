@@ -1,4 +1,4 @@
 # dependencies
 /node_modeules
 
-config/database.js
+.env

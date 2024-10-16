@@ -4,6 +4,8 @@ import 'package:flutter_application_33/my_warehouse_page.dart';
 import 'package:flutter_application_33/qr_page.dart';
 import 'package:flutter_application_33/rtsp_stream.dart';
 import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
+import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 경로
+import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
 
 void main() {
   runApp(SharewareApp());
@@ -30,7 +32,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final List<String> warehouseImages = [
     'assets/warehouse1.jpg',
-   
+    // 사진 추가 가능
   ];
 
   int _selectedIndex = 0;
@@ -41,10 +43,10 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _pages = [
       MainPageContent(warehouseImages: warehouseImages),
-      StorageSelectPage(), // 창고 찾기 페이지를 두 번째로 추가
+      KakaoMapTest(), // 창고 찾기 페이지를 두 번째로 추가
       QRPage(),
       MyWarehousePage(),
-      MyApp(),
+      MyApp(), // 기존 MyPage() (my_page.dart) -> rtsp_stream.dart 파일로 연결되게 바꿔놨음
     ];
   }
 
@@ -54,6 +56,13 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         title: Text('Shareware'),
         centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/ShareWare_logo.png', // 경로를 정확하게 확인하세요
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -88,6 +97,43 @@ class _MainPageState extends State<MainPage> {
             _selectedIndex = index;
           });
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 로그인 및 회원가입 화면으로 이동하는 다이얼로그
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('로그인 또는 회원가입'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text('로그인'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>SignupPage()),
+                        );
+                      },
+                      child: Text('회원가입'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        child: Icon(Icons.login),
       ),
     );
   }
@@ -159,7 +205,7 @@ class MainPageContent extends StatelessWidget {
                         // 창고찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => StorageSelectPage()),
+                          MaterialPageRoute(builder: (context) => KakaoMapTest()),
                         );
                       },
                       child: Column(
@@ -196,7 +242,7 @@ class MainPageContent extends StatelessWidget {
                         // 외각형 창고 찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => StorageSelectPage()),
+                          MaterialPageRoute(builder: (context) => KakaoMapTest()),
                         );
                       },
                       child: Column(
@@ -237,7 +283,7 @@ class MainPageContent extends StatelessWidget {
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {}, // 이용안내
                       child: Text('이용안내'),
                     ),
                   ),
@@ -250,7 +296,7 @@ class MainPageContent extends StatelessWidget {
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {}, // QR 입장코드 발급
                       child: Text('QR 입장코드 발급'),
                     ),
                   ),
@@ -263,7 +309,7 @@ class MainPageContent extends StatelessWidget {
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {}, // 고객센터
                       child: Text('고객센터'),
                     ),
                   ),
@@ -293,68 +339,24 @@ class MainPageContent extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: 'AI 무인관제',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.blue,
-                        ),
+                        text: '이용이 가능합니다!',
+                        style: TextStyle(fontSize: 18),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(height: 10.0),
-                Text('V 이용시간 외 침입을 감지하여 경고 알림발송'),
-                SizedBox(height: 5.0),
-                Text('V 안전한 물품 보관'),
-                SizedBox(height: 5.0),
-                Text('V 다양한 창고 옵션'),
-                SizedBox(height: 5.0),
-                Text('V 빠른 고객 지원'),
+                Text(
+                  '앱에서 다양한 창고를 쉽게 찾아보세요.',
+                  style: TextStyle(fontSize: 16),
+                ),
               ],
             ),
-            SizedBox(height: 20.0),
-            Text(
-              '고객 리뷰',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            SizedBox(height: 10.0),
-            _buildReview('assets/profile1.jpg', '이순신', 5, '정말 유용하게 잘 사용하고 있습니다.'),
-            _buildReview('assets/profile1.jpg', '김유신', 4, '가격이 저렴하고 접근성이 좋습니다.'),
-            _buildReview('assets/profile1.jpg', '홍길동', 5, '고객 서비스가 매우 친절합니다.'),
+
+           
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildReview(String imagePath, String name, int rating, String comment) {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 25.0,
-          backgroundImage: AssetImage(imagePath),
-        ),
-        SizedBox(width: 10.0),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: List.generate(rating, (index) => Icon(Icons.star, color: Colors.orange)),
-              ),
-              Text(comment),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
