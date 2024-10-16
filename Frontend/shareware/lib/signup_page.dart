@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class SignupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -43,6 +42,14 @@ class SignupPage extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               obscureText: true,
+            ),
+            SizedBox(height: 20),
+            TextField(
+              decoration: InputDecoration(
+                labelText: '전화번호',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.phone, // 전화번호 입력에 적합한 키보드 타입
             ),
             SizedBox(height: 20),
             ElevatedButton(
