@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const router = express();
-const bcrypt = require("bcrypt");
+
 
 router.use(cors());
 router.use(bodyParser.json()); //json 요청 처리
@@ -19,6 +19,10 @@ conn.connect(err=>{
         
     }
 })
+
+const userRouter = require("./routes/user");
+
+router.use("/user", userRouter);
 
 //서버실행
 router.listen(3000,()=>{
