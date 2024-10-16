@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_33/my_page.dart';
 import 'package:flutter_application_33/my_warehouse_page.dart';
 import 'package:flutter_application_33/qr_page.dart';
+import 'package:flutter_application_33/rtsp_stream.dart';
 import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
 import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 경로
 import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
@@ -45,7 +46,7 @@ class _MainPageState extends State<MainPage> {
       KakaoMapTest(), // 창고 찾기 페이지를 두 번째로 추가
       QRPage(),
       MyWarehousePage(),
-      MyPage(),
+      MyApp(), // 기존 MyPage() (my_page.dart) -> rtsp_stream.dart 파일로 연결되게 바꿔놨음
     ];
   }
 
@@ -351,6 +352,8 @@ class MainPageContent extends StatelessWidget {
                 ),
               ],
             ),
+
+           
           ],
         ),
       ),
