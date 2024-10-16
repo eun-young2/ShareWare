@@ -10,6 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   kakaomap_webview: ^0.6.2
+  flutter_vlc_player: ^7.4.2
+  path_provider: ^2.0.10  # 최신 버전 확인 후 추가
+  qr_flutter: ^4.0.0  # 최신 버전 확인 후 사용
+  http: ^0.13.6  # 최신 버전 확인 후 사용
     
 
 dev_dependencies:

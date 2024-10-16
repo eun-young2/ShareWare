@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_33/my_page.dart';
 import 'package:flutter_application_33/my_warehouse_page.dart';
 import 'package:flutter_application_33/qr_page.dart';
+import 'package:flutter_application_33/rtsp_stream.dart';
 import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
 
 void main() {
@@ -43,7 +44,7 @@ class _MainPageState extends State<MainPage> {
       StorageSelectPage(), // 창고 찾기 페이지를 두 번째로 추가
       QRPage(),
       MyWarehousePage(),
-      MyPage(),
+      MyApp(),
     ];
   }
 
@@ -321,9 +322,9 @@ class MainPageContent extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10.0),
-            _buildReview('assets/profile1.png', '이순신', 5, '정말 유용하게 잘 사용하고 있습니다.'),
-            _buildReview('assets/profile2.png', '김유신', 4, '가격이 저렴하고 접근성이 좋습니다.'),
-            _buildReview('assets/profile3.png', '홍길동', 5, '고객 서비스가 매우 친절합니다.'),
+            _buildReview('assets/profile1.jpg', '이순신', 5, '정말 유용하게 잘 사용하고 있습니다.'),
+            _buildReview('assets/profile1.jpg', '김유신', 4, '가격이 저렴하고 접근성이 좋습니다.'),
+            _buildReview('assets/profile1.jpg', '홍길동', 5, '고객 서비스가 매우 친절합니다.'),
           ],
         ),
       ),
