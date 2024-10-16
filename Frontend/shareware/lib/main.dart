@@ -42,7 +42,7 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _pages = [
       MainPageContent(warehouseImages: warehouseImages),
-      StorageSelectPage(), // 창고 찾기 페이지를 두 번째로 추가
+      KakaoMapTest(), // 창고 찾기 페이지를 두 번째로 추가
       QRPage(),
       MyWarehousePage(),
       MyPage(),
@@ -204,7 +204,7 @@ class MainPageContent extends StatelessWidget {
                         // 창고찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => StorageSelectPage()),
+                          MaterialPageRoute(builder: (context) => KakaoMapTest()),
                         );
                       },
                       child: Column(
@@ -241,7 +241,7 @@ class MainPageContent extends StatelessWidget {
                         // 외각형 창고 찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => StorageSelectPage()),
+                          MaterialPageRoute(builder: (context) => KakaoMapTest()),
                         );
                       },
                       child: Column(
