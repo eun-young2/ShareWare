@@ -3,6 +3,7 @@ import 'package:flutter_application_33/main.dart';
 import 'package:flutter_application_33/signup_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'config.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -21,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   Color customGray = Color(0xFF4A4A4A); // 4A4A4A 색상
 
   Future<void> login() async {
-    final String apiUrl = 'http://192.168.70.43:3000/user/login'; // 로그인 API URL
+    final String apiUrl = '${Config.apiUrl}/user/login'; // 로그인 API URL
 
     final response = await http.post(
       Uri.parse(apiUrl),

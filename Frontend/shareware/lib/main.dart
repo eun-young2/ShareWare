@@ -122,7 +122,7 @@ class _MainPageState extends State<MainPage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>SignupPage()),
+                          MaterialPageRoute(builder: (context) => SignupPage()),
                         );
                       },
                       child: Text('회원가입'),
@@ -205,7 +205,8 @@ class MainPageContent extends StatelessWidget {
                         // 창고찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => KakaoMapTest()),
+                          MaterialPageRoute(
+                              builder: (context) => KakaoMapTest()),
                         );
                       },
                       child: Column(
@@ -242,7 +243,8 @@ class MainPageContent extends StatelessWidget {
                         // 외각형 창고 찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => KakaoMapTest()),
+                          MaterialPageRoute(
+                              builder: (context) => KakaoMapTest()),
                         );
                       },
                       child: Column(
@@ -352,8 +354,6 @@ class MainPageContent extends StatelessWidget {
                 ),
               ],
             ),
-
-           
           ],
         ),
       ),
