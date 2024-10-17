@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_33/login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'config.dart';
 
 class SignupPage extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
@@ -14,7 +15,7 @@ class SignupPage extends StatelessWidget {
   // 회원가입 API 호출 함수
   Future<void> signup(context) async {
     // API URL
-    final String apiUrl = 'http://192.168.70.99:3000/user/signup';
+    final String apiUrl = '${Config.apiUrl}/user/signup';
 
     // API 호출
     final response = await http.post(
