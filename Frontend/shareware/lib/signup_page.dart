@@ -10,7 +10,7 @@ class SignupPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
-  final TextEditingController phoneContoller = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
   // 회원가입 API 호출 함수
   Future<void> signup(context) async {
@@ -27,7 +27,7 @@ class SignupPage extends StatelessWidget {
         'name': nameController.text,
         'userid': usernameController.text,
         'password': passwordController.text,
-        'phone_number': phoneContoller.text
+        'phone_number': phoneController.text
       }),
     );
 
@@ -96,7 +96,7 @@ class SignupPage extends StatelessWidget {
               ),
               SizedBox(height: 20),
               TextField(
-                controller: phoneContoller,
+                controller: phoneController,
                 decoration: InputDecoration(
                   labelText: '전화번호',
                   border: OutlineInputBorder(),
