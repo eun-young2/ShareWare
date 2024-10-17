@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   Color customGray = Color(0xFF4A4A4A); // 4A4A4A 색상
 
   Future<void> login() async {
-    final String apiUrl = 'http://192.168.70.43:3000/user/login'; // 로그인 API URL
+    final String apiUrl = 'http://192.168.70.99:3000/user/login'; // 로그인 API URL
 
     final response = await http.post(
       Uri.parse(apiUrl),
