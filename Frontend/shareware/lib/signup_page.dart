@@ -15,7 +15,7 @@ class SignupPage extends StatelessWidget {
   // 회원가입 API 호출 함수
   Future<void> signup(context) async {
     // API URL
-    final String apiUrl = '${Config.apiUrl}/user/signup';
+    final String apiUrl = '${Config.local}/user/signup';
 
     // API 호출
     final response = await http.post(

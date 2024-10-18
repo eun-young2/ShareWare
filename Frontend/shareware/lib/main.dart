@@ -6,8 +6,9 @@ import 'package:flutter_application_33/rtsp_stream.dart';
 import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
 import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 경로
 import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
-
-void main() {
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+void main() async {
+  await dotenv.load(fileName: "assets/.env"); // 파일 이름이 루트에 있는 경우
   runApp(SharewareApp());
 }
 

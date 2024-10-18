@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class Config {
-  static const String apiUrl = 'http://192.168.70.184:3000';
+  static String get local => dotenv.env['LOCAL'] ?? 'http://default.url';  // 기본값 설정
 }
