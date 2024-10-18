@@ -21,8 +21,10 @@ conn.connect(err=>{
 })
 
 const userRouter = require("./routes/user");
+const mapRouter = require("./routes/map");
 
 router.use("/user", userRouter);
+router.use("/map", mapRouter)
 
 //서버실행
 router.listen(3000,()=>{

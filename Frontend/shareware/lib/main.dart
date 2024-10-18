@@ -9,8 +9,16 @@ import 'package:flutter_application_33/rtsp_stream.dart';
 import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
 import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 경로
 import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  // Flutter가 비동기 작업을 실행하기 전에 WidgetsFlutterBinding을 보장합니다.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // .env 파일을 로드합니다.
+  await dotenv.load(fileName: "assets/.env");
+
+  // runApp 함수에 MultiProvider를 사용하여 QRProvider를 추가합니다.
   runApp(
     MultiProvider(
       providers: [
