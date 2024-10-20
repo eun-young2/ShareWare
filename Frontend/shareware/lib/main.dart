@@ -12,13 +12,8 @@ import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  // Flutter가 비동기 작업을 실행하기 전에 WidgetsFlutterBinding을 보장합니다.
   WidgetsFlutterBinding.ensureInitialized();
-
-  // .env 파일을 로드합니다.
-  await dotenv.load(fileName: "assets/.env");
-
-  // runApp 함수에 MultiProvider를 사용하여 QRProvider를 추가합니다.
+  await dotenv.load(fileName: "assets/.env"); // 파일 이름이 루트에 있는 경우
   runApp(
     MultiProvider(
       providers: [
