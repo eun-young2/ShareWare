@@ -17,26 +17,20 @@ class KakaoMapTest extends StatefulWidget {
 }
 
 class _KakaoMapTestState extends State<KakaoMapTest> {
-  late WebViewController _webViewController; // WebViewController 선언
-  List<Map<String, double>> _markers = []; // 마커 리스트
-  TextEditingController _searchController = TextEditingController(); // 검색창 컨트롤러
+  late WebViewController _webViewController;
+  List<Map<String, double>> _markers = [];
+  TextEditingController _searchController = TextEditingController();
 
   // 모든 창고 좌표 API 호출
   Future<List<Map<String, double>>> fetchAllWarehouseCoordinates() async {
     final response =
         await http.get(Uri.parse('${Config.local}/map/all/warehouses'));
-
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      print('API 응답: $data');
-      print('data의 타입: ${data.runtimeType}');
-
       return data.map((item) {
         return {
-          'lat':
-              double.tryParse(item['lat'].toString()) ?? 0.0, // lat을 double로 변환
-          'lon':
-              double.tryParse(item['lon'].toString()) ?? 0.0, // lon을 double로 변환
+          'lat': double.tryParse(item['lat'].toString()) ?? 0.0,
+          'lon': double.tryParse(item['lon'].toString()) ?? 0.0,
         };
       }).toList();
     } else {
@@ -46,9 +40,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
 
   // 창고 이름을 통해 특정 창고 좌표를 가져오는 API 호출
   Future<Map<String, double>?> fetchWarehouseByName(String name) async {
-    final response = await http.get(
-        Uri.parse('${Config.local}/map/warehouse?name=$name')); // 이름을 통한 검색 API
-
+    final response = await http.get(Uri.parse('${Config.local}/map/$name'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return {
@@ -56,8 +48,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
         'lon': double.tryParse(data['lon'].toString()) ?? 0.0,
       };
     } else {
-      print('창고를 찾을 수 없습니다');
-      return null;
+      return null; // 창고를 찾을 수 없을 경우 null 반환
     }
   }
 
@@ -78,10 +69,24 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
         marker.setMap(map);
         markers.push(marker);
       })();
-    '''); // 즉시 실행 함수로 블록 스코프 생성
+      ''');
     }
 
     return script.toString();
+  }
+
+  // 마커 초기화
+  void _clearMarkers() {
+    if (_webViewController != null) {
+      _webViewController
+          .runJavascript(
+              "markers.forEach(marker => marker.setMap(null)); markers = [];")
+          .then((_) {
+        print("기존 마커 제거 성공");
+      }).catchError((error) {
+        print("기존 마커 제거 오류: $error");
+      });
+    }
   }
 
   // 여러 개의 마커를 지도에 추가하는 함수
@@ -113,6 +118,10 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
   // 검색을 통한 창고 마커 표시
   Future<void> _searchWarehouse(String name) async {
     try {
+      // 기존 마커 제거
+      _clearMarkers();
+
+      // 검색된 창고 좌표 가져오기
       final warehouse = await fetchWarehouseByName(name);
       if (warehouse != null) {
         setState(() {
@@ -127,7 +136,6 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     }
   }
 
-  // KakaoMapView 빌드
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -142,7 +150,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
-                  controller: _searchController, // 검색창 컨트롤러
+                  controller: _searchController,
                   decoration: InputDecoration(
                     labelText: '창고 검색',
                     suffixIcon: IconButton(
@@ -150,7 +158,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                       onPressed: () {
                         String searchText = _searchController.text;
                         if (searchText.isNotEmpty) {
-                          _searchWarehouse(searchText); // 창고 검색 기능 호출
+                          _searchWarehouse(searchText);
                         }
                       },
                     ),
@@ -162,14 +170,14 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                   width: size.width,
                   height: 400,
                   kakaoMapKey: kakaoMapKey,
-                  lat: 37.5665, // 지도 기본 중심 좌표 (최초 로딩 시)
+                  lat: 37.5665,
                   lng: 126.978,
                   showMapTypeControl: true,
                   showZoomControl: true,
                   draggableMarker: true,
                   mapType: MapType.BICYCLE,
                   mapController: (controller) {
-                    _webViewController = controller; // WebViewController 초기화
+                    _webViewController = controller;
                     _loadAllWarehouseCoordinates(); // 모든 좌표 로드
                   },
                   onTapMarker: (message) {
@@ -181,7 +189,6 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
               ),
             ],
           ),
-          // 하단에 창고 리스트 정보 표시하는 드래그 가능한 바
           DraggableScrollableSheet(
             initialChildSize: 0.2,
             minChildSize: 0.1,

@@ -25,6 +25,7 @@ dependencies:
 
   flutter_dotenv: ^5.2.1
  
+  # location: ^7.0.1
 
     
 
