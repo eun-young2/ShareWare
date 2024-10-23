@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'manage_items_page.dart';
 import 'login_page.dart';
 import 'providers/auth_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyWarehousePage extends StatelessWidget {
   @override
@@ -121,7 +122,9 @@ class MyWarehousePage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   // 로그아웃 처리 로직
-
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.remove('token'); // 저장된 토큰 삭제
                   // 로그아웃 후 로그인 페이지로 이동
                   Navigator.pushReplacement(
                     context,
