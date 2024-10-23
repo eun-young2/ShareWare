@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-// 경로 수정 (flutter_application_33이 실제 프로젝트 네임과 일치해야 합니다.)
 import 'package:flutter_application_33/my_page.dart';
 import 'package:flutter_application_33/my_warehouse_page.dart';
 import 'package:flutter_application_33/qr_page.dart';
 import 'package:flutter_application_33/qr_provider.dart';
-import 'package:flutter_application_33/rtsp_stream.dart';
 import 'package:flutter_application_33/storage_select.dart';
 import 'package:flutter_application_33/login_page.dart';
 import 'package:flutter_application_33/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: "assets/.env"); // .env 파일의 위치가 루트 경로에 있는지 확인
+  await dotenv.load(fileName: "assets/.env");
   runApp(
     MultiProvider(
       providers: [
@@ -31,7 +28,14 @@ class SharewareApp extends StatelessWidget {
     return MaterialApp(
       title: 'Shareware',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Color(0xFFAFD485),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: Color(0xFF4A4A4A), // accentColor -> secondary로 대체
+        ),
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(fontSize: 14, color: Color(0xFF4A4A4A)),
+          bodyMedium: TextStyle(fontSize: 14, color: Color(0xFF4A4A4A)), // bodyText2를 bodyMedium으로 수정
+        ),
       ),
       home: MainPage(),
     );
@@ -57,10 +61,9 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _pages = [
       MainPageContent(warehouseImages: warehouseImages),
-      KakaoMapTest(), // 창고 찾기 페이지
+      KakaoMapTest(), // 창고 찾기 페이지로 이동
       QRPage(),
       MyWarehousePage(),
-      // MyApp(), // my_page.dart의 메인 페이지
     ];
   }
 
@@ -73,7 +76,7 @@ class _MainPageState extends State<MainPage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Image.asset(
-            'assets/ShareWare_logo.png', // 이미지 경로 확인
+            'assets/ShareWare_logo.png',
             fit: BoxFit.contain,
           ),
         ),
@@ -81,8 +84,8 @@ class _MainPageState extends State<MainPage> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Color(0xFFAFD485),
+        unselectedItemColor: Color(0xFF4A4A4A),
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -90,7 +93,7 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
-            label: '창고찾기',
+            label: '창고 찾기',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.qr_code),
@@ -114,7 +117,6 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 로그인 및 회원가입 화면 이동
           showDialog(
             context: context,
             builder: (context) {
@@ -201,89 +203,36 @@ class MainPageContent extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.0),
-            // 버튼들
-            SizedBox(
-              height: 130.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 20.0),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => KakaoMapTest()),
-                        );
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '단기 이용하며\n수시로 짐을 찾고 싶다면',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            '도심형 창고 찾기',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
+            // 창고 찾기 버튼
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFAFD485),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 20.0),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => KakaoMapTest()),
+                    );
+                  },
+                  child: Text(
+                    '창고 찾기',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF4A4A4A),
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 20.0),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => KakaoMapTest()),
-                        );
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '차량으로 이동하여\n큰 짐을 보관하고 싶다면',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            '외각형 창고 찾기',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             SizedBox(height: 20.0),
+            // 이용 안내 및 기타 버튼
             SizedBox(
               height: 90.0,
               child: Row(
@@ -292,12 +241,13 @@ class MainPageContent extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFAFD485),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {}, // 이용안내
+                      onPressed: () {},
                       child: Text('이용안내'),
                     ),
                   ),
@@ -305,12 +255,13 @@ class MainPageContent extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFAFD485),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {}, // QR 입장코드 발급
+                      onPressed: () {},
                       child: Text('QR 입장코드 발급'),
                     ),
                   ),
@@ -318,12 +269,13 @@ class MainPageContent extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFAFD485),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {}, // 고객센터
+                      onPressed: () {},
                       child: Text('고객센터'),
                     ),
                   ),
