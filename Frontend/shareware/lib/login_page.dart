@@ -4,6 +4,7 @@ import 'package:flutter_application_33/signup_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'config.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 추가
 
 class LoginPage extends StatefulWidget {
   @override
@@ -38,6 +39,11 @@ class _LoginPageState extends State<LoginPage> {
     // 응답 처리
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+
+      // 로그인 성공 시 토큰 저장
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', data['token']); // 토큰 저장
+
       // 로그인 성공 및 role 체크
       if (isAdminLogin && data['role'] != 'admin') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,6 +62,42 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(content: Text('로그인 실패')),
       );
     }
+  }
+
+  // 앱 실행 시 로그인 상태 확인
+  Future<void> checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      final response = await http.get(
+        Uri.parse('${Config.local}/user/protected'), // 보호된 API 경로
+        headers: {
+          'Authorization': 'Bearer $token', // 토큰을 헤더에 포함
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('로그인 상태입니다: ${response.body}');
+        // 상태가 200일 때만 MainPage로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainPage()),
+        );
+      } else {
+        print('로그인되지 않음: ${response.body}');
+        // 로그인되지 않으면 로그인 페이지로 이동하거나 다른 처리
+      }
+    } else {
+      print('저장된 토큰이 없습니다. 로그인이 필요합니다.');
+      // 토큰이 없을 경우 로그인 페이지로 이동하거나 다른 처리
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus(); // 로그인 상태 확인
   }
 
   @override
