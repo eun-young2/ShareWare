@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// 경로 수정 (flutter_application_33이 실제 프로젝트 네임과 일치해야 합니다.)
 import 'package:flutter_application_33/my_page.dart';
 import 'package:flutter_application_33/my_warehouse_page.dart';
 import 'package:flutter_application_33/qr_page.dart';
 import 'package:flutter_application_33/qr_provider.dart';
-import 'package:provider/provider.dart';
-
 import 'package:flutter_application_33/rtsp_stream.dart';
-import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
-import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 경로
-import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_application_33/storage_select.dart';
+import 'package:flutter_application_33/login_page.dart';
+import 'package:flutter_application_33/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: "assets/.env"); // 파일 이름이 루트에 있는 경우
+  await dotenv.load(fileName: "assets/.env"); // .env 파일의 위치가 루트 경로에 있는지 확인
   runApp(
     MultiProvider(
       providers: [
@@ -45,7 +46,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final List<String> warehouseImages = [
     'assets/warehouse1.jpg',
-    // 사진 추가 가능
+    // 추가 이미지 경로
   ];
 
   int _selectedIndex = 0;
@@ -56,10 +57,10 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _pages = [
       MainPageContent(warehouseImages: warehouseImages),
-      KakaoMapTest(), // 창고 찾기 페이지를 두 번째로 추가
+      KakaoMapTest(), // 창고 찾기 페이지
       QRPage(),
       MyWarehousePage(),
-      // MyApp(), // 기존 MyPage() (my_page.dart) -> rtsp_stream.dart 파일로 연결되게 바꿔놨음
+      // MyApp(), // my_page.dart의 메인 페이지
     ];
   }
 
@@ -72,7 +73,7 @@ class _MainPageState extends State<MainPage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Image.asset(
-            'assets/ShareWare_logo.png', // 경로를 정확하게 확인하세요
+            'assets/ShareWare_logo.png', // 이미지 경로 확인
             fit: BoxFit.contain,
           ),
         ),
@@ -88,7 +89,7 @@ class _MainPageState extends State<MainPage> {
             label: 'HOME',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map), // 지도 모양 이모티콘 추가
+            icon: Icon(Icons.map),
             label: '창고찾기',
           ),
           BottomNavigationBarItem(
@@ -113,7 +114,7 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 로그인 및 회원가입 화면으로 이동하는 다이얼로그
+          // 로그인 및 회원가입 화면 이동
           showDialog(
             context: context,
             builder: (context) {
@@ -215,7 +216,6 @@ class MainPageContent extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 20.0),
                       ),
                       onPressed: () {
-                        // 창고찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -253,7 +253,6 @@ class MainPageContent extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 20.0),
                       ),
                       onPressed: () {
-                        // 외각형 창고 찾기 버튼 클릭 시 StorageSelectPage로 이동
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -330,42 +329,6 @@ class MainPageContent extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 20.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '쉐어웨어',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '만의\n스마트한 ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '이용이 가능합니다!',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10.0),
-                Text(
-                  '앱에서 다양한 창고를 쉽게 찾아보세요.',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
             ),
           ],
         ),

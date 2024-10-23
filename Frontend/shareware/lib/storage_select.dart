@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:kakaomap_webview/kakaomap_webview.dart';
 import 'config.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'search_filter_page.dart'; // 추가된 import
 
 const String kakaoMapKey = 'cb8f3da28528e158b5e76f2e88e968b8';
 
@@ -69,7 +70,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     for (var marker in _markers) {
       double lat = marker['lat']!;
       double lon = marker['lon']!;
-      script.writeln('''
+      script.writeln('''  
       (function() {
         var markerPosition = new kakao.maps.LatLng($lat, $lon);
         var marker = new kakao.maps.Marker({
@@ -102,9 +103,9 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
   Future<void> _loadAllWarehouseCoordinates() async {
     try {
       _markers = await fetchAllWarehouseCoordinates(); // 모든 창고 좌표 가져오기
-      setState(() {
+      if (_webViewController != null) {
         _addMarkers(); // 마커 추가
-      });
+      }
     } catch (e) {
       print('좌표를 가져오는 중 오류 발생: $e');
     }
@@ -141,20 +142,37 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController, // 검색창 컨트롤러
-                  decoration: InputDecoration(
-                    labelText: '창고 검색',
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.search),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController, // 검색창 컨트롤러
+                        decoration: InputDecoration(
+                          labelText: '창고 검색',
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () {
+                              String searchText = _searchController.text;
+                              if (searchText.isNotEmpty) {
+                                _searchWarehouse(searchText); // 창고 검색 기능 호출
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.filter_list), // 필터 아이콘
                       onPressed: () {
-                        String searchText = _searchController.text;
-                        if (searchText.isNotEmpty) {
-                          _searchWarehouse(searchText); // 창고 검색 기능 호출
-                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchFilterPage(),
+                          ),
+                        ); // 필터 페이지로 이동
                       },
                     ),
-                  ),
+                  ],
                 ),
               ),
               Expanded(
@@ -168,9 +186,13 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                   showZoomControl: true,
                   draggableMarker: true,
                   mapType: MapType.BICYCLE,
-                  mapController: (controller) {
+                  mapController: (controller) async {
                     _webViewController = controller; // WebViewController 초기화
-                    _loadAllWarehouseCoordinates(); // 모든 좌표 로드
+                    await _webViewController.runJavascriptReturningResult("document.readyState").then((result) {
+                      if (result == "complete") {
+                        _loadAllWarehouseCoordinates(); // 모든 좌표 로드
+                      }
+                    });
                   },
                   onTapMarker: (message) {
                     ScaffoldMessenger.of(context).showSnackBar(
