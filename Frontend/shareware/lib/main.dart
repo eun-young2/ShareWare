@@ -11,6 +11,10 @@ import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 
 import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'package:flutter_application_33/rtsp_stream.dart';
+
+import 'rtsp.dart'; // rtsp 스트리밍 페이지 가져오기
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: "assets/.env"); // 파일 이름이 루트에 있는 경우
@@ -365,6 +369,20 @@ class MainPageContent extends StatelessWidget {
                   '앱에서 다양한 창고를 쉽게 찾아보세요.',
                   style: TextStyle(fontSize: 16),
                 ),
+                SizedBox(height: 20.0),
+                // 버튼 추가: RTSP 스트리밍 페이지로 이동
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              RTSPVideoScreen()), // RTSP 페이지로 이동
+                    );
+                  },
+                  child: Text('RTSP 스트리밍 페이지로 이동'),
+                ),
+                SizedBox(height: 20.0),
               ],
             ),
           ],
