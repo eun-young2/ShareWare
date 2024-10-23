@@ -169,7 +169,19 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     return warehouses.skip(32).take(10).toList();
   }
 
-  // 마커 추가 스크립트
+  // 검색된 창고 마커 추가 스크립트
+  String _generateSearchMarkerScript(Warehouse warehouse) {
+    return '''
+      var searchMarkerPosition = new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon});
+      var searchMarker = new kakao.maps.Marker({
+        position: searchMarkerPosition
+      });
+      searchMarker.setMap(map);
+      markers.push(searchMarker);
+    ''';
+  }
+
+  // 32번째부터 10개 창고 마커 추가 스크립트
   String _generateMarkersScript() {
     StringBuffer script = StringBuffer();
     script.writeln('var markers = [];'); // 마커 배열 초기화
@@ -177,19 +189,15 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     // 32번째부터 10개만 표시
     List<Warehouse> limitedWarehouses = _selectSubsetOfWarehouses(_warehouses);
 
-    for (var warehouse in limitedWarehouses) {
-      double lat = warehouse.lat;
-      double lon = warehouse.lon;
-
+    for (var i = 0; i < limitedWarehouses.length; i++) {
+      var warehouse = limitedWarehouses[i];
       script.writeln('''
-      (function() {
-        var markerPosition = new kakao.maps.LatLng($lat, $lon);
-        var marker = new kakao.maps.Marker({
-          position: markerPosition
-        });
-        marker.setMap(map);
-        markers.push(marker);
-      })();
+      var markerPosition$i = new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon});
+      var marker$i = new kakao.maps.Marker({
+        position: markerPosition$i
+      });
+      marker$i.setMap(map);
+      markers.push(marker$i);
       ''');
     }
 
@@ -248,7 +256,14 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
       if (warehouse != null) {
         setState(() {
           _warehouses = [warehouse]; // 검색된 창고만 마커로 표시
-          _addMarkers(); // 마커 추가
+
+          // 검색된 창고 위치에 마커 추가
+          final searchMarkerScript = _generateSearchMarkerScript(warehouse);
+          _webViewController.runJavascript(searchMarkerScript).then((_) {
+            print("검색된 창고 마커 추가 성공");
+          }).catchError((error) {
+            print("검색된 창고 마커 추가 오류: $error");
+          });
 
           // 검색된 창고 위치로 지도 중심 이동
           _webViewController.runJavascript(
