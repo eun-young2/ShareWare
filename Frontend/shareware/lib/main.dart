@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_33/my_page.dart';
-import 'package:flutter_application_33/my_warehouse_page.dart';
-import 'package:flutter_application_33/qr_page.dart';
-import 'package:flutter_application_33/qr_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_application_33/rtsp_stream.dart';
-import 'package:flutter_application_33/storage_select.dart'; // 이 경로가 올바른지 확인하세요.
-import 'package:flutter_application_33/login_page.dart'; // 로그인 페이지 경로
-import 'package:flutter_application_33/signup_page.dart'; // 회원가입 페이지 경로
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'providers/auth_provider.dart'; // 자동로그인관리 provider
+import 'my_page.dart';
+import 'my_warehouse_page.dart'; // 마이창고탭
+import 'qr_page.dart'; // qr탭
+import 'providers/qr_provider.dart'; // qr전역관리 provider
+import 'rtsp_stream.dart';
+import 'storage_select.dart'; // 창고찾기지도탭
+import 'login_page.dart'; // 로그인 페이지
+import 'signup_page.dart'; // 회원가입 페이지
 import 'bottom_nav_bar.dart';
 
 void main() async {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'manage_items_page.dart';
+import 'login_page.dart';
+import 'providers/auth_provider.dart';
 
 class MyWarehousePage extends StatelessWidget {
   @override
@@ -29,16 +32,30 @@ class MyWarehousePage extends StatelessWidget {
                   SizedBox(height: 10),
                   Divider(color: Colors.grey), // 마이 창고와 로그인하기 사이의 구분선
                   SizedBox(height: 10),
-                  // 로그인하기 > 텍스트 스타일 (더 큰 폰트)
-                  GestureDetector(
-                    onTap: () {
-                      // 로그인 페이지로 이동하는 기능 추가 가능
-                    },
-                    child: Text(
-                      '로그인하기 >',
-                      style: TextStyle(
-                        fontSize: 22, // 더 큰 폰트 크기
-                        color: Colors.blue,
+
+                  // 회색 배경의 컨테이너
+                  Container(
+                    color: Colors.grey[300],
+                    padding: EdgeInsets.all(10), // 내부 여백
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          // 로그인 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          '로그인하기 >',
+                          style: TextStyle(
+                            fontSize: 22, // 더 큰 폰트 크기
+                            color: Colors.blue,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -97,6 +114,31 @@ class MyWarehousePage extends StatelessWidget {
               },
             ),
             Divider(),
+            Spacer(), // 남은 공간을 차지하여 로그아웃 버튼을 하단에 고정
+            // 로그아웃 버튼
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: ElevatedButton(
+                onPressed: () async {
+                  // 로그아웃 처리 로직
+
+                  // 로그아웃 후 로그인 페이지로 이동
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  // backgroundColor: Colors.red,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
+                ),
+                child: Text(
+                  '로그아웃',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
           ],
         ),
       ),

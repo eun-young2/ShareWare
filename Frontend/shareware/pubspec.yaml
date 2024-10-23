@@ -20,11 +20,14 @@ dependencies:
   
 
 
+  # shared_preferences: ^2.3.2 # 최신 버전 맞음. 로그인 정보 사용자 기기에 저장해서 앱 재실행 시 로그인 상태 복원에 필요
+  flutter_secure_storage: ^9.2.2 # 
   http: ^0.13.3
   provider: ^6.1.2
 
   flutter_dotenv: ^5.2.1
   image_picker: ^1.1.2
+  dio: ^5.7.0
  
 
     

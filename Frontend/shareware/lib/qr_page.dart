@@ -4,7 +4,7 @@ import 'dart:async'; // 타이머를 사용하기 위해 추가
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data'; // base64Decode
-import 'qr_provider.dart';
+import 'providers/qr_provider.dart';
 import 'manage_items_page.dart';
 import 'package:provider/provider.dart';
 
