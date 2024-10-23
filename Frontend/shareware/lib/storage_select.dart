@@ -161,12 +161,23 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     }
   }
 
+  // 32번째부터 10개 창고 선택
+  List<Warehouse> _selectSubsetOfWarehouses(List<Warehouse> warehouses) {
+    if (warehouses.length < 32) {
+      return []; // 데이터가 32개 미만인 경우 빈 리스트 반환
+    }
+    return warehouses.skip(32).take(10).toList();
+  }
+
   // 마커 추가 스크립트
   String _generateMarkersScript() {
     StringBuffer script = StringBuffer();
     script.writeln('var markers = [];'); // 마커 배열 초기화
 
-    for (var warehouse in _warehouses) {
+    // 32번째부터 10개만 표시
+    List<Warehouse> limitedWarehouses = _selectSubsetOfWarehouses(_warehouses);
+
+    for (var warehouse in limitedWarehouses) {
       double lat = warehouse.lat;
       double lon = warehouse.lon;
 
