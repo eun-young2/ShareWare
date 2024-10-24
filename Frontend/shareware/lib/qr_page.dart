@@ -257,6 +257,16 @@ class _QRPageState extends State<QRPage> {
                     }
                   },
                   child: Text('입장 QR 발급하기'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15.0), // 세로 여백
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    backgroundColor: authProvider.isLoggedIn
+                        ? Color(0xFFAFD485)
+                        : Color(0xFF4A4A4A),
+                    foregroundColor: Colors.white, // 글씨 색상
+                  ),
                 ),
               )
             else
@@ -299,6 +309,9 @@ class _QRPageState extends State<QRPage> {
                       onPressed: () {
                         qrProvider.resetQRCode();
                         print('QR 코드 퇴실');
+                        setState(() {
+                          selectedBranch = null;
+                        });
                       },
                       child: Text('퇴실하기'),
                     ),

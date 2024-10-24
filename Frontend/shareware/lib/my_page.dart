@@ -64,7 +64,7 @@ class MyPage extends StatelessWidget {
                     // 로그아웃 처리
                     authProvider.logout(context); // AuthProvider로 로그아웃 처리
                   } else {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => LoginPage()),
                     );
