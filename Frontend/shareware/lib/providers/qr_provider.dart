@@ -7,7 +7,7 @@ import 'dart:typed_data';
 class QRProvider with ChangeNotifier {
   Uint8List? qrImageData;
   bool isQRGenerated = false;
-  bool isQRPending = false; // QR 발급 대기 상태 추가
+  // bool isQRPending = false; // QR 발급 대기 상태 추가
   DateTime? issueTime;
   Timer? _timer;
   Duration remainingTime = Duration(hours: 2);
@@ -24,7 +24,7 @@ class QRProvider with ChangeNotifier {
         final data = json.decode(response.body);
         qrImageData = base64Decode(data['qr_code']);
         isQRGenerated = true;
-        isQRPending = false; // QR이 발급되면 대기 상태 해제
+        // isQRPending = false; // QR이 발급되면 대기 상태 해제
         issueTime = DateTime.now();
         startTimer();
         notifyListeners();
@@ -56,17 +56,17 @@ class QRProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // QR 발급 대기 상태를 설정하는 함수
-  void setQRPending(bool pending) {
-    isQRPending = pending;
-    notifyListeners();
-  }
+  // // QR 발급 대기 상태를 설정하는 함수
+  // void setQRPending(bool pending) {
+  //   isQRPending = pending;
+  //   notifyListeners();
+  // }
 
   // QR 코드 및 상태 초기화 메서드
   void resetQRCode() {
     qrImageData = null;
     isQRGenerated = false;
-    isQRPending = false; // 초기화 시 대기 상태도 초기화
+    // isQRPending = false; // 초기화 시 대기 상태도 초기화
     remainingTime = Duration(hours: 2);
     selectedBranchName = null;
     selectedBranchAddress = null;

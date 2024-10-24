@@ -11,6 +11,36 @@ class MyWarehousePage extends StatelessWidget {
     final double screenWidth = MediaQuery.of(context).size.width;
     final authProvider = Provider.of<AuthProvider>(context); // AuthProvider 사용
 
+    // 비로그인 상태일 때 AlertDialog 띄우는 함수
+    void _showLoginRequiredDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text('로그인이 필요한 기능입니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 닫기 버튼
+                },
+                child: Text('닫기'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // 로그인 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                },
+                child: Text('로그인하기'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -78,14 +108,18 @@ class MyWarehousePage extends StatelessWidget {
               title: Text('내 물품 관리'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // 내 물품 관리 페이지로 이동
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ManageItemsPage(selectedIndex: 3), // '마이창고' 탭의 인덱스 전달
-                  ),
-                );
+                if (!authProvider.isLoggedIn) {
+                  _showLoginRequiredDialog(context); // 비로그인 시 다이얼로그 표시
+                } else {
+                  // 내 물품 관리 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ManageItemsPage(selectedIndex: 3), // '마이창고' 탭의 인덱스 전달
+                    ),
+                  );
+                }
               },
             ),
             Divider(),
@@ -93,7 +127,11 @@ class MyWarehousePage extends StatelessWidget {
               title: Text('QR 발급 내역'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // QR 발급 내역 페이지로 이동하는 기능 추가 가능
+                if (!authProvider.isLoggedIn) {
+                  _showLoginRequiredDialog(context); // 비로그인 시 다이얼로그 표시
+                } else {
+                  // QR 발급 내역 페이지로 이동하는 로직 추가 가능
+                }
               },
             ),
             Divider(),
@@ -101,7 +139,11 @@ class MyWarehousePage extends StatelessWidget {
               title: Text('결제 관리'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // 결제 관리 페이지로 이동하는 기능 추가 가능
+                if (!authProvider.isLoggedIn) {
+                  _showLoginRequiredDialog(context); // 비로그인 시 다이얼로그 표시
+                } else {
+                  // 결제 관리 페이지로 이동하는 로직 추가 가능
+                }
               },
             ),
             SizedBox(height: 30),
