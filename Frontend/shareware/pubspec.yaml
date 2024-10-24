@@ -38,5 +38,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/warehouse1.jpg
+    - assets/warehouse2.jpg
+    - assets/warehouse3.jpg
     - assets/ShareWare_logo.png
     - assets/.env
