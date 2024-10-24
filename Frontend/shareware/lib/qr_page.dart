@@ -16,7 +16,7 @@ class QRPage extends StatefulWidget {
 }
 
 class _QRPageState extends State<QRPage> {
-  List<Map<String, String>> branches = []; // 하드코딩된 데이터 대신 DB에서 가져올 데이터
+  List<Map<String, String>> branches = []; // DB에서 가져올 데이터
   Map<String, String>? selectedBranch;
   String? selectedBranchAddress;
   String? selectedBranchContact;
@@ -143,118 +143,168 @@ class _QRPageState extends State<QRPage> {
 
             Spacer(),
 
-            // QR 발급 버튼
-            ElevatedButton(
-              onPressed: () {
-                if (!authProvider.isLoggedIn) {
-                  // 비로그인 상태에서는 로그인 페이지로 이동
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text('로그인이 필요한 기능입니다.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('닫기'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoginPage(),
-                                ),
-                              );
-                            },
-                            child: Text('로그인하기'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else if (selectedBranch == null) {
-                  // 지점 선택 안 된 경우 경고창 표시
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('경고'),
-                        content: Text('지점을 선택해주세요.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('확인'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else {
-                  // QR 발급 로직
-                  qrProvider.generateQRCode();
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('보관 물품 등록'),
-                        content: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text:
-                                    '등록하지 않은 보관물품은\n사고발생 시 배상책임에서 제외될 수 있으며,\n반드시 등록 바랍니다.\n',
-                                style: TextStyle(color: Colors.black),
+            // QR 발급 전
+            if (!qrProvider.isQRGenerated)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (!authProvider.isLoggedIn) {
+                      // 비로그인 상태에서 '로그인하기' 알림창 띄우기
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Text('로그인이 필요한 기능입니다.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // 닫기
+                                },
+                                child: Text('닫기'),
                               ),
-                              TextSpan(
-                                text: '보관 불가 물품 보기',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProhibitedItemsPage(),
-                                      ),
-                                    );
-                                  },
+                              TextButton(
+                                onPressed: () {
+                                  // 로그인 페이지로 이동
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text('로그인하기'),
                               ),
                             ],
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('취소'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ManageItemsPage(selectedIndex: 3),
-                                ),
+                          );
+                        },
+                      );
+                    } else if (qrProvider.selectedBranchName == null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('경고'),
+                            content: Text('지점을 선택해주세요.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('확인'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      // QR 발급 로직
+                      qrProvider.generateQRCode();
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('보관 물품 등록'),
+                            content: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        '등록하지 않은 보관물품은\n사고발생 시 배상책임에서 제외될 수 있으며,\n반드시 등록 바랍니다.\n',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: '보관 불가 물품 보기',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProhibitedItemsPage(),
+                                          ),
+                                        );
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('취소'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ManageItemsPage(selectedIndex: 3),
+                                    ),
+                                  );
+                                },
+                                child: Text('등록하기'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  child: Text('입장 QR 발급하기'),
+                ),
+              )
+            else
+              Row(
+                children: [
+                  // 연장버튼
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (qrProvider.remainingTime > Duration(minutes: 30)) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('연장 불가'),
+                                content:
+                                    Text('유효시간이 30분 이하로\n남았을 때부터 연장 가능합니다.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('확인'),
+                                  ),
+                                ],
                               );
                             },
-                            child: Text('등록하기'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-              child: Text('입장 QR 발급하기'),
-            ),
+                          );
+                        } else {
+                          print('QR 코드 연장');
+                        }
+                      },
+                      child: Text('연장하기'),
+                    ),
+                  ),
+                  SizedBox(width: 16.0),
+                  // 퇴실버튼
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        qrProvider.resetQRCode();
+                        print('QR 코드 퇴실');
+                      },
+                      child: Text('퇴실하기'),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
