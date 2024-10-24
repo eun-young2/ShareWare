@@ -1,35 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'login_page.dart';
+import 'providers/auth_provider.dart';
 
-class MyPage extends StatefulWidget {
-  @override
-  _MyPageState createState() => _MyPageState();
-}
-
-class _MyPageState extends State<MyPage> {
-  bool _isLoggedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-  }
-
-  // 로그인 상태 확인
-  void _checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (mounted) {
-      // 위젯이 여전히 활성화 상태인지 확인
-      setState(() {
-        _isLoggedIn = token != null; // 토큰이 있으면 로그인 상태
-      });
-    }
-  }
-
+class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -82,30 +59,19 @@ class _MyPageState extends State<MyPage> {
             SizedBox(
               width: double.infinity, // 버튼 가로 크기를 화면 가득 채움
               child: ElevatedButton(
-                onPressed: () async {
-                  if (_isLoggedIn) {
-                    // 로그아웃 처리 로직
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    await prefs.remove('token'); // 저장된 토큰 삭제
-                    print('로그아웃 토큰 삭제');
-                    if (mounted) {
-                      setState(() {
-                        _isLoggedIn = false;
-                      });
-                    }
+                onPressed: () {
+                  if (authProvider.isLoggedIn) {
+                    // 로그아웃 처리
+                    authProvider.logout(); // AuthProvider로 로그아웃 처리
                   } else {
-                    if (mounted) {
-                      // 로그인 페이지로 이동
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    }
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
                   }
                 },
                 child: Text(
-                  _isLoggedIn ? '로그아웃' : '로그인', // 로그인 여부에 따라 버튼 변경
+                  authProvider.isLoggedIn ? '로그아웃' : '로그인',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -113,11 +79,10 @@ class _MyPageState extends State<MyPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  backgroundColor: _isLoggedIn
+                  backgroundColor: authProvider.isLoggedIn
                       ? Color(0xFF4A4A4A)
                       : Color(0xFFAFD485), // 배경 색상
-                  foregroundColor:
-                      _isLoggedIn ? Colors.black : Colors.white, // 글씨 색상
+                  foregroundColor: Colors.white, // 글씨 색상
                 ),
               ),
             ),

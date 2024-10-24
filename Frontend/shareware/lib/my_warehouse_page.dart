@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'manage_items_page.dart';
 import 'login_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'providers/auth_provider.dart'; // AuthProvider 추가
 
 class MyWarehousePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 화면의 너비를 가져옴
     final double screenWidth = MediaQuery.of(context).size.width;
+    final authProvider = Provider.of<AuthProvider>(context); // AuthProvider 사용
 
     return Scaffold(
       body: Padding(
@@ -41,16 +42,20 @@ class MyWarehousePage extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: GestureDetector(
                         onTap: () {
-                          // 로그인 페이지로 이동
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginPage(),
-                            ),
-                          );
+                          // 로그인 페이지로 이동 (로그아웃 상태일 경우에만 가능)
+                          if (!authProvider.isLoggedIn) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
+                          }
                         },
                         child: Text(
-                          '비로그인상태',
+                          authProvider.isLoggedIn
+                              ? '로그인상태(이용중창고정보넣을예정)'
+                              : '로그인이 필요한 기능입니다.',
                           style: TextStyle(
                             fontSize: 22, // 더 큰 폰트 크기
                             color: Colors.blue,

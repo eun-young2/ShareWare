@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_33/main.dart';
-import 'package:flutter_application_33/signup_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'config.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 추가
+import 'providers/auth_provider.dart'; // AuthProvider 추가
+import 'main.dart';
+import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -40,9 +42,14 @@ class _LoginPageState extends State<LoginPage> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      // 로그인 성공 시 토큰 저장
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['token']); // 토큰 저장
+      // // 로그인 성공 시 토큰 저장
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // await prefs.setString('token', data['token']); // 토큰 저장
+
+      // 로그인 성공 시
+      final authProvider = Provider.of<AuthProvider>(context,
+          listen: false); // AuthProvider를 통해 로그인 상태 업데이트
+      await authProvider.login(data['token']); // AuthProvider를 통해 토큰 저장
 
       // 로그인 성공 및 role 체크
       if (isAdminLogin && data['role'] != 'admin') {
@@ -94,10 +101,17 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   checkLoginStatus(); // 로그인 상태 확인
+  // }
+
   @override
   void initState() {
     super.initState();
-    checkLoginStatus(); // 로그인 상태 확인
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider.checkLoginStatus(); // AuthProvider를 통해 로그인 상태 확인
   }
 
   @override

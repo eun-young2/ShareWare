@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/qr_provider.dart'; // qr전역관리 provider
+import 'providers/auth_provider.dart'; // 로그인상태 전역관리 provider
 import 'rtsp_stream.dart';
 import 'storage_select.dart'; // 창고찾기지도탭
 import 'qr_page.dart'; // qr탭
@@ -17,11 +18,12 @@ import 'rtsp.dart'; // rtsp 스트리밍 페이지 가져오기
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: "assets/.env"); // 파일 이름이 루트에 있는 경우
+  await dotenv.load(fileName: "assets/.env");
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => QRProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: SharewareApp(),
     ),
