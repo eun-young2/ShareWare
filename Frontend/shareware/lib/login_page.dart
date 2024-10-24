@@ -125,9 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isAdminLogin
-                        ? customGray
-                        : customGreen, // primary 대신 backgroundColor 사용
+                    backgroundColor: isAdminLogin ? customGray : customGreen,
                   ),
                   child: Text(
                     '사용자 로그인',

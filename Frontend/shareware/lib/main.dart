@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'providers/auth_provider.dart'; // 자동로그인관리 provider
-import 'my_page.dart';
-import 'my_warehouse_page.dart'; // 마이창고탭
-import 'qr_page.dart'; // qr탭
 import 'providers/qr_provider.dart'; // qr전역관리 provider
 import 'rtsp_stream.dart';
 import 'storage_select.dart'; // 창고찾기지도탭
+import 'qr_page.dart'; // qr탭
+import 'my_warehouse_page.dart'; // 마이창고탭
+import 'my_page.dart'; // 마이페이지탭
 import 'login_page.dart'; // 로그인 페이지
 import 'signup_page.dart'; // 회원가입 페이지
 import 'bottom_nav_bar.dart';
@@ -61,10 +60,10 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _pages = [
       MainPageContent(warehouseImages: warehouseImages),
-      KakaoMapTest(), // 창고 찾기 페이지를 두 번째로 추가
+      KakaoMapTest(), // 창고 찾기 지도페이지
       QRPage(),
       MyWarehousePage(),
-      // MyApp(), // 기존 MyPage() (my_page.dart) -> rtsp_stream.dart 파일로 연결되게 바꿔놨음
+      MyPage(),
     ];
   }
 
@@ -96,43 +95,6 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스 전달
         onTap: _onItemTapped, // 탭이 클릭되었을 때 호출
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // 로그인 및 회원가입 화면으로 이동하는 다이얼로그
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('로그인 또는 회원가입'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
-                      },
-                      child: Text('로그인'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignupPage()),
-                        );
-                      },
-                      child: Text('회원가입'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-        child: Icon(Icons.login),
       ),
     );
   }

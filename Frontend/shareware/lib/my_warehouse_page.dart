@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'manage_items_page.dart';
 import 'login_page.dart';
-import 'providers/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyWarehousePage extends StatelessWidget {
@@ -51,7 +50,7 @@ class MyWarehousePage extends StatelessWidget {
                           );
                         },
                         child: Text(
-                          '로그인하기 >',
+                          '비로그인상태',
                           style: TextStyle(
                             fontSize: 22, // 더 큰 폰트 크기
                             color: Colors.blue,
@@ -101,47 +100,6 @@ class MyWarehousePage extends StatelessWidget {
               },
             ),
             SizedBox(height: 30),
-            // 내 정보 섹션
-            Text(
-              '내 정보',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Divider(),
-            ListTile(
-              title: Text('프로필 및 계정'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // 프로필 및 계정 페이지로 이동하는 기능 추가 가능
-              },
-            ),
-            Divider(),
-            Spacer(), // 남은 공간을 차지하여 로그아웃 버튼을 하단에 고정
-            // 로그아웃 버튼
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: ElevatedButton(
-                onPressed: () async {
-                  // 로그아웃 처리 로직
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.remove('token'); // 저장된 토큰 삭제
-                  // 로그아웃 후 로그인 페이지로 이동
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  // backgroundColor: Colors.red,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
-                ),
-                child: Text(
-                  '로그아웃',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
           ],
         ),
       ),
