@@ -23,10 +23,12 @@ conn.connect(err=>{
 const userRouter = require("./routes/user");
 const mapRouter = require("./routes/map");
 const rtspRouter = require("./routes/rtsp");
+const qrRouter = require("./routes/qr");
 
 router.use("/user", userRouter);
 router.use("/map", mapRouter);
 router.use("/rtsp", rtspRouter);
+router.use("/qr", qrRouter);
 
 //서버실행
 router.listen(3000,()=>{

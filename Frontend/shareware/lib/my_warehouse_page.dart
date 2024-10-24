@@ -2,14 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'manage_items_page.dart';
 import 'login_page.dart';
-import 'providers/auth_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'providers/auth_provider.dart'; // AuthProvider 추가
 
 class MyWarehousePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 화면의 너비를 가져옴
     final double screenWidth = MediaQuery.of(context).size.width;
+    final authProvider = Provider.of<AuthProvider>(context); // AuthProvider 사용
+
+    // 비로그인 상태일 때 AlertDialog 띄우는 함수
+    void _showLoginRequiredDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text('로그인이 필요한 기능입니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 닫기 버튼
+                },
+                child: Text('닫기'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // 로그인 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
+                },
+                child: Text('로그인하기'),
+              ),
+            ],
+          );
+        },
+      );
+    }
 
     return Scaffold(
       body: Padding(
@@ -42,16 +72,20 @@ class MyWarehousePage extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: GestureDetector(
                         onTap: () {
-                          // 로그인 페이지로 이동
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginPage(),
-                            ),
-                          );
+                          // 로그인 페이지로 이동 (로그아웃 상태일 경우에만 가능)
+                          if (!authProvider.isLoggedIn) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
+                          }
                         },
                         child: Text(
-                          '로그인하기 >',
+                          authProvider.isLoggedIn
+                              ? '로그인상태(이용중창고정보넣을예정)'
+                              : '로그인이 필요한 기능입니다.',
                           style: TextStyle(
                             fontSize: 22, // 더 큰 폰트 크기
                             color: Colors.blue,
@@ -74,14 +108,18 @@ class MyWarehousePage extends StatelessWidget {
               title: Text('내 물품 관리'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // 내 물품 관리 페이지로 이동
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ManageItemsPage(selectedIndex: 3), // '마이창고' 탭의 인덱스 전달
-                  ),
-                );
+                if (!authProvider.isLoggedIn) {
+                  _showLoginRequiredDialog(context); // 비로그인 시 다이얼로그 표시
+                } else {
+                  // 내 물품 관리 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ManageItemsPage(selectedIndex: 3), // '마이창고' 탭의 인덱스 전달
+                    ),
+                  );
+                }
               },
             ),
             Divider(),
@@ -89,7 +127,11 @@ class MyWarehousePage extends StatelessWidget {
               title: Text('QR 발급 내역'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // QR 발급 내역 페이지로 이동하는 기능 추가 가능
+                if (!authProvider.isLoggedIn) {
+                  _showLoginRequiredDialog(context); // 비로그인 시 다이얼로그 표시
+                } else {
+                  // QR 발급 내역 페이지로 이동하는 로직 추가 가능
+                }
               },
             ),
             Divider(),
@@ -97,51 +139,14 @@ class MyWarehousePage extends StatelessWidget {
               title: Text('결제 관리'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // 결제 관리 페이지로 이동하는 기능 추가 가능
+                if (!authProvider.isLoggedIn) {
+                  _showLoginRequiredDialog(context); // 비로그인 시 다이얼로그 표시
+                } else {
+                  // 결제 관리 페이지로 이동하는 로직 추가 가능
+                }
               },
             ),
             SizedBox(height: 30),
-            // 내 정보 섹션
-            Text(
-              '내 정보',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Divider(),
-            ListTile(
-              title: Text('프로필 및 계정'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // 프로필 및 계정 페이지로 이동하는 기능 추가 가능
-              },
-            ),
-            Divider(),
-            Spacer(), // 남은 공간을 차지하여 로그아웃 버튼을 하단에 고정
-            // 로그아웃 버튼
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: ElevatedButton(
-                onPressed: () async {
-                  // 로그아웃 처리 로직
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.remove('token'); // 저장된 토큰 삭제
-                  // 로그아웃 후 로그인 페이지로 이동
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  // backgroundColor: Colors.red,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
-                ),
-                child: Text(
-                  '로그아웃',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
           ],
         ),
       ),

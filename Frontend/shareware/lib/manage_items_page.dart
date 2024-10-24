@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'register_items.dart';
 
 class ManageItemsPage extends StatefulWidget {
   final int selectedIndex;
@@ -26,6 +27,13 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
   void _addItem(Map<String, dynamic> item) {
     setState(() {
       _items.add(item); // 전달된 물품을 리스트에 추가
+    });
+  }
+
+  // 물품 수정 함수
+  void _editItem(int index, Map<String, dynamic> newItem) {
+    setState(() {
+      _items[index] = newItem; // 수정된 물품으로 업데이트
     });
   }
 
@@ -87,7 +95,18 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {
-                          // 수정 로직
+                          // 수정 로직 - 선택한 아이템의 상세 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterItemsPage(
+                                onSubmit: (editedItem) {
+                                  _editItem(index, editedItem); // 수정된 아이템 업데이트
+                                },
+                                existingItem: _items[index], // 선택한 아이템 정보 전달
+                              ),
+                            ),
+                          );
                         } else if (value == 'delete') {
                           setState(() {
                             _items.removeAt(index);
@@ -139,147 +158,6 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class RegisterItemsPage extends StatefulWidget {
-  final Function(Map<String, dynamic>) onSubmit;
-
-  RegisterItemsPage({required this.onSubmit});
-
-  @override
-  _RegisterItemsPageState createState() => _RegisterItemsPageState();
-}
-
-class _RegisterItemsPageState extends State<RegisterItemsPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _quantityController =
-      TextEditingController(text: '1'); // 물건수량 초기값 1
-  final TextEditingController _descriptionController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
-  List<XFile> _images = []; // 이미지 리스트
-
-  // 카메라에서 사진 촬영
-  Future<void> _pickImage() async {
-    if (_images.length < 5) {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        setState(() {
-          _images.add(pickedFile);
-        });
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('최대 5장의 사진만 추가할 수 있습니다.')),
-      );
-    }
-  }
-
-  // 물건 등록 완료 처리
-  void _completeRegistration() {
-    final newItem = {
-      'name': _nameController.text,
-      'quantity': _quantityController.text,
-      'description': _descriptionController.text,
-      'images': _images.map((image) => image.path).toList(), // 이미지 경로 리스트
-    };
-    widget.onSubmit(newItem); // 부모 페이지로 데이터 전달
-    Navigator.pop(context); // 뒤로 가기
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // 뒤로가기
-          },
-        ),
-        title: Text('내 물건 등록'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              print('임시저장 클릭됨');
-            },
-            child: Text(
-              '임시저장',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: _pickImage, // 사진 클릭 시 카메라 실행
-              child: Container(
-                height: 150,
-                color: Colors.grey[300],
-                child: _images.isEmpty
-                    ? Center(child: Text('사진 추가 (최대 5장)'))
-                    : PageView(
-                        children: _images
-                            .map((image) => Image.file(
-                                  File(image.path),
-                                  fit: BoxFit.cover,
-                                ))
-                            .toList(),
-                      ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Text("물건 이름"),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                hintText: '물건이름', // placeholder
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            Text("물건 수량"),
-            TextField(
-              controller: _quantityController,
-              keyboardType: TextInputType.number, // 숫자 입력만 가능
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            Text("설명"),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 5,
-              decoration: InputDecoration(
-                hintText: '보관 불가 품목', // placeholder
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        width: double.infinity,
-        height: 48.0,
-        color: Color(0xFFAFD485),
-        child: TextButton(
-          onPressed: _completeRegistration, // 작성 완료 처리
-          child: Text(
-            '작성 완료',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ),
