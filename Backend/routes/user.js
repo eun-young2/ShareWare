@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const conn = require("../config/database");
 const bcrypt = require("bcrypt");
+require('dotenv').config();
+const jwt = require('jsonwebtoken'); // JWT 라이브러리 추가
+const secretKey = process.env.JWT_SECRET_KEY; // JWT 서명에 사용할 비밀키
+const verifyToken = require('../routes/verify');  // JWT 미들웨어 불러오기
 
 //회원가입
 router.post('/signup', async (req, res) => {
@@ -27,7 +31,7 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-//로그인
+// 로그인
 router.post('/login', async (req, res) => {
     const { userid, password } = req.body;
 
@@ -45,10 +49,14 @@ router.post('/login', async (req, res) => {
                 // 비밀번호 확인
                 const isPasswordMatch = await bcrypt.compare(password, user.user_pw);
                 if (isPasswordMatch) {
-                    // 로그인 성공 시
+                    // JWT 토큰 발급
+                    const token = jwt.sign({ userid: user.user_id, role: user.user_type }, secretKey, { expiresIn: '1h' });
+
+                    // 로그인 성공 시 토큰과 함께 반환
                     return res.status(200).json({
                         message: '로그인 성공',
-                        role: user.user_type, // 사용자 역할 반환
+                        role: user.user_type,
+                        token: token, // JWT 토큰 전달
                     });
                 } else {
                     return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
@@ -64,5 +72,10 @@ router.post('/login', async (req, res) => {
 });
 
 
+// 보호된 라우트
+router.get('/protected', verifyToken, (req, res) => {
+    // 유효한 토큰이 있으면 이 부분이 실행됨
+    res.status(200).json({ message: '로그인 성공', user: req.user });
+});
 
 module.exports = router;

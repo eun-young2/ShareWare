@@ -14,21 +14,25 @@ dependencies:
   url_launcher: ^6.1.0  
   kakaomap_webview: ^0.6.2
 
-  flutter_vlc_player: ^7.4.2
-  path_provider: ^2.0.10  # 최신 버전 확인 후 추가
+  flutter_vlc_player: ^7.4.2  # VLC Player 패키지 (버전은 최신 버전에 맞게 설정)
+  path_provider: ^2.1.4  # 파일 경로 관리 패키지
+  video_player: ^2.9.2
+
   qr_flutter: ^4.0.0  # 최신 버전 확인 후 사용
   
-
-
+  # shared_preferences: ^2.3.2 # 최신 버전 맞음. 로그인 정보 사용자 기기에 저장해서 앱 재실행 시 로그인 상태 복원에 필요
+  flutter_secure_storage: ^9.2.2 # 
   http: ^0.13.3
   provider: ^6.1.2
 
   flutter_dotenv: ^5.2.1
+  image_picker: ^1.1.2
+  dio: ^5.7.0
  
   geolocator: ^13.0.1
 
+  shared_preferences: ^2.3.2
     
-
 dev_dependencies:
   flutter_test:
     sdk: flutter  

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_application_33/my_page.dart';
-import 'package:flutter_application_33/my_warehouse_page.dart';
-import 'package:flutter_application_33/qr_page.dart';
-import 'package:flutter_application_33/qr_provider.dart';
-import 'package:flutter_application_33/storage_select.dart';
-import 'package:flutter_application_33/login_page.dart';
-import 'package:flutter_application_33/signup_page.dart';
+import 'providers/auth_provider.dart'; // 자동로그인관리 provider
+import 'my_page.dart';
+import 'my_warehouse_page.dart'; // 마이창고탭
+import 'qr_page.dart'; // qr탭
+import 'providers/qr_provider.dart'; // qr전역관리 provider
+import 'rtsp_stream.dart';
+import 'storage_select.dart'; // 창고찾기지도탭
+import 'login_page.dart'; // 로그인 페이지
+import 'signup_page.dart'; // 회원가입 페이지
+import 'bottom_nav_bar.dart';
+
+import 'package:flutter_application_33/rtsp_stream.dart';
+
+import 'rtsp.dart'; // rtsp 스트리밍 페이지 가져오기
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +71,15 @@ class _MainPageState extends State<MainPage> {
       KakaoMapTest(), // 창고 찾기 페이지로 이동
       QRPage(),
       MyWarehousePage(),
+      // MyApp(), // 기존 MyPage() (my_page.dart) -> rtsp_stream.dart 파일로 연결되게 바꿔놨음
     ];
+  }
+
+  // 이 함수는 BottomNavigationBar에서 선택된 탭의 인덱스를 기반으로 페이지를 전환하는 역할
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index; // 선택된 인덱스 업데이트
+    });
   }
 
   @override
@@ -81,39 +96,13 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
       ),
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        selectedItemColor: Color(0xFFAFD485),
-        unselectedItemColor: Color(0xFF4A4A4A),
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'HOME',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: '창고 찾기',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code),
-            label: 'QR입장',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.store),
-            label: '마이창고',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '마이페이지',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+      body: IndexedStack(
+        index: _selectedIndex, // 선택된 페이지 인덱스
+        children: _pages, // IndexedStack으로 페이지 전환 처리
+      ),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스 전달
+        onTap: _onItemTapped, // 탭이 클릭되었을 때 호출
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -281,6 +270,56 @@ class MainPageContent extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            SizedBox(height: 20.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '쉐어웨어',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '만의\n스마트한 ',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '이용이 가능합니다!',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                Text(
+                  '앱에서 다양한 창고를 쉽게 찾아보세요.',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 20.0),
+                // 버튼 추가: RTSP 스트리밍 페이지로 이동
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              RTSPVideoScreen()), // RTSP 페이지로 이동
+                    );
+                  },
+                  child: Text('RTSP 스트리밍 페이지로 이동'),
+                ),
+                SizedBox(height: 20.0),
+              ],
             ),
           ],
         ),

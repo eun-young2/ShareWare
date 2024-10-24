@@ -12,7 +12,7 @@ router.use(bodyParser.json()); //json 요청 처리
 //데이터베이스 연결
 conn.connect(err=>{
     if(err){
-        console.log("DB연결 실패!",err);
+        console.log("DB연결 실패!", err);
         
     }else{
         console.log("DB연결 성공!");
@@ -22,12 +22,13 @@ conn.connect(err=>{
 
 const userRouter = require("./routes/user");
 const mapRouter = require("./routes/map");
+const rtspRouter = require("./routes/rtsp");
 
 router.use("/user", userRouter);
-router.use("/map", mapRouter)
+router.use("/map", mapRouter);
+router.use("/rtsp", rtspRouter);
 
 //서버실행
 router.listen(3000,()=>{
     console.log('서버가 3000번 포트에서 실행 중입니다.');
-    
 })
