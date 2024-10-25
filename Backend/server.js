@@ -24,11 +24,13 @@ const userRouter = require("./routes/user");
 const mapRouter = require("./routes/map");
 const rtspRouter = require("./routes/rtsp");
 const qrRouter = require("./routes/qr");
+const productRouter = require("./routes/product");
 
 router.use("/user", userRouter);
 router.use("/map", mapRouter);
 router.use("/rtsp", rtspRouter);
 router.use("/qr", qrRouter);
+router.use("/product", productRouter);
 
 //서버실행
 router.listen(3000,()=>{
