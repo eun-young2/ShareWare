@@ -42,7 +42,9 @@ class SharewareApp extends StatelessWidget {
         ),
         textTheme: TextTheme(
           bodyLarge: TextStyle(fontSize: 14, color: Color(0xFF4A4A4A)),
-          bodyMedium: TextStyle(fontSize: 14, color: Color(0xFF4A4A4A)), // bodyText2를 bodyMedium으로 수정
+          bodyMedium: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF4A4A4A)), // bodyText2를 bodyMedium으로 수정
         ),
       ),
       home: MainPage(),
