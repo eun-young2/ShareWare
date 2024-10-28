@@ -55,35 +55,38 @@ class _PaymentPageState extends State<PaymentPage> {
 
   // 유닛 유형 선택 버튼
   // 유닛 유형 선택 버튼
-Widget _unitTypeButton(String label) {
-  return Expanded(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5), // 버튼 간격
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            selectedUnitType = label; // 선택된 유닛 유형 변경
-            unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          minimumSize: Size(130, 50), // 버튼의 최소 크기를 지정
-          backgroundColor: selectedUnitType == label ? Color(0xFFAFD485) : Colors.grey[300], // 색상 변경
-          foregroundColor: selectedUnitType == label ? Colors.white : Colors.black,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+  Widget _unitTypeButton(String label) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5), // 버튼 간격
+        child: ElevatedButton(
+          onPressed: () {
+            setState(() {
+              selectedUnitType = label; // 선택된 유닛 유형 변경
+              unitPrice =
+                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: Size(130, 50), // 버튼의 최소 크기를 지정
+            backgroundColor: selectedUnitType == label
+                ? Color(0xFFAFD485)
+                : Colors.grey[300], // 색상 변경
+            foregroundColor:
+                selectedUnitType == label ? Colors.white : Colors.black,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 14, height: 1.2), // 폰트 크기를 줄임
           ),
         ),
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 14, height: 1.2), // 폰트 크기를 줄임
-        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   // 이용 기간을 조정하는 위젯
   Widget _weekAdjustment() {
@@ -95,17 +98,20 @@ Widget _unitTypeButton(String label) {
           onPressed: () {
             setState(() {
               if (selectedWeeks > 1) selectedWeeks--;
-              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice =
+                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
         ),
-        Text('$selectedWeeks 주', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('$selectedWeeks 주',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         IconButton(
           icon: Icon(Icons.add),
           onPressed: () {
             setState(() {
               selectedWeeks++;
-              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice =
+                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
         ),
@@ -114,42 +120,43 @@ Widget _unitTypeButton(String label) {
   }
 
   // 결제 확인 팝업
- // 결제 확인 팝업
-void _showPaymentConfirmation() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('결제 재확인'),
-        content: Text(
-          '지점: ${widget.warehouseName}\n'
-          '유닛 유형: $selectedUnitType\n'
-          '이용 기간: $selectedWeeks 주\n'
-          '결제 금액: ${unitPrice.toString()}원',
-        ),
-        actions: [
-          TextButton(
-            child: Text('결제하기'),
-            onPressed: () {
-              // QR 페이지로 이동
-              Navigator.of(context).pop(); // 다이얼로그 닫기
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => QRPage()), // QR 페이지로 이동
-              );
-            },
+  // 결제 확인 팝업
+  void _showPaymentConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('결제 재확인'),
+          content: Text(
+            '지점: ${widget.warehouseName}\n'
+            '유닛 유형: $selectedUnitType\n'
+            '이용 기간: $selectedWeeks 주\n'
+            '결제 금액: ${unitPrice.toString()}원',
           ),
-          TextButton(
-            child: Text('취소'),
-            onPressed: () {
-              Navigator.of(context).pop(); // 다이얼로그 닫기
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              child: Text('결제하기'),
+              onPressed: () {
+                // QR 페이지로 이동
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => QRPage()), // QR 페이지로 이동
+                );
+              },
+            ),
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +287,8 @@ void _showPaymentConfirmation() {
                 SizedBox(height: 5),
                 Text(
                   '결제 금액: ${unitPrice.toString()}원',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // 색상 제거
+                  style: TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold), // 색상 제거
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
