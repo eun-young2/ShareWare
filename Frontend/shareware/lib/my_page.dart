@@ -12,6 +12,15 @@ class _MyPageState extends State<MyPage> {
   bool showProfile = false;
 
   @override
+  void initState() {
+    super.initState();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.isLoggedIn) {
+      authProvider.getProfile(); // 로그인된 상태라면 프로필 정보를 불러옴
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
@@ -31,7 +40,9 @@ class _MyPageState extends State<MyPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: showProfile ? _buildProfileSection() : _buildMainSection(authProvider),
+        child: showProfile
+            ? _buildProfileSection(authProvider)
+            : _buildMainSection(authProvider),
       ),
     );
   }
@@ -107,7 +118,9 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(AuthProvider authProvider) {
+    final profile = authProvider.profile;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -116,14 +129,14 @@ class _MyPageState extends State<MyPage> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         Divider(),
-        _buildProfileItem('이메일', 'example@example.com'),
-        _buildProfileItem('이름', '홍길동'),
+        _buildProfileItem('이메일', profile['user_id'] ?? 'example@example.com'),
+        _buildProfileItem('이름', profile['user_name'] ?? '홍길동'),
         _buildProfileItem(
           '휴대폰 번호',
-          '010-1234-5678',
+          profile['user_phone'] ?? '010-1234-5678',
           trailing: TextButton(
             onPressed: () {
-              // 휴대폰 번호 변경 로직 추가
+              _showPhoneChangeModal(context);
             },
             child: Text('변경', style: TextStyle(color: Colors.blue)),
           ),
@@ -134,9 +147,7 @@ class _MyPageState extends State<MyPage> {
             '회원탈퇴',
             style: TextStyle(color: Colors.grey),
           ),
-          onTap: () {
-            // 회원탈퇴 로직 추가
-          },
+          onTap: () => _showDeleteAccountDialog(context, authProvider),
         ),
       ],
     );
@@ -148,7 +159,8 @@ class _MyPageState extends State<MyPage> {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
         SizedBox(height: 4),
         ListTile(
@@ -163,4 +175,125 @@ class _MyPageState extends State<MyPage> {
       ],
     );
   }
+}
+
+void _showPhoneChangeModal(BuildContext context) {
+  TextEditingController phoneController = TextEditingController();
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (BuildContext context) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom, // 키보드 높이에 맞춰 자동 조절
+          left: 16.0,
+          right: 16.0,
+          top: 16.0,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '휴대폰 번호 변경',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(labelText: '새 휴대폰 번호 입력'),
+            ),
+            SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('취소'),
+                ),
+                SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    // 휴대폰 번호 변경 로직 추가
+                    String newPhoneNumber = phoneController.text;
+                    bool success =
+                        await authProvider.updatePhoneNumber(newPhoneNumber);
+
+                    if (success) {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('휴대폰 번호가 성공적으로 변경되었습니다.')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('휴대폰 번호 변경에 실패했습니다.')),
+                      );
+                    }
+                  },
+                  child: Text('변경'),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+void _showDeleteAccountDialog(BuildContext context, AuthProvider authProvider) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('회원 탈퇴'),
+        content: Text('정말 탈퇴하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('아니요'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // 다이얼로그 닫기
+              //Navigator.of(context).pop();
+
+              // 탈퇴 요청 처리
+              bool success = await authProvider.deleteAccount();
+
+              if (success) {
+                // 프레임이 완전히 끝난 후 페이지 이동
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (Route<dynamic> route) => false,
+                  );
+
+                  // 스낵바 표시
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('회원 탈퇴가 완료되었습니다.')),
+                  );
+                });
+              } else {
+                // 탈퇴 실패 시 스낵바 표시
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('회원 탈퇴에 실패했습니다.')),
+                );
+              }
+            },
+            child: Text('예', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      );
+    },
+  );
 }
