@@ -18,8 +18,6 @@ class QRPage extends StatefulWidget {
 class _QRPageState extends State<QRPage> {
   List<Map<String, String>> branches = []; // DB에서 가져올 데이터
   Map<String, String>? selectedBranch;
-  String? selectedBranchAddress;
-  String? selectedBranchContact;
 
   @override
   void initState() {
@@ -60,6 +58,7 @@ class _QRPageState extends State<QRPage> {
   Widget build(BuildContext context) {
     final qrProvider = Provider.of<QRProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context); // AuthProvider 사용
+    String? userId = authProvider.userId; // 저장된 userId 가져오기
 
     return Scaffold(
       appBar: AppBar(
@@ -83,8 +82,7 @@ class _QRPageState extends State<QRPage> {
                 setState(() {
                   selectedBranch = value; // 선택된 전체 지점 정보 저장
                 });
-                qrProvider.selectBranch(
-                    selectedBranch!); // 선택된 지점 정보를 selectBranch에 전달
+                qrProvider.selectBranch(selectedBranch!); // 선택된 지점 정보를 selectBranch에 전달
               },
               value: selectedBranch,
             ),
@@ -199,61 +197,65 @@ class _QRPageState extends State<QRPage> {
                       );
                     } else {
                       // QR 발급 로직
-                      qrProvider.generateQRCode();
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('보관 물품 등록'),
-                            content: RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        '등록하지 않은 보관물품은\n사고발생 시 배상책임에서 제외될 수 있으며,\n반드시 등록 바랍니다.\n',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  TextSpan(
-                                    text: '보관 불가 물품 보기',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      decoration: TextDecoration.underline,
+                      if (userId != null) {
+                        qrProvider.generateQRCode(userId); // QR 코드 생성
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('보관 물품 등록'),
+                              content: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          '등록하지 않은 보관물품은\n사고발생 시 배상책임에서 제외될 수 있으며,\n반드시 등록 바랍니다.\n',
+                                      style: TextStyle(color: Colors.black),
                                     ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProhibitedItemsPage(),
-                                          ),
-                                        );
-                                      },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('취소'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ManageItemsPage(selectedIndex: 3),
+                                    TextSpan(
+                                      text: '보관 불가 물품 보기',
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProhibitedItemsPage(),
+                                            ),
+                                          );
+                                        },
                                     ),
-                                  );
-                                },
-                                child: Text('등록하기'),
+                                  ],
+                                ),
                               ),
-                            ],
-                          );
-                        },
-                      );
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('취소'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ManageItemsPage(selectedIndex: 3),
+                                      ),
+                                    );
+                                  },
+                                  child: Text('등록하기'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        print('사용자 ID가 없습니다.');
+                      }
                     }
                   },
                   child: Text('입장 QR 발급하기'),

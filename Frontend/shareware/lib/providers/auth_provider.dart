@@ -8,9 +8,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
   String? _token;
+  String? _userId;
 
   bool get isLoggedIn => _isLoggedIn;
   String? get token => _token;
+  String? get userId => _userId;
 
   Future<void> checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -44,4 +46,12 @@ class AuthProvider with ChangeNotifier {
     print('로그아웃 토큰삭제');
     notifyListeners(); // 상태 변화 알림
   }
+  
+    Future<void> setUserId(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId); // SharedPreferences에 저장
+    _userId = userId; // 메모리에도 저장
+    notifyListeners(); // 상태 변화 알림
+  }
+
 }

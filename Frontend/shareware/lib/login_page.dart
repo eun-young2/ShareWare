@@ -46,10 +46,23 @@ class _LoginPageState extends State<LoginPage> {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
       // await prefs.setString('token', data['token']); // 토큰 저장
 
-      // 로그인 성공 시
-      final authProvider = Provider.of<AuthProvider>(context,
-          listen: false); // AuthProvider를 통해 로그인 상태 업데이트
-      await authProvider.login(data['token']); // AuthProvider를 통해 토큰 저장
+       // API 응답 로그 출력
+    print("API Response: $data"); // 여기서 응답을 출력합니다.
+
+     // 로그인 성공 시
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.login(data['token']); // AuthProvider를 통해 토큰 저장
+
+    // userId가 null인지 체크
+    if (data['userId'] != null) {
+      await authProvider.setUserId(data['userId']); // 사용자 ID 저장
+    } else {
+      // userId가 null인 경우 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('사용자 ID가 응답에 없습니다.')),
+      );
+      return; // 더 이상 진행하지 않음
+    }
 
       // 로그인 성공 및 role 체크
       if (isAdminLogin && data['role'] != 'admin') {

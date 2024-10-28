@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:provider/provider.dart';
 
 class QRProvider with ChangeNotifier {
   Uint8List? qrImageData;
   bool isQRGenerated = false;
-  // bool isQRPending = false; // QR 발급 대기 상태 추가
   DateTime? issueTime;
   Timer? _timer;
   Duration remainingTime = Duration(hours: 2);
@@ -16,24 +16,34 @@ class QRProvider with ChangeNotifier {
   String? selectedBranchAddress;
   String? selectedBranchContact;
 
-  Future<void> generateQRCode() async {
+  Future<void> generateQRCode(String userId) async {
     try {
-      final response =
-          await http.get(Uri.parse('http://10.0.2.2:5000/generate_qr'));
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/generate_qr/$userId') // userId를 URL에 포함
+      );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        qrImageData = base64Decode(data['qr_code']);
-        isQRGenerated = true;
-        // isQRPending = false; // QR이 발급되면 대기 상태 해제
-        issueTime = DateTime.now();
-        startTimer();
-        notifyListeners();
+       // print("QR 코드 응답 데이터: $data"); // 응답 데이터 출력
+        
+        // QR 코드가 null인지 체크
+        if (data['qr_code'] != null) {
+          qrImageData = base64.decode(data['qr_code']);
+          isQRGenerated = true;
+          issueTime = DateTime.now();
+          startTimer();
+          notifyListeners();
+        } else {
+          print("QR 코드 데이터가 null입니다.");
+        }
       } else {
+        print('응답 코드: ${response.statusCode}');
+        print('응답 본문: ${response.body}');
         throw Exception('Failed to load QR code');
       }
     } catch (error) {
       print('QR 코드 생성 중 오류 발생: $error');
-    }
+    } 
   }
 
   void startTimer() {
@@ -56,23 +66,15 @@ class QRProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // // QR 발급 대기 상태를 설정하는 함수
-  // void setQRPending(bool pending) {
-  //   isQRPending = pending;
-  //   notifyListeners();
-  // }
-
-  // QR 코드 및 상태 초기화 메서드
   void resetQRCode() {
     qrImageData = null;
     isQRGenerated = false;
-    // isQRPending = false; // 초기화 시 대기 상태도 초기화
     remainingTime = Duration(hours: 2);
     selectedBranchName = null;
     selectedBranchAddress = null;
     selectedBranchContact = null;
-    _timer?.cancel(); // 타이머 취소
-    notifyListeners(); // 상태 업데이트
+    _timer?.cancel();
+    notifyListeners();
   }
 
   @override
