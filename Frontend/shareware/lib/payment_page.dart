@@ -68,13 +68,17 @@ class _PaymentPageState extends State<PaymentPage> {
           onPressed: () {
             setState(() {
               selectedUnitType = label;
-              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice =
+                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
           style: ElevatedButton.styleFrom(
             minimumSize: Size(130, 50),
-            backgroundColor: selectedUnitType == label ? Color(0xFFAFD485) : Colors.grey[300],
-            foregroundColor: selectedUnitType == label ? Colors.white : Colors.black,
+            backgroundColor: selectedUnitType == label
+                ? Color(0xFFAFD485)
+                : Colors.grey[300],
+            foregroundColor:
+                selectedUnitType == label ? Colors.white : Colors.black,
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -99,17 +103,20 @@ class _PaymentPageState extends State<PaymentPage> {
           onPressed: () {
             setState(() {
               if (selectedWeeks > 1) selectedWeeks--;
-              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice =
+                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
         ),
-        Text('$selectedWeeks 주', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('$selectedWeeks 주',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         IconButton(
           icon: Icon(Icons.add),
           onPressed: () {
             setState(() {
               selectedWeeks++;
-              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice =
+                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
         ),
@@ -285,11 +292,12 @@ class _PaymentPageState extends State<PaymentPage> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
-               ElevatedButton(
+                ElevatedButton(
                   onPressed: _showPaymentConfirmation,
                   child: Text('결제하기'),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                     minimumSize: Size(double.infinity, 50), // 버튼의 최소 크기를 설정
                     backgroundColor: Color(0xFFAFD485),
                     shape: RoundedRectangleBorder(
