@@ -8,7 +8,6 @@ import 'package:geolocator/geolocator.dart';
 import 'warehouse_details_page.dart'; // WarehouseDetailsPage import
 import 'warehouse.dart'; // 이 파일을 import
 
-
 const String kakaoMapKey = 'cb8f3da28528e158b5e76f2e88e968b8';
 
 void main() {
@@ -19,7 +18,6 @@ class KakaoMapTest extends StatefulWidget {
   @override
   State<KakaoMapTest> createState() => _KakaoMapTestState();
 }
-
 
 class _KakaoMapTestState extends State<KakaoMapTest> {
   late WebViewController _webViewController;
@@ -108,7 +106,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
         await http.get(Uri.parse('${Config.local}/map/all/warehouses'));
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      print("API 응답 데이터: $data"); // 응답 데이터 출력
+      // print("API 응답 데이터: $data"); // 응답 데이터 출력
       return data.map((item) => Warehouse.fromJson(item)).toList();
     } else {
       throw Exception('창고를 찾을 수 없습니다');
@@ -156,7 +154,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
 
     for (var i = 0; i < limitedWarehouses.length; i++) {
       var warehouse = limitedWarehouses[i];
-      script.writeln(''' 
+      script.writeln('''
       var markerPosition$i = new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon});
       var marker$i = new kakao.maps.Marker({
         position: markerPosition$i
@@ -206,7 +204,8 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
       print("불러온 창고 수: ${_warehouses.length}"); // 불러온 창고 수 출력
 
       // 32번째부터 10개의 창고만 선택하여 마커와 리스트에 표시
-      List<Warehouse> selectedWarehouses = _selectSubsetOfWarehouses(_warehouses);
+      List<Warehouse> selectedWarehouses =
+          _selectSubsetOfWarehouses(_warehouses);
 
       setState(() {
         _warehouses = selectedWarehouses; // 바텀시트에 표시할 창고 정보를 업데이트
@@ -258,128 +257,129 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
   }
 
   @override
-Widget build(BuildContext context) {
-  Size size = MediaQuery.of(context).size;
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('창고찾기'),
-    ),
-    body: Stack(
-      children: [
-        Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  labelText: '창고 검색',
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () {
-                      String searchText = _searchController.text;
-                      if (searchText.isNotEmpty) {
-                        _searchWarehouse(searchText);
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: KakaoMapView(
-                width: size.width,
-                height: 400,
-                kakaoMapKey: kakaoMapKey,
-                lat: _currentLat ?? 0.0,
-                lng: _currentLon ?? 0.0,
-                showMapTypeControl: true,
-                showZoomControl: true,
-                draggableMarker: true,
-                mapType: MapType.BICYCLE,
-                mapController: (controller) {
-                  _webViewController = controller;
-                  _getCurrentLocation();
-                  _loadAllWarehouseCoordinates();
-                },
-                onTapMarker: (message) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(message.message)),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        if (_isLoading)
-          Center(
-            child: CircularProgressIndicator(),
-          ),
-        DraggableScrollableSheet(
-          initialChildSize: 0.2,
-          minChildSize: 0.1,
-          maxChildSize: 0.6,
-          builder: (BuildContext context, ScrollController scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10.0,
-                    spreadRadius: 5.0,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      // 핸들을 클릭하면 기본적인 드래그 동작을 시작할 수 있도록
-                      Scrollable.of(context)?.position?.jumpTo(
-                          Scrollable.of(context)!.position.pixels + 100);
-                    },
-                    child: Container(
-                      width: 60,
-                      height: 8, // 핸들의 높이를 늘림
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      controller: scrollController,
-                      itemCount: _warehouses.length,
-                      itemBuilder: (context, index) {
-                        final warehouse = _warehouses[index];
-                        return ListTile(
-                          title: Text(warehouse.name),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('주소: ${warehouse.address}'),
-                              Text('연락처: ${warehouse.contact}'),
-                              Text('영업시간: ${warehouse.hours}'),
-                              Text(
-                                '주차 가능 여부: ${warehouse.getParkingAvailability()}',
-                              ),
-                            ],
-                          ),
-                          onTap: () => _navigateToWarehouseDetails(warehouse),
-                        );
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('창고찾기'),
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    labelText: '창고 검색',
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        String searchText = _searchController.text;
+                        if (searchText.isNotEmpty) {
+                          _searchWarehouse(searchText);
+                        }
                       },
                     ),
                   ),
-                ],
+                ),
               ),
-            );
-          },
-        ),
-      ],
-    ),
-  );
-}}
+              Expanded(
+                child: KakaoMapView(
+                  width: size.width,
+                  height: 400,
+                  kakaoMapKey: kakaoMapKey,
+                  lat: _currentLat ?? 0.0,
+                  lng: _currentLon ?? 0.0,
+                  showMapTypeControl: true,
+                  showZoomControl: true,
+                  draggableMarker: true,
+                  mapType: MapType.BICYCLE,
+                  mapController: (controller) {
+                    _webViewController = controller;
+                    _getCurrentLocation();
+                    _loadAllWarehouseCoordinates();
+                  },
+                  onTapMarker: (message) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(message.message)),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          if (_isLoading)
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.2,
+            minChildSize: 0.1,
+            maxChildSize: 0.6,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10.0,
+                      spreadRadius: 5.0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        // 핸들을 클릭하면 기본적인 드래그 동작을 시작할 수 있도록
+                        Scrollable.of(context)?.position?.jumpTo(
+                            Scrollable.of(context)!.position.pixels + 100);
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 8, // 핸들의 높이를 늘림
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: _warehouses.length,
+                        itemBuilder: (context, index) {
+                          final warehouse = _warehouses[index];
+                          return ListTile(
+                            title: Text(warehouse.name),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('주소: ${warehouse.address}'),
+                                Text('연락처: ${warehouse.contact}'),
+                                Text('영업시간: ${warehouse.hours}'),
+                                Text(
+                                  '주차 가능 여부: ${warehouse.getParkingAvailability()}',
+                                ),
+                              ],
+                            ),
+                            onTap: () => _navigateToWarehouseDetails(warehouse),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

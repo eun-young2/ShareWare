@@ -164,7 +164,7 @@ class _QRPageState extends State<QRPage> {
                               TextButton(
                                 onPressed: () {
                                   // 로그인 페이지로 이동
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => LoginPage(),

@@ -17,7 +17,8 @@ function verifyToken(req, res, next) {
         req.user = decoded; // 토큰의 페이로드에 있는 사용자 정보를 요청에 추가
         next();
     } catch (error) {
-        return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+    
+        return res.status(401).json({ message: '유효하지 않은 토큰입니다.', error: error.message });
     }
 }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'warehouse.dart'; // Warehouse 모델 클래스를 import
+import 'payment_page.dart'; // 결제 페이지를 import
 
-// 창고 상세 정보 페이지
 class WarehouseDetailsPage extends StatefulWidget {
   final Warehouse warehouse;
 
@@ -12,97 +12,131 @@ class WarehouseDetailsPage extends StatefulWidget {
 }
 
 class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
-  String _currentInfo = "hours"; // 기본 정보는 영업시간으로 설정
+  String _currentInfo = "hours";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''), // 상단바에 지점 이름을 표시하지 않음
+        title: Text(
+          '창고 이용',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 사진 추가
-            Image.asset(
-              'assets/warehouse1.jpg', // 이미지 경로
-              width: double.infinity, // 가로로 꽉 차게 설정
-              height: 200, // 이미지 높이 설정
-              fit: BoxFit.cover, // 이미지 비율 유지
+            Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                  child: Row(
+                    children: [
+                      Text('🌡️', style: TextStyle(fontSize: 18)), // 이모지 크기 원래대로 유지
+                      SizedBox(width: 3),
+                      Text('적정 온도', style: TextStyle(color: Colors.black, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                  child: Row(
+                    children: [
+                      Text('💧', style: TextStyle(fontSize: 18)),
+                      SizedBox(width: 3),
+                      Text('적정 습도', style: TextStyle(color: Colors.black, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 10), // 사진과 지점 이름 간격
+            SizedBox(height: 8),
+            Image.asset(
+              'assets/warehouse1.jpg',
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(height: 8),
             Text(
               widget.warehouse.name,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), // 가장 큰 폰트 설정
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10), // 지점 이름과 주소 간격
+            SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: Text(
                     widget.warehouse.address,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]), // 폰트 크기 조정 및 색상 변경
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.copy, size: 18), // 주소 복사 이모지 크기 조정
+                  icon: Icon(Icons.copy, size: 16),
                   onPressed: () {
-                    // 주소 복사 동작 추가
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('주소가 복사되었습니다: ${widget.warehouse.address}')),
                     );
                   },
-                  padding: EdgeInsets.zero, // 이모지와 텍스트 간의 간격 조정
+                  padding: EdgeInsets.zero,
                 ),
               ],
             ),
-            SizedBox(height: 20), // 주소와 정보 간격
+            SizedBox(height: 16),
             Text(
               '지점 정보',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10), // 지점 정보 제목과 내용 간격
+            SizedBox(height: 8),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _infoButton('🕒', 'hours', '이용안내'), // 영업시간 버튼
-                _infoButton('🚗', 'parking', '주차'), // 주차 버튼
+                _infoButton('🕒', 'hours', '이용안내'),
+                SizedBox(width: 4),
+                VerticalDivider(width: 12, thickness: 1, color: Colors.black),
+                SizedBox(width: 4),
+                _infoButton('P', 'parking', '주차'),
               ],
             ),
-            SizedBox(height: 10), // 버튼과 내용 간격
-            // 구분선 추가
-            Divider(thickness: 1), // 버튼 아래의 구분선
-            SizedBox(height: 10), // 구분선과 내용 간격
-            // 현재 정보를 표시
+            SizedBox(height: 4),
+            Divider(thickness: 1, color: Colors.black),
+            SizedBox(height: 4),
             Text(
-              _currentInfo == 'hours' 
-                  ? '24시간 운영' 
-                  : widget.warehouse.getParkingAvailability(),
-              style: TextStyle(fontSize: 18),
+              '• ${_currentInfo == 'hours' ? '24시간 운영' : widget.warehouse.getParkingAvailability()}',
+              style: TextStyle(fontSize: 16), // 점을 추가하여 리스트 느낌
             ),
-            SizedBox(height: 10), // 내용과 버튼 사이 간격
-            Spacer(), // 위젯 간격 조정
+            Spacer(),
             Container(
-              width: double.infinity, // 가로로 꽉 차게 설정
-              margin: EdgeInsets.only(left: 0, right: 0), // 좌우 여백 0
+              width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // 버튼 클릭 시 동작
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${widget.warehouse.name} 창고를 이용합니다.')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentPage(warehouseName: widget.warehouse.name),
+                    ),
                   );
                 },
                 child: Text('창고 이용하기'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // 배경색을 검은색으로
-                  foregroundColor: Colors.white, // 글씨 색상을 하얀색으로
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero, // 모서리 둥글지 않게
+                    borderRadius: BorderRadius.zero,
                   ),
-                  textStyle: TextStyle(fontSize: 18),
+                  textStyle: TextStyle(fontSize: 16),
                 ),
               ),
             ),
@@ -112,37 +146,35 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
     );
   }
 
-  // 정보 버튼 생성 메서드
   Widget _infoButton(String emoji, String infoType, String label) {
-    bool isSelected = _currentInfo == infoType; // 현재 정보 타입 확인
+    bool isSelected = _currentInfo == infoType;
 
     return Column(
       children: [
         TextButton(
           onPressed: () {
             setState(() {
-              _currentInfo = infoType; // 버튼 클릭 시 정보 변경
+              _currentInfo = infoType;
             });
           },
           child: Column(
             children: [
               Text(
                 emoji,
-                style: TextStyle(fontSize: 28), // 이모지 크기 조정
+                style: TextStyle(fontSize: 18),
               ),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 18,
-                  color: isSelected ? Colors.black : Colors.grey, // 선택된 버튼 색상
+                  fontSize: 14,
+                  color: isSelected ? Colors.black : Colors.grey,
                 ),
               ),
             ],
           ),
         ),
-        // 선택된 버튼 아래 두꺼운 HR선
         if (isSelected)
-          Divider(thickness: 2, color: Colors.black), // 선택된 버튼 아래 두꺼운 선
+          Divider(thickness: 1.5, color: Colors.black),
       ],
     );
   }

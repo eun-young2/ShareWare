@@ -36,6 +36,11 @@ class QRProvider with ChangeNotifier {
         } else {
           print("QR 코드 데이터가 null입니다.");
         }
+        qrImageData = base64Decode(data['qr_code']);
+        isQRGenerated = true;
+        issueTime = DateTime.now();
+        startTimer();
+        notifyListeners();
       } else {
         print('응답 코드: ${response.statusCode}');
         print('응답 본문: ${response.body}');
@@ -66,6 +71,7 @@ class QRProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // QR 코드 및 상태 초기화 메서드
   void resetQRCode() {
     qrImageData = null;
     isQRGenerated = false;

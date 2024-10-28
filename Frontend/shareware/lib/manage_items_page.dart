@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'register_items.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'providers/auth_provider.dart';
+import 'config.dart';
+import 'dart:convert';
+import 'my_warehouse_page.dart';
 
 class ManageItemsPage extends StatefulWidget {
   final int selectedIndex;
@@ -15,12 +21,14 @@ class ManageItemsPage extends StatefulWidget {
 class _ManageItemsPageState extends State<ManageItemsPage> {
   late int _selectedIndex = 0;
   List<Map<String, dynamic>> _items = []; // 물품 목록 상태 변수
-  String _selectedWarehouse = '전체'; // 선택된 지점 상태
+  String? _selectedWarehouse = '전체'; // 선택된 지점 상태
+  List<String> _warehouseList = []; // 지점 목록
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.selectedIndex;
+    _loadUserWarehouses(); // 사용자 지점 정보 불러오기
   }
 
   // 새로운 물품 추가 함수
@@ -35,6 +43,47 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     setState(() {
       _items[index] = newItem; // 수정된 물품으로 업데이트
     });
+  }
+
+  // 사용자 관련 지점 정보 불러오기
+  Future<void> _loadUserWarehouses() async {
+    try {
+      List<String> warehouses = await fetchUserWarehouses(context);
+      setState(() {
+        _warehouseList = warehouses;
+        if (_warehouseList.isNotEmpty) {
+          _selectedWarehouse = _warehouseList.first; // 첫 번째 지점 자동 선택
+        } else {
+          _selectedWarehouse = null; // 지점이 없을 경우 null로 설정
+        }
+      });
+    } catch (e) {
+      print('지점 정보를 불러오는 중 오류 발생: $e');
+    }
+  }
+
+  Future<List<String>> fetchUserWarehouses(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (authProvider.token != null) {
+      final response = await http.get(
+        Uri.parse('${Config.local}/product/user/warehouses'),
+        headers: {
+          'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰 추가
+        },
+      );
+      print('서버 응답 상태 코드: ${response.statusCode}'); // 응답 상태 코드 출력
+      print('서버 응답 본문: ${response.body}'); // 서버 응답 본문 출력
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((item) => item.toString()).toList(); // 지점 목록 반환
+      } else {
+        throw Exception('지점 정보를 불러올 수 없습니다.');
+      }
+    } else {
+      throw Exception('사용자가 인증되지 않았습니다.');
+    }
   }
 
   @override
@@ -53,28 +102,29 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                 Expanded(
                   child: DropdownButton<String>(
                     value: _selectedWarehouse,
-                    items: <String>[
-                      '전체',
-                      '광주 동명점 - unit_idx',
-                      '광주 충장점 - unit_idx',
-                      '광주 구시청점 - unit_idx',
-                    ].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
+                    items: _warehouseList.isNotEmpty
+                        ? _warehouseList.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList()
+                        : [
+                            DropdownMenuItem(value: '전체', child: Text('지점 없음'))
+                          ], // 기본값 설정
                     onChanged: (newValue) {
                       setState(() {
                         _selectedWarehouse = newValue!;
                         // 필터링 로직 여기에 추가 예정
                       });
                     },
+                    hint: Text('지점을 선택하세요'), // 초기 상태에서 힌트 메시지 추가
                   ),
                 ),
               ],
             ),
           ),
+
           Expanded(
             child: ListView.builder(
               itemCount: _items.length,

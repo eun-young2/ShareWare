@@ -74,7 +74,7 @@ class MyWarehousePage extends StatelessWidget {
                         onTap: () {
                           // 로그인 페이지로 이동 (로그아웃 상태일 경우에만 가능)
                           if (!authProvider.isLoggedIn) {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => LoginPage(),
