@@ -72,7 +72,8 @@ class _QRPageState extends State<QRPage> {
           children: [
             // 서버에서 받아온 지점 정보로 DropdownButtonFormField 구성
             DropdownButtonFormField<Map<String, String>>(
-              decoration: InputDecoration(labelText: '지점 선택'),
+              decoration: InputDecoration(labelText: ' '),
+              hint: Text('지점을 선택해주세요'),
               items: branches.map((branch) {
                 return DropdownMenuItem<Map<String, String>>(
                   value: branch, // 전체 지점 정보를 value로 설정

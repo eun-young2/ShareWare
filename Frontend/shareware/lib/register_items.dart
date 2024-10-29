@@ -108,6 +108,9 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
               ),
             ),
             SizedBox(height: 16),
+            Text("지점명"),
+            Text(''), // wh_branch_name 들어갈 자리
+            SizedBox(height: 16),
             Text("물건 이름"),
             TextField(
               controller: _nameController,
