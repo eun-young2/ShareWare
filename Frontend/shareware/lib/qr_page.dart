@@ -82,7 +82,8 @@ class _QRPageState extends State<QRPage> {
                 setState(() {
                   selectedBranch = value; // 선택된 전체 지점 정보 저장
                 });
-                qrProvider.selectBranch(selectedBranch!); // 선택된 지점 정보를 selectBranch에 전달
+                qrProvider.selectBranch(
+                    selectedBranch!); // 선택된 지점 정보를 selectBranch에 전달
               },
               value: selectedBranch,
             ),

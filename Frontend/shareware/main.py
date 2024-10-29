@@ -45,6 +45,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# QR 발급
 @app.get("/generate_qr/{user_id}")
 async def generate_qr(user_id: str):
     db = SessionLocal()
@@ -83,6 +84,7 @@ async def generate_qr(user_id: str):
          # JSON 응답 반환
         return {
             "qr_code": img_base64,
+            "reserv_idx": reservation.reserv_idx,
             "message": "QR code generated successfully"
         }
     except Exception as e:
@@ -92,8 +94,30 @@ async def generate_qr(user_id: str):
     finally:
         db.close()
 
+# QR isvalid=0 업데이트
+@app.put("/invalidate_qr/{reserv_idx}")
+async def invalidate_qr(reserv_idx: int):
+    db = SessionLocal()
+    try:
+        # QR 코드의 유효성을 0으로 설정
+        qr_code_entry = db.query(QRCode).filter(QRCode.reserv_idx == reserv_idx, QRCode.is_valid == 1).first()
+        
+        if not qr_code_entry:
+            raise HTTPException(status_code=404, detail="QR code not found or already invalidated")
+        
+        qr_code_entry.is_valid = 0  # is_valid를 0으로 설정하여 무효화
+        db.commit()
+        db.refresh(qr_code_entry)  # 새로고침하여 변경된 상태 확인
+        
+        return {"message": "QR code invalidated successfully"}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     import uvicorn
-    Base.metadata.drop_all(bind=engine)  # 기존 테이블 삭제
-    Base.metadata.create_all(bind=engine)  # 새 테이블 생성
+   # Base.metadata.drop_all(bind=engine)  # 기존 테이블 삭제
+   # Base.metadata.create_all(bind=engine)  # 새 테이블 생성
     uvicorn.run(app, host="127.0.0.1", port=8000)

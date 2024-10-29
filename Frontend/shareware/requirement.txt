@@ -1,12 +1,10 @@
 fastapi
 uvicorn
 qrcode[pil]
-
 fastapi
 uvicorn
 sqlalchemy
 pymysql
 qrcode
-
 pymysql
 cryptography

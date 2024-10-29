@@ -15,22 +15,24 @@ class QRProvider with ChangeNotifier {
   String? selectedBranchName;
   String? selectedBranchAddress;
   String? selectedBranchContact;
+  int? reservIdx; // 예약 인덱스를 저장할 변수 추가
 
   Future<void> generateQRCode(String userId) async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/generate_qr/$userId') // userId를 URL에 포함
-      );
+      final response = await http.get(Uri.parse(
+              'http://10.0.2.2:8000/generate_qr/$userId') // userId를 URL에 포함
+          );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-       // print("QR 코드 응답 데이터: $data"); // 응답 데이터 출력
-        
+        // print("QR 코드 응답 데이터: $data"); // 응답 데이터 출력
+
         // QR 코드가 null인지 체크
         if (data['qr_code'] != null) {
           qrImageData = base64.decode(data['qr_code']);
           isQRGenerated = true;
           issueTime = DateTime.now();
+          reservIdx = data['reserv_idx']; // reserv_idx를 저장
           startTimer();
           notifyListeners();
         } else {
@@ -48,7 +50,7 @@ class QRProvider with ChangeNotifier {
       }
     } catch (error) {
       print('QR 코드 생성 중 오류 발생: $error');
-    } 
+    }
   }
 
   void startTimer() {
@@ -72,13 +74,30 @@ class QRProvider with ChangeNotifier {
   }
 
   // QR 코드 및 상태 초기화 메서드
-  void resetQRCode() {
+  Future<void> resetQRCode() async {
+    if (issueTime != null && reservIdx != null) {
+      try {
+        final response = await http.put(
+          Uri.parse('http://10.0.2.2:8000/invalidate_qr/$reservIdx'),
+        );
+
+        if (response.statusCode == 200) {
+          print('QR 코드 무효화 성공');
+        } else {
+          print('QR 코드 무효화 실패: ${response.statusCode}');
+        }
+      } catch (error) {
+        print('QR 코드 무효화 요청 중 오류 발생: $error');
+      }
+    }
+
     qrImageData = null;
     isQRGenerated = false;
     remainingTime = Duration(hours: 2);
     selectedBranchName = null;
     selectedBranchAddress = null;
     selectedBranchContact = null;
+    reservIdx = null; // reservIdx 초기화
     _timer?.cancel();
     notifyListeners();
   }
