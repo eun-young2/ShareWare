@@ -9,10 +9,12 @@ import '../config.dart';
 class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
   String? _token;
-  Map<String, String> _profile = {}; // 사용자 프로필 정보를 저장할 변수
+  String? _userId;
 
   bool get isLoggedIn => _isLoggedIn;
   String? get token => _token;
+  String? get userId => _userId;
+  Map<String, String> _profile = {}; // 사용자 프로필 정보를 저장할 변수
   Map<String, String> get profile => _profile;
 
   Future<void> checkLoginStatus() async {
@@ -48,6 +50,12 @@ class AuthProvider with ChangeNotifier {
     _token = null;
     _profile = {}; // 프로필 정보 초기화
     print('로그아웃 토큰삭제');
+    notifyListeners(); // 상태 변화 알림
+  }
+    Future<void> setUserId(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId); // SharedPreferences에 저장
+    _userId = userId; // 메모리에도 저장
     notifyListeners(); // 상태 변화 알림
   }
 

@@ -46,6 +46,7 @@ router.post('/login', async (req, res) => {
             if (results.length > 0) {
                 const user = results[0];
 
+
                 // 비밀번호 확인
                 const isPasswordMatch = await bcrypt.compare(password, user.user_pw);
                 if (isPasswordMatch) {
@@ -55,8 +56,10 @@ router.post('/login', async (req, res) => {
                     // 로그인 성공 시 토큰과 함께 반환
                     return res.status(200).json({
                         message: '로그인 성공',
+                        userId: user.user_id, // 사용자 ID 추가
                         role: user.user_type,
                         token: token, // JWT 토큰 전달
+                        
                     });
                 } else {
                     return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });

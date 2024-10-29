@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart'; // SharedPreference
 import 'providers/auth_provider.dart'; // AuthProvider 추가
 import 'main.dart';
 import 'signup_page.dart';
+import 'admin_main_page.dart'; // 추가
 
 class LoginPage extends StatefulWidget {
   @override
@@ -42,14 +43,23 @@ class _LoginPageState extends State<LoginPage> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      // // 로그인 성공 시 토큰 저장
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // await prefs.setString('token', data['token']); // 토큰 저장
+      // API 응답 로그 출력
+      print("API Response: $data"); // 여기서 응답을 출력합니다.
 
       // 로그인 성공 시
-      final authProvider = Provider.of<AuthProvider>(context,
-          listen: false); // AuthProvider를 통해 로그인 상태 업데이트
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.login(data['token']); // AuthProvider를 통해 토큰 저장
+
+      // userId가 null인지 체크
+      if (data['userId'] != null) {
+        await authProvider.setUserId(data['userId']); // 사용자 ID 저장
+      } else {
+        // userId가 null인 경우 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사용자 ID가 응답에 없습니다.')),
+        );
+        return; // 더 이상 진행하지 않음
+      }
 
       // 로그인 성공 및 role 체크
       if (isAdminLogin && data['role'] != 'admin') {
@@ -59,10 +69,19 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         print('로그인 성공');
         // 추가 로직 (예: 대시보드로 이동)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainPage()),
-        ); // 대시보드로 이동
+        if (isAdminLogin) {
+          // 관리자로 로그인 시 관리자 메인 페이지로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminMainPage()),
+          );
+        } else {
+          // 일반 사용자 로그인 시 메인 페이지로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainPage()),
+          );
+        }
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -93,19 +112,11 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else {
         print('로그인되지 않음: ${response.body}');
-        // 로그인되지 않으면 로그인 페이지로 이동하거나 다른 처리
       }
     } else {
       print('저장된 토큰이 없습니다. 로그인이 필요합니다.');
-      // 토큰이 없을 경우 로그인 페이지로 이동하거나 다른 처리
     }
   }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   checkLoginStatus(); // 로그인 상태 확인
-  // }
 
   @override
   void initState() {
@@ -159,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isAdminLogin
                         ? customGreen
-                        : customGray, // primary 대신 backgroundColor 사용
+                        : customGray,
                   ),
                   child: Text('관리자 로그인', style: TextStyle(color: Colors.white)),
                 ),
@@ -171,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: usernameController,
               decoration: InputDecoration(
-                labelText: isAdminLogin ? '관리자 아이디' : '아이디', // 선택에 따라 레이블 변경
+                labelText: isAdminLogin ? '관리자 아이디' : '아이디',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -187,8 +198,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // 로그인 로직 (사용자/관리자에 따른 처리 추가 예정)
-                login();
+                login(); // 로그인 로직
               },
               child: Text('로그인'),
             ),
@@ -197,8 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                 // 회원가입 페이지로 이동
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => SignupPage()), // SignupPage로 이동
+                  MaterialPageRoute(builder: (context) => SignupPage()), // SignupPage로 이동
                 );
               },
               child: Text('회원가입'),
