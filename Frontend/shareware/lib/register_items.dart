@@ -27,16 +27,17 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
   final ImagePicker _picker = ImagePicker();
   List<XFile> _images = [];
   List<String> _encodedImages = []; // base64 인코딩된 이미지 리스트
+  bool _isEditing = false; // 수정 모드 확인 변수 추가
 
   @override
   void initState() {
     super.initState();
     if (widget.existingItem != null) {
-      _nameController.text = widget.existingItem!['name'];
-      _descriptionController.text = widget.existingItem!['description'];
-      _images = (widget.existingItem!['images'] as List<String>)
-          .map((path) => XFile(path))
-          .toList();
+      _isEditing = true;
+      _nameController.text = widget.existingItem!['prod_name'];
+      _descriptionController.text = widget.existingItem!['prod_info'];
+      _encodedImages =
+          List<String>.from(widget.existingItem!['prod_img'] ?? []);
     }
   }
 
@@ -132,37 +133,57 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     });
   }
 
-  Future<void> _registerItem() async {
+  // 물품 등록 및 수정 함수
+  Future<void> _submitItem() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userId = authProvider.userId;
+    final url = _isEditing
+        ? '${Config.local}/product/update/${widget.existingItem!['prod_idx']}' // 수정 요청 URL
+        : '${Config.local}/product/register'; // 등록 요청 URL
 
-    // 서버에 물품 등록 요청
-    final response = await http.post(
-      Uri.parse('${Config.local}/product/register'),
+    final prodImgData = _encodedImages.isNotEmpty
+        ? _encodedImages
+        : (widget.existingItem?['prod_img'] ?? null);
+
+    // 요청 바디 생성
+    final requestBody = {
+      'user_id': userId,
+      'wh_idx': widget.selectedWarehouseData?['wh_idx'],
+      'unit_idx': widget.selectedWarehouseData?['unit_idx'],
+      'prod_name': _nameController.text,
+      'prod_info': _descriptionController.text,
+    };
+
+    // prod_img가 있을 때만 requestBody에 추가
+    if (prodImgData != null && prodImgData.isNotEmpty) {
+      requestBody['prod_img'] = prodImgData;
+    }
+
+    // 서버에 물품 등록 및 수정 요청
+    final response = await (_isEditing ? http.put : http.post)(
+      Uri.parse(url),
       headers: {
         'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({
-        'user_id': userId, // user_id를 포함하여 서버로 전송
-        'wh_idx': widget.selectedWarehouseData?['wh_idx'],
-        'unit_idx': widget.selectedWarehouseData?['unit_idx'],
-        'prod_name': _nameController.text,
-        'prod_info': _descriptionController.text,
-        'prod_img': _encodedImages, // base64 인코딩된 이미지 배열 전송
-      }),
+      body: jsonEncode(requestBody),
     );
 
     // 서버 응답 상태 코드와 본문 출력
     print('서버 응답 상태 코드: ${response.statusCode}');
     print('서버 응답 본문: ${response.body}');
 
-    if (response.statusCode == 201) {
-      print('물건이 성공적으로 등록되었습니다.');
-      widget.onSubmit(jsonDecode(response.body)); // 성공 시 콜백 호출
+    if (response.statusCode == (_isEditing ? 200 : 201)) {
+      print(_isEditing ? '물품이 성공적으로 수정되었습니다.' : '물품이 성공적으로 등록되었습니다.');
+      final updatedItem = jsonDecode(response.body); // 서버에서 반환된 수정된 데이터
+      widget.onSubmit(updatedItem); // UI 업데이트 위해 콜백 호출
       Navigator.pop(context);
     } else {
       print('등록 실패: ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('물품 ${_isEditing ? '수정' : '등록'} 실패: 서버 오류가 발생했습니다.')),
+      );
     }
   }
 
@@ -177,7 +198,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
             Navigator.pop(context);
           },
         ),
-        title: Text(widget.existingItem == null ? '내 물건 등록' : '내 물건 수정'),
+        title: Text(_isEditing ? '내 물건 등록' : '내 물건 수정'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -244,11 +265,11 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
               );
               return;
             } else {
-              _registerItem();
+              _submitItem();
             }
           },
           child: Text(
-            '작성 완료',
+            _isEditing ? '수정 완료' : '작성 완료',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,

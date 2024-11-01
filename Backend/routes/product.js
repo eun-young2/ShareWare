@@ -107,6 +107,60 @@ router.post('/register', verifyToken, async (req, res) => {
   }
 });
 
+// 물품 수정 API
+router.put('/update/:prod_idx', verifyToken, async (req, res) => {
+
+    try {
+        const userId = req.user.userid;
+        const prod_idx = parseInt(req.params.prod_idx, 10); 
+
+        const { prod_name, prod_info, prod_img, wh_idx, unit_idx } = req.body;
+
+        if (!userId || !prod_idx || !prod_name) {
+            return res.status(400).json({ error: '필수 필드가 누락되었습니다.' });
+        }
+
+        // prod_img가 null인지 여부에 따라 다른 쿼리를 생성
+        let query = `
+            UPDATE tb_product
+            SET prod_name = ?, prod_info = ?, wh_idx = ?, unit_idx = ?, updated_at = NOW()
+        `;
+        const queryParams = [prod_name, prod_info, wh_idx, unit_idx];
+
+        // prod_img가 null이 아니고 배열이 존재하면 prod_img도 업데이트
+        if (prod_img && prod_img.length > 0) {
+            query += `, prod_img = ?`;
+            queryParams.push(JSON.stringify(prod_img));
+        }
+
+        query += ` WHERE prod_idx = ? AND user_id = ?`;
+        queryParams.push(prod_idx, userId);
+
+        const [result] = await conn.promise().query(query, queryParams);
+
+        if (result.affectedRows > 0) {
+            // 수정된 항목 데이터를 포함하여 응답
+            return res.status(200).json({
+                success: true,
+                message: '물품이 성공적으로 수정되었습니다.',
+                data: {
+                    prod_idx,
+                    prod_name,
+                    prod_info,
+                    prod_img,
+                    wh_idx,
+                    unit_idx
+                }
+            });
+        } else {
+            return res.status(404).json({ error: `물품 수정 실패 : 물품을 찾을 수 없거나 수정할 권한이 없습니다. prod_idx=${prod_idx}, user_id=${userId}` });
+        }
+    } catch (error) {
+        console.error('서버 오류:', error);
+        return res.status(500).json({ error: '서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.' });
+    }
+});
+
 // 물품 삭제 API
 router.delete('/delete/:prod_idx', verifyToken, async (req, res) => {
     try {
@@ -129,11 +183,9 @@ router.delete('/delete/:prod_idx', verifyToken, async (req, res) => {
             console.log(`물품 삭제 성공: prod_idx=${prod_idx}, user_id=${userId}`);
             return res.status(200).json({ success: true, message: '물품이 성공적으로 삭제되었습니다.' });
         } else {
-            console.warn(`물품 삭제 실패: 물품이 존재하지 않거나 사용자 권한이 없습니다. prod_idx=${prod_idx}, user_id=${userId}`);
-            return res.status(404).json({ error: '물품을 찾을 수 없거나 삭제할 권한이 없습니다.' });
+            return res.status(404).json({ error: `물품 삭제 실패: 물품이 존재하지 않거나 사용자 권한이 없습니다. prod_idx=${prod_idx}, user_id=${userId}` });
         }
     } catch (error) {
-        console.error('서버 오류:', error);
         return res.status(500).json({ error: '서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.' });
     }
 });

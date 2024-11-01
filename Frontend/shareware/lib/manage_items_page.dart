@@ -33,68 +33,35 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     _loadUserWarehouses(); // 사용자 지점 정보 불러오기
   }
 
-  // 새로운 물품 추가 함수
-  void _addItem(Map<String, dynamic> item) {
-    setState(() {
-      _items.add({
-        'name': item['name'] ?? '이름 없음', // name이 없으면 기본값 설정
-        'description': item['description'] ?? '설명 없음',
-        'prod_img': item['prod_img'] ?? []
-      });
-    });
-  }
-
-  // 물품 수정 함수
-  void _editItem(int index, Map<String, dynamic> newItem) {
-    setState(() {
-      _items[index] = newItem; // 수정된 물품으로 업데이트
-    });
-  }
-
-  // 물품 삭제 요청 함수
-  Future<void> _deleteItem(int prodIdx) async {
+  // 서버로부터 사용자의 지점 정보 가져오기
+  Future<List<Map<String, dynamic>>> fetchUserWarehouses(
+      BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    print('삭제 요청 prodIdx: $prodIdx'); // prodIdx 값 확인용 로그
-
-    try {
-      final response = await http.delete(
-        Uri.parse('${Config.local}/product/delete/$prodIdx'),
+    if (authProvider.token != null) {
+      final response = await http.get(
+        Uri.parse('${Config.local}/product/user/warehouses'),
         headers: {
           'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
         },
       );
+      print('서버 응답 상태 코드: ${response.statusCode}');
+      print('서버 응답 본문: ${response.body}');
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('물품이 성공적으로 삭제되었습니다.')),
-        );
-        print('물품이 성공적으로 삭제되었습니다.');
-
-        // 삭제된 물품 데이터가 포함되어 있던 캐시 삭제
-        if (_selectedWarehouse != null) {
-          final cacheKey =
-              '${_selectedWarehouse!['wh_idx']}-${_selectedWarehouse!['unit_idx']}';
-          _cachedItems.remove(cacheKey);
-        }
-
-        await _loadItemsForSelectedWarehouse(); // 물품 목록을 다시 로드하여 UI 업데이트
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.cast<
+            Map<String,
+                dynamic>>(); // unit_idx, wh_branch_name을 포함한 지점 정보 리스트 반환
       } else {
-        print('물품 삭제 실패: ${response.statusCode}');
-        print('서버 응답 메시지: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('물품 삭제 실패: 서버 오류가 발생했습니다.')),
-        );
+        throw Exception('지점 정보를 불러올 수 없습니다.');
       }
-    } catch (e) {
-      print('물품 삭제 요청 중 오류 발생: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('물품 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.')),
-      );
+    } else {
+      throw Exception('사용자가 인증되지 않았습니다.');
     }
   }
 
-  // 사용자 관련 지점 정보 불러오기
+  // 지점 데이터를 가져온 후, UI 상태 업데이트
   Future<void> _loadUserWarehouses() async {
     try {
       List<Map<String, dynamic>> warehouses =
@@ -116,7 +83,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     }
   }
 
-  // 사용자의 선택한 지점, 유닛에 해당하는 물품 목록 불러오기
+  // 사용자가 선택한 지점, 유닛에 해당하는 보관 물품 목록 불러오기
   Future<void> _loadItemsForSelectedWarehouse() async {
     if (_selectedWarehouse == null) return;
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -163,30 +130,67 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchUserWarehouses(
-      BuildContext context) async {
+  // 새로운 물품 등록 함수
+  void _addItem(Map<String, dynamic> item) {
+    setState(() {
+      _items.add({
+        'name': item['name'] ?? '이름 없음', // name이 없으면 기본값 설정
+        'description': item['description'] ?? '설명 없음',
+        'prod_img': item['prod_img'] ?? []
+      });
+    });
+  }
+
+  void _editItem(int index, Map<String, dynamic> newItem) {
+    print("Edited item data: $newItem"); // 전달된 데이터 확인
+    setState(() {
+      _items[index] = {
+        ..._items[index],
+        ...newItem['data'] // 기존 데이터를 유지하면서 새로운 데이터 업데이트
+      };
+    });
+  }
+
+  // 물품 삭제 함수
+  Future<void> _deleteItem(int prodIdx) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    if (authProvider.token != null) {
-      final response = await http.get(
-        Uri.parse('${Config.local}/product/user/warehouses'),
+    print('삭제 요청 prodIdx: $prodIdx'); // prodIdx 값 확인용 로그
+
+    try {
+      final response = await http.delete(
+        Uri.parse('${Config.local}/product/delete/$prodIdx'),
         headers: {
-          'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰 추가
+          'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
         },
       );
-      print('서버 응답 상태 코드: ${response.statusCode}');
-      print('서버 응답 본문: ${response.body}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return data.cast<
-            Map<String,
-                dynamic>>(); // unit_idx, wh_branch_name을 포함한 지점 정보 리스트 반환
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('물품이 성공적으로 삭제되었습니다.')),
+        );
+        print('물품이 성공적으로 삭제되었습니다.');
+
+        // 삭제된 물품 데이터가 포함되어 있던 캐시 삭제
+        if (_selectedWarehouse != null) {
+          final cacheKey =
+              '${_selectedWarehouse!['wh_idx']}-${_selectedWarehouse!['unit_idx']}';
+          _cachedItems.remove(cacheKey);
+        }
+
+        await _loadItemsForSelectedWarehouse(); // 물품 목록을 다시 로드하여 UI 업데이트
       } else {
-        throw Exception('지점 정보를 불러올 수 없습니다.');
+        print('물품 삭제 실패: ${response.statusCode}');
+        print('서버 응답 메시지: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('물품 삭제 실패: 서버 오류가 발생했습니다.')),
+        );
       }
-    } else {
-      throw Exception('사용자가 인증되지 않았습니다.');
+    } catch (e) {
+      print('물품 삭제 요청 중 오류 발생: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('물품 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.')),
+      );
     }
   }
 
@@ -267,6 +271,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                                   _editItem(index, editedItem);
                                 },
                                 existingItem: _items[index],
+                                selectedWarehouseData: _selectedWarehouse,
                               ),
                             ),
                           );
@@ -288,7 +293,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                                   TextButton(
                                     child: Text('삭제'),
                                     onPressed: () {
-                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                                      Navigator.of(context).pop();
                                       _deleteItem(prodIdx); // 삭제 요청 호출
                                     },
                                   ),
