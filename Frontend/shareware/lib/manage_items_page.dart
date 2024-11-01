@@ -21,8 +21,10 @@ class ManageItemsPage extends StatefulWidget {
 class _ManageItemsPageState extends State<ManageItemsPage> {
   late int _selectedIndex = 0;
   List<Map<String, dynamic>> _items = []; // 물품 목록 상태 변수
-  String? _selectedWarehouse = '전체'; // 선택된 지점 상태
-  List<String> _warehouseList = []; // 지점 목록
+  Map<String, dynamic>? _selectedWarehouse; // 선택된 지점 상태
+  List<Map<String, dynamic>> _warehouseList =
+      []; // 지점 목록 (unit_idx, wh_branch_name 포함)
+  Map<String, List<Map<String, dynamic>>> _cachedItems = {}; // 물품 목록 캐시 저장소
 
   @override
   void initState() {
@@ -34,7 +36,11 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
   // 새로운 물품 추가 함수
   void _addItem(Map<String, dynamic> item) {
     setState(() {
-      _items.add(item); // 전달된 물품을 리스트에 추가
+      _items.add({
+        'name': item['name'] ?? '이름 없음', // name이 없으면 기본값 설정
+        'description': item['description'] ?? '설명 없음',
+        'prod_img': item['prod_img'] ?? []
+      });
     });
   }
 
@@ -45,24 +51,120 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     });
   }
 
+  // 물품 삭제 요청 함수
+  Future<void> _deleteItem(int prodIdx) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    print('삭제 요청 prodIdx: $prodIdx'); // prodIdx 값 확인용 로그
+
+    try {
+      final response = await http.delete(
+        Uri.parse('${Config.local}/product/delete/$prodIdx'),
+        headers: {
+          'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
+        },
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('물품이 성공적으로 삭제되었습니다.')),
+        );
+        print('물품이 성공적으로 삭제되었습니다.');
+
+        // 삭제된 물품 데이터가 포함되어 있던 캐시 삭제
+        if (_selectedWarehouse != null) {
+          final cacheKey =
+              '${_selectedWarehouse!['wh_idx']}-${_selectedWarehouse!['unit_idx']}';
+          _cachedItems.remove(cacheKey);
+        }
+
+        await _loadItemsForSelectedWarehouse(); // 물품 목록을 다시 로드하여 UI 업데이트
+      } else {
+        print('물품 삭제 실패: ${response.statusCode}');
+        print('서버 응답 메시지: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('물품 삭제 실패: 서버 오류가 발생했습니다.')),
+        );
+      }
+    } catch (e) {
+      print('물품 삭제 요청 중 오류 발생: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('물품 삭제 중 오류가 발생했습니다. 다시 시도해 주세요.')),
+      );
+    }
+  }
+
   // 사용자 관련 지점 정보 불러오기
   Future<void> _loadUserWarehouses() async {
     try {
-      List<String> warehouses = await fetchUserWarehouses(context);
-      setState(() {
-        _warehouseList = warehouses;
-        if (_warehouseList.isNotEmpty) {
-          _selectedWarehouse = _warehouseList.first; // 첫 번째 지점 자동 선택
-        } else {
-          _selectedWarehouse = null; // 지점이 없을 경우 null로 설정
-        }
-      });
+      List<Map<String, dynamic>> warehouses =
+          await fetchUserWarehouses(context);
+      if (warehouses.isNotEmpty) {
+        setState(() {
+          _warehouseList = warehouses;
+          _selectedWarehouse = _warehouseList.first; // 기본적으로 첫번째 지점 선택
+        });
+        await _loadItemsForSelectedWarehouse(); // 선택된 지점의 물품 목록 로드
+      } else {
+        setState(() {
+          _warehouseList = [];
+          _selectedWarehouse = null;
+        });
+      }
     } catch (e) {
       print('지점 정보를 불러오는 중 오류 발생: $e');
     }
   }
 
-  Future<List<String>> fetchUserWarehouses(BuildContext context) async {
+  // 사용자의 선택한 지점, 유닛에 해당하는 물품 목록 불러오기
+  Future<void> _loadItemsForSelectedWarehouse() async {
+    if (_selectedWarehouse == null) return;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    if (authProvider.token != null) {
+      final whIdx = _selectedWarehouse!['wh_idx'];
+      final unitIdx = _selectedWarehouse!['unit_idx'];
+      final cacheKey = '$whIdx-$unitIdx';
+
+      // 캐시에 해당 키가 있는지 확인
+      if (_cachedItems.containsKey(cacheKey)) {
+        setState(() {
+          _items = _cachedItems[cacheKey]!; // 캐시된 데이터 사용
+        });
+        print('캐시에서 데이터 로드됨: $cacheKey');
+        return; // 캐시된 데이터 사용 후 함수 종료
+      }
+
+      try {
+        final response = await http.get(
+          Uri.parse(
+              '${Config.local}/product/items?wh_idx=$whIdx&unit_idx=$unitIdx'),
+          headers: {
+            'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
+          },
+        );
+
+        print('서버 응답 상태 코드: ${response.statusCode}');
+        print('서버 응답 본문: ${response.body}');
+
+        if (response.statusCode == 200) {
+          final List<dynamic> data = jsonDecode(response.body);
+          setState(() {
+            _items = data.cast<Map<String, dynamic>>(); // 물품 목록을 업데이트
+            _cachedItems[cacheKey] = _items; // 캐시에 데이터 저장
+          });
+        } else {
+          print('에러 상태 코드: ${response.statusCode}');
+          print('에러 메시지: ${response.body}'); // 서버로부터 받은 오류 메시지 출력
+        }
+      } catch (e) {
+        print('물품 목록을 불러오는 중 오류 발생: $e');
+      }
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchUserWarehouses(
+      BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     if (authProvider.token != null) {
@@ -72,12 +174,14 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
           'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰 추가
         },
       );
-      print('서버 응답 상태 코드: ${response.statusCode}'); // 응답 상태 코드 출력
-      print('서버 응답 본문: ${response.body}'); // 서버 응답 본문 출력
+      print('서버 응답 상태 코드: ${response.statusCode}');
+      print('서버 응답 본문: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((item) => item.toString()).toList(); // 지점 목록 반환
+        return data.cast<
+            Map<String,
+                dynamic>>(); // unit_idx, wh_branch_name을 포함한 지점 정보 리스트 반환
       } else {
         throw Exception('지점 정보를 불러올 수 없습니다.');
       }
@@ -100,31 +204,34 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: DropdownButton<String>(
+                  child: DropdownButton<Map<String, dynamic>>(
                     value: _selectedWarehouse,
                     items: _warehouseList.isNotEmpty
-                        ? _warehouseList.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
+                        ? _warehouseList.map((Map<String, dynamic> warehouse) {
+                            final displayText =
+                                '${warehouse['wh_branch_name']} - ${warehouse['unit_idx']}';
+                            return DropdownMenuItem<Map<String, dynamic>>(
+                              value: warehouse,
+                              child: Text(displayText),
                             );
                           }).toList()
                         : [
-                            DropdownMenuItem(value: '전체', child: Text('지점 없음'))
-                          ], // 기본값 설정
+                            DropdownMenuItem(
+                                value: null, child: Text('사용 중인 창고가 없습니다'))
+                          ],
                     onChanged: (newValue) {
                       setState(() {
-                        _selectedWarehouse = newValue!;
-                        // 필터링 로직 여기에 추가 예정
+                        _selectedWarehouse = newValue;
                       });
+                      if (newValue != null) {
+                        _loadItemsForSelectedWarehouse(); // 선택된 지점의 물품 목록 로드
+                      }
                     },
-                    hint: Text('지점을 선택하세요'), // 초기 상태에서 힌트 메시지 추가
                   ),
                 ),
               ],
             ),
           ),
-
           Expanded(
             child: ListView.builder(
               itemCount: _items.length,
@@ -132,35 +239,63 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                 return Card(
                   margin: EdgeInsets.all(10),
                   child: ListTile(
-                    leading: _items[index]['images'].isNotEmpty
-                        ? Image.file(File(_items[index]['images'][0]),
-                            width: 50, height: 50)
-                        : Icon(Icons.image, size: 50), // 물품 이미지 자리
-                    title: Text(_items[index]['name']!),
+                    leading: (_items[index]['prod_img'] != null &&
+                            _items[index]['prod_img'] is String)
+                        ? Image.memory(
+                            base64Decode(_items[index]
+                                ['prod_img']), // Base64 디코딩하여 이미지 표시
+                            width: 50,
+                            height: 50,
+                          )
+                        : Icon(Icons.image, size: 50), // 이미지가 없을 경우 기본 아이콘 표시
+
+                    title: Text(_items[index]['prod_name'] ?? '이름 없음'),
                     subtitle: Text(
-                      _items[index]['description']!,
-                      maxLines: 3, // 최대 3줄까지만 노출
-                      overflow: TextOverflow.ellipsis, // 초과된 부분은 '...'으로 처리
+                      _items[index]['prod_info'] ?? '설명 없음',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
+
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {
-                          // 수정 로직 - 선택한 아이템의 상세 페이지로 이동
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => RegisterItemsPage(
                                 onSubmit: (editedItem) {
-                                  _editItem(index, editedItem); // 수정된 아이템 업데이트
+                                  _editItem(index, editedItem);
                                 },
-                                existingItem: _items[index], // 선택한 아이템 정보 전달
+                                existingItem: _items[index],
                               ),
                             ),
                           );
                         } else if (value == 'delete') {
-                          setState(() {
-                            _items.removeAt(index);
-                          });
+                          final prodIdx = _items[index]['prod_idx'];
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('삭제 확인'),
+                                content: Text('이 물품을 삭제하시겠습니까?'),
+                                actions: [
+                                  TextButton(
+                                    child: Text('취소'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text('삭제'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // 다이얼로그 닫기
+                                      _deleteItem(prodIdx); // 삭제 요청 호출
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
                       itemBuilder: (BuildContext context) {
@@ -194,7 +329,8 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => RegisterItemsPage(
-                  onSubmit: _addItem, // RegisterItemsPage에서 물품을 추가할 때 호출
+                  onSubmit: _addItem,
+                  selectedWarehouseData: _selectedWarehouse, // 선택된 창고 데이터 전달
                 ),
               ),
             );

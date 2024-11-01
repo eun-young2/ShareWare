@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
+import 'config.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class RegisterItemsPage extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
-  final Map<String, dynamic>? existingItem; // 기존 아이템을 수정할 때 전달되는 데이터
+  final Map<String, dynamic>? existingItem;
+  final Map<String, dynamic>? selectedWarehouseData;
 
-  RegisterItemsPage({required this.onSubmit, this.existingItem});
+  RegisterItemsPage(
+      {required this.onSubmit, this.existingItem, this.selectedWarehouseData});
 
   @override
   _RegisterItemsPageState createState() => _RegisterItemsPageState();
@@ -14,19 +23,16 @@ class RegisterItemsPage extends StatefulWidget {
 
 class _RegisterItemsPageState extends State<RegisterItemsPage> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _quantityController =
-      TextEditingController(text: '1'); // 물건수량 초기값 1
   final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  List<XFile> _images = []; // 이미지 리스트
+  List<XFile> _images = [];
+  List<String> _encodedImages = []; // base64 인코딩된 이미지 리스트
 
   @override
   void initState() {
     super.initState();
-    // 기존 아이템이 있을 경우 필드에 데이터 미리 채우기
     if (widget.existingItem != null) {
       _nameController.text = widget.existingItem!['name'];
-      _quantityController.text = widget.existingItem!['quantity'];
       _descriptionController.text = widget.existingItem!['description'];
       _images = (widget.existingItem!['images'] as List<String>)
           .map((path) => XFile(path))
@@ -34,14 +40,50 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     }
   }
 
-  // 카메라에서 사진 촬영
-  Future<void> _pickImage() async {
+  // 갤러리에 이미지 저장 메서드
+  Future<void> _saveImageToGallery(XFile image) async {
+    // 저장 권한 요청
+    PermissionStatus status = await Permission.storage.request();
+
+    // 권한이 거부된 경우 권한 요청
+    if (!status.isGranted) {
+      status = await Permission.storage.request();
+    }
+
+    if (status.isGranted) {
+      try {
+        // 이미지 저장 경로 지정
+        final directory = await getExternalStorageDirectory();
+        final imagePath =
+            "${directory?.path}/${DateTime.now().toIso8601String()}.jpg";
+        final File newImage = await File(image.path).copy(imagePath);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("이미지가 갤러리에 저장되었습니다: ${newImage.path}")),
+        );
+      } catch (e) {
+        print("이미지 저장 오류: $e");
+      }
+    } else if (status.isDenied || status.isPermanentlyDenied) {
+      // 권한 요청 실패 시 사용자에게 안내
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("갤러리 저장 권한이 필요합니다. 설정에서 권한을 허용해주세요.")),
+      );
+      // 권한이 거부되었을 경우 설정 페이지로 이동
+      await openAppSettings();
+    }
+  }
+
+  // 이미지 선택 메서드 수정
+  Future<void> _pickImage(ImageSource source) async {
     if (_images.length < 5) {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
         setState(() {
           _images.add(pickedFile);
+          _encodeImageToBase64(pickedFile); // 이미지 base64 인코딩
         });
+        _saveImageToGallery(pickedFile); // 선택된 이미지를 갤러리에 저장
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,40 +92,92 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     }
   }
 
-  // 물건 등록 완료 처리
-  void _completeRegistration() {
-    final newItem = {
-      'name': _nameController.text,
-      'quantity': _quantityController.text,
-      'description': _descriptionController.text,
-      'images': _images.map((image) => image.path).toList(), // 이미지 경로 리스트
-    };
-    widget.onSubmit(newItem); // 부모 페이지로 데이터 전달
-    Navigator.pop(context); // 뒤로 가기
+  // 이미지 선택 옵션을 띄우는 메서드
+  void _showImageSourceSelection() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('카메라 실행'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera); // 카메라에서 이미지 선택
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo),
+                title: Text('갤러리에서 선택'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery); // 갤러리에서 이미지 선택
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 이미지 base64 인코딩 메서드
+  Future<void> _encodeImageToBase64(XFile image) async {
+    final bytes = await image.readAsBytes();
+    final base64Image = base64Encode(bytes);
+    setState(() {
+      _encodedImages.add(base64Image);
+    });
+  }
+
+  Future<void> _registerItem() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userId = authProvider.userId;
+
+    // 서버에 물품 등록 요청
+    final response = await http.post(
+      Uri.parse('${Config.local}/product/register'),
+      headers: {
+        'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_id': userId, // user_id를 포함하여 서버로 전송
+        'wh_idx': widget.selectedWarehouseData?['wh_idx'],
+        'unit_idx': widget.selectedWarehouseData?['unit_idx'],
+        'prod_name': _nameController.text,
+        'prod_info': _descriptionController.text,
+        'prod_img': _encodedImages, // base64 인코딩된 이미지 배열 전송
+      }),
+    );
+
+    // 서버 응답 상태 코드와 본문 출력
+    print('서버 응답 상태 코드: ${response.statusCode}');
+    print('서버 응답 본문: ${response.body}');
+
+    if (response.statusCode == 201) {
+      print('물건이 성공적으로 등록되었습니다.');
+      widget.onSubmit(jsonDecode(response.body)); // 성공 시 콜백 호출
+      Navigator.pop(context);
+    } else {
+      print('등록 실패: ${response.body}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    print('RegisterItemsPage가 렌더링되었습니다.');
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // 뒤로가기
+            Navigator.pop(context);
           },
         ),
         title: Text(widget.existingItem == null ? '내 물건 등록' : '내 물건 수정'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              print('임시저장 클릭됨');
-            },
-            child: Text(
-              '임시저장',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -91,7 +185,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              onTap: _pickImage, // 사진 클릭 시 카메라 실행
+              onTap: _showImageSourceSelection,
               child: Container(
                 height: 150,
                 color: Colors.grey[300],
@@ -109,22 +203,18 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
             ),
             SizedBox(height: 16),
             Text("지점명"),
-            Text(''), // wh_branch_name 들어갈 자리
+            Text(
+                widget.selectedWarehouseData?['wh_branch_name'] ?? '선택된 지점 없음'),
+            SizedBox(height: 16),
+            Text("유닛번호"),
+            Text(widget.selectedWarehouseData?['unit_idx']?.toString() ??
+                '유닛 없음'),
             SizedBox(height: 16),
             Text("물건 이름"),
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                hintText: '물건이름', // placeholder
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            Text("물건 수량"),
-            TextField(
-              controller: _quantityController,
-              keyboardType: TextInputType.number, // 숫자 입력만 가능
-              decoration: InputDecoration(
+                hintText: '물건이름',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -134,7 +224,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
               controller: _descriptionController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: '보관 불가 품목', // placeholder
+                hintText: '보관 불가 품목',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -144,9 +234,19 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
       bottomNavigationBar: Container(
         width: double.infinity,
         height: 48.0,
-        color: Color(0xFFAFD485), // 배경색 브랜드컬러 #AFD485
+        color: Color(0xFFAFD485),
         child: TextButton(
-          onPressed: _completeRegistration, // 작성 완료 처리
+          onPressed: () {
+            if (_nameController.text.isEmpty) {
+              // 이름 필드가 비어있다면 경고 메시지를 보여줍니다.
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('물품 이름을 입력해주세요')),
+              );
+              return;
+            } else {
+              _registerItem();
+            }
+          },
           child: Text(
             '작성 완료',
             style: TextStyle(

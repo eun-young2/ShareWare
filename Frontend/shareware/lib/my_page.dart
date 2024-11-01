@@ -92,7 +92,7 @@ class _MyPageState extends State<MyPage> {
               if (authProvider.isLoggedIn) {
                 authProvider.logout(context);
               } else {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );

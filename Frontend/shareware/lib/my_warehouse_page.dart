@@ -95,9 +95,19 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                       },
                     )
                   : Center(
-                      child: Text(
-                        '로그인이 필요한 기능입니다.',
-                        style: TextStyle(fontSize: 22, color: Colors.blue),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          '로그인이 필요한 기능입니다.',
+                          style: TextStyle(fontSize: 22, color: Colors.blue),
+                        ),
                       ),
                     ),
             ),
@@ -117,8 +127,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ManageItemsPage(selectedIndex: 3),
+                      builder: (context) => ManageItemsPage(selectedIndex: 3),
                     ),
                   );
                 }

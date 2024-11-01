@@ -5,9 +5,16 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const router = express();
 
-
 router.use(cors());
-router.use(bodyParser.json()); //json 요청 처리
+
+// body-parser 설정에서 요청 크기 제한 증가
+router.use(bodyParser.json({ limit: '10mb' })); // JSON 요청 크기 제한
+router.use(bodyParser.urlencoded({ limit: '100mb', extended: true })); // URL-encoded 요청 크기 제한
+
+// // 또는 기본 크기 제한을 높여주는 전체 설정 적용
+// router.use(express.json({ limit: '100mb' }));
+// router.use(express.urlencoded({ limit: '100mb', extended: true }));
+
 
 //데이터베이스 연결
 conn.connect(err=>{
@@ -26,11 +33,13 @@ const rtspRouter = require("./routes/rtsp");
 const qrRouter = require("./routes/qr");
 const productRouter = require("./routes/product");
 
+
 router.use("/user", userRouter);
 router.use("/map", mapRouter);
 router.use("/rtsp", rtspRouter);
 router.use("/qr", qrRouter);
 router.use("/product", productRouter);
+
 
 //서버실행
 router.listen(3000,()=>{
