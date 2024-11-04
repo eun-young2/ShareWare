@@ -34,4 +34,22 @@ router.get('/branches', verifyToken, (req, res) => {
     });
 });
 
+// QR 코드 검증 라우트
+router.get('/check-qr', (req, res) => {
+    const { reserv_idx } = req.query; // reserv_idx를 쿼리에서 가져옴
+    const query = 'SELECT is_valid FROM tb_qr WHERE reserv_idx = ?';
+
+    conn.query(query, [reserv_idx.split(':')[1]], (error, results) => {
+        
+        if (error) {
+            return res.status(500).send('Database error');
+        }
+        if (results.length > 0 && results[0].is_valid === 1) {
+            res.json({ is_valid: 1, message: '문이 열렸습니다' });
+        } else {
+            res.json({ is_valid: 0, message: '유효하지 않은 QR코드입니다' });
+        }
+    });
+});
+
 module.exports = router;
