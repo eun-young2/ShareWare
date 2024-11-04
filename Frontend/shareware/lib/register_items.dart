@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:convert';
+import 'dart:convert'; // base64로 encode해서 서버로 보내기 위해
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'providers/auth_provider.dart';
 import 'config.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart';
 
 class RegisterItemsPage extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -26,8 +28,9 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   List<XFile> _images = [];
+  final int maxImageCount = 5;
   List<String> _encodedImages = []; // base64 인코딩된 이미지 리스트
-  bool _isEditing = false; // 수정 모드 확인 변수 추가
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -91,6 +94,13 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
         SnackBar(content: Text('최대 5장의 사진만 추가할 수 있습니다.')),
       );
     }
+  }
+
+  // 이미지 삭제 메서드
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+    });
   }
 
   // 이미지 선택 옵션을 띄우는 메서드
@@ -189,7 +199,6 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('RegisterItemsPage가 렌더링되었습니다.');
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -205,22 +214,92 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: _showImageSourceSelection,
-              child: Container(
-                height: 150,
-                color: Colors.grey[300],
-                child: _images.isEmpty
-                    ? Center(child: Text('사진 추가 (최대 5장)'))
-                    : PageView(
-                        children: _images
-                            .map((image) => Image.file(
-                                  File(image.path),
+            // 사진 추가 및 미리보기 영역
+            Row(
+              children: [
+                // 사진 추가 버튼
+                GestureDetector(
+                  onTap: _showImageSourceSelection,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.camera_alt, color: Colors.grey),
+                        Text(
+                          '${_images.length}/5',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                // 이미지 미리보기 리스트
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(_images.length, (index) {
+                        return Stack(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: FileImage(File(_images[index].path)),
                                   fit: BoxFit.cover,
-                                ))
-                            .toList(),
-                      ),
-              ),
+                                ),
+                              ),
+                              child: index == 0
+                                  ? Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Container(
+                                        width: double.infinity,
+                                        color: Colors.black54,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 2),
+                                        child: Text(
+                                          "대표사진",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12),
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            // 삭제 버튼
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => _images.removeAt(index)),
+                                child: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.black54,
+                                  child: Icon(Icons.close,
+                                      size: 16, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 16),
             Text("지점명"),
@@ -259,7 +338,6 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
         child: TextButton(
           onPressed: () {
             if (_nameController.text.isEmpty) {
-              // 이름 필드가 비어있다면 경고 메시지를 보여줍니다.
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('물품 이름을 입력해주세요')),
               );

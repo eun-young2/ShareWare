@@ -97,7 +97,7 @@ router.post('/register', verifyToken, async (req, res) => {
       const [result] = await conn.promise().query(query, [wh_idx, user_id, prod_name, prod_info, unit_idx, JSON.stringify(prod_img)]);
 
       console.log('물건이 성공적으로 등록되었습니다:');
-      console.log(`등록된 데이터: user_id=${user_id}, wh_idx=${wh_idx}, unit_idx=${unit_idx}, prod_name=${prod_name}, prod_info=${prod_info},prod_img=${prod_img}`);
+      console.log(`등록된 데이터: user_id=${user_id}, wh_idx=${wh_idx}, unit_idx=${unit_idx}, prod_name=${prod_name}, prod_info=${prod_info}`);
       
       return res.status(201).json({ success: true, message: '물건이 성공적으로 등록되었습니다.', prod_idx: result.insertId });
 
