@@ -1,12 +1,12 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:convert';
 import 'register_items.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'providers/auth_provider.dart';
 import 'config.dart';
-import 'dart:convert';
 import 'my_warehouse_page.dart';
 
 class ManageItemsPage extends StatefulWidget {
@@ -22,8 +22,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
   late int _selectedIndex = 0;
   List<Map<String, dynamic>> _items = []; // 물품 목록 상태 변수
   Map<String, dynamic>? _selectedWarehouse; // 선택된 지점 상태
-  List<Map<String, dynamic>> _warehouseList =
-      []; // 지점 목록 (unit_idx, wh_branch_name 포함)
+  List<Map<String, dynamic>> _warehouseList = []; // 지점 목록
   Map<String, List<Map<String, dynamic>>> _cachedItems = {}; // 물품 목록 캐시 저장소
 
   @override
@@ -33,16 +32,14 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     _loadUserWarehouses(); // 사용자 지점 정보 불러오기
   }
 
-  // 서버로부터 사용자의 지점 정보 가져오기
   Future<List<Map<String, dynamic>>> fetchUserWarehouses(
       BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     if (authProvider.token != null) {
       final response = await http.get(
         Uri.parse('${Config.local}/product/user/warehouses'),
         headers: {
-          'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
+          'Authorization': 'Bearer ${authProvider.token}',
         },
       );
       print('서버 응답 상태 코드: ${response.statusCode}');
@@ -50,9 +47,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.cast<
-            Map<String,
-                dynamic>>(); // unit_idx, wh_branch_name을 포함한 지점 정보 리스트 반환
+        return data.cast<Map<String, dynamic>>();
       } else {
         throw Exception('지점 정보를 불러올 수 없습니다.');
       }
@@ -61,7 +56,6 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     }
   }
 
-  // 지점 데이터를 가져온 후, UI 상태 업데이트
   Future<void> _loadUserWarehouses() async {
     try {
       List<Map<String, dynamic>> warehouses =
@@ -69,9 +63,9 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
       if (warehouses.isNotEmpty) {
         setState(() {
           _warehouseList = warehouses;
-          _selectedWarehouse = _warehouseList.first; // 기본적으로 첫번째 지점 선택
+          _selectedWarehouse = _warehouseList.first;
         });
-        await _loadItemsForSelectedWarehouse(); // 선택된 지점의 물품 목록 로드
+        await _loadItemsForSelectedWarehouse();
       } else {
         setState(() {
           _warehouseList = [];
@@ -107,13 +101,12 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
           Uri.parse(
               '${Config.local}/product/items?wh_idx=$whIdx&unit_idx=$unitIdx'),
           headers: {
-            'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
+            'Authorization': 'Bearer ${authProvider.token}',
           },
         );
 
         print('서버 응답 상태 코드: ${response.statusCode}');
         print('서버 응답 본문: ${response.body}');
-
         if (response.statusCode == 200) {
           final List<dynamic> data = jsonDecode(response.body);
           setState(() {
@@ -122,7 +115,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
           });
         } else {
           print('에러 상태 코드: ${response.statusCode}');
-          print('에러 메시지: ${response.body}'); // 서버로부터 받은 오류 메시지 출력
+          print('에러 메시지: ${response.body}');
         }
       } catch (e) {
         print('물품 목록을 불러오는 중 오류 발생: $e');
@@ -134,7 +127,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
   void _addItem(Map<String, dynamic> item) {
     setState(() {
       _items.add({
-        'name': item['name'] ?? '이름 없음', // name이 없으면 기본값 설정
+        'name': item['name'] ?? '이름 없음',
         'description': item['description'] ?? '설명 없음',
         'prod_img': item['prod_img'] ?? []
       });
@@ -151,7 +144,6 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
     });
   }
 
-  // 물품 삭제 함수
   Future<void> _deleteItem(int prodIdx) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
@@ -161,7 +153,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
       final response = await http.delete(
         Uri.parse('${Config.local}/product/delete/$prodIdx'),
         headers: {
-          'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰
+          'Authorization': 'Bearer ${authProvider.token}',
         },
       );
 
@@ -178,7 +170,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
           _cachedItems.remove(cacheKey);
         }
 
-        await _loadItemsForSelectedWarehouse(); // 물품 목록을 다시 로드하여 UI 업데이트
+        await _loadItemsForSelectedWarehouse();
       } else {
         print('물품 삭제 실패: ${response.statusCode}');
         print('서버 응답 메시지: ${response.body}');
@@ -246,20 +238,49 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                     leading: (_items[index]['prod_img'] != null &&
                             _items[index]['prod_img'] is String)
                         ? Image.memory(
-                            base64Decode(_items[index]
-                                ['prod_img']), // Base64 디코딩하여 이미지 표시
+                            base64Decode(
+                                (_items[index]['prod_img'] as String).trim()),
                             width: 50,
                             height: 50,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('이미지 디코딩 오류: $error');
+                              return Icon(Icons.broken_image, size: 50);
+                            },
                           )
-                        : Icon(Icons.image, size: 50), // 이미지가 없을 경우 기본 아이콘 표시
-
-                    title: Text(_items[index]['prod_name'] ?? '이름 없음'),
+                        : Icon(
+                            Icons.photo_size_select_actual_outlined,
+                            size: 50,
+                            color: Colors.grey.shade300, // 연한 회색으로 설정
+                          ),
+                    title: Text(_items[index]['prod_name']),
                     subtitle: Text(
-                      _items[index]['prod_info'] ?? '설명 없음',
+                      (_items[index]['prod_info'] == null ||
+                              (_items[index]['prod_info'] as String).isEmpty)
+                          ? '설명 없음'
+                          : _items[index]['prod_info'] as String,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: (_items[index]['prod_info'] == null ||
+                                (_items[index]['prod_info'] as String).isEmpty)
+                            ? Colors.grey.shade400 // 설명 없음일 경우 희미한 회색
+                            : Colors.black, // 설명이 있을 경우 기본 색상
+                      ),
                     ),
-
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegisterItemsPage(
+                            onSubmit: (editedItem) {
+                              _editItem(index, editedItem);
+                            },
+                            existingItem: _items[index],
+                            selectedWarehouseData: _selectedWarehouse,
+                          ),
+                        ),
+                      );
+                    },
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {
