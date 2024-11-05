@@ -32,14 +32,14 @@ const mapRouter = require("./routes/map");
 const rtspRouter = require("./routes/rtsp");
 const qrRouter = require("./routes/qr");
 const productRouter = require("./routes/product");
-
+const reservRouter = require("./routes/reserv");
 
 router.use("/user", userRouter);
 router.use("/map", mapRouter);
 router.use("/rtsp", rtspRouter);
 router.use("/qr", qrRouter);
 router.use("/product", productRouter);
-
+router.use("/reserv", reservRouter);
 
 //서버실행
 router.listen(3000,()=>{

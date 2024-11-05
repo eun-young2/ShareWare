@@ -140,8 +140,9 @@ class DashboardPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatisticCard('월간 방문객', '120', '+5%'),
-              _buildStatisticCard('금일 방문객', '25', '-10%'),
+              Expanded(child: _buildStatisticCard('월간 방문객', '120', '+5%')),
+              SizedBox(width: 16),
+              Expanded(child: _buildStatisticCard('금일 방문객', '25', '-10%')),
             ],
           ),
           Spacer(),
