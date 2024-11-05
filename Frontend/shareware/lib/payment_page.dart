@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_33/qr_page.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart'; // AuthProvider를 import합니다.
 
 class PaymentPage extends StatefulWidget {
   final String warehouseName;
@@ -68,8 +70,7 @@ class _PaymentPageState extends State<PaymentPage> {
           onPressed: () {
             setState(() {
               selectedUnitType = label;
-              unitPrice =
-                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
           style: ElevatedButton.styleFrom(
@@ -103,8 +104,7 @@ class _PaymentPageState extends State<PaymentPage> {
           onPressed: () {
             setState(() {
               if (selectedWeeks > 1) selectedWeeks--;
-              unitPrice =
-                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
         ),
@@ -115,8 +115,7 @@ class _PaymentPageState extends State<PaymentPage> {
           onPressed: () {
             setState(() {
               selectedWeeks++;
-              unitPrice =
-                  calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
+              unitPrice = calculatePrice(selectedUnitType, selectedWeeks); // 가격 재계산
             });
           },
         ),
@@ -124,7 +123,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  // 결제 확인 팝업
+  // 결제 확인 팝업 (로그인 확인 기능 제거)
   void _showPaymentConfirmation() {
     showDialog(
       context: context,

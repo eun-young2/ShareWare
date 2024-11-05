@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'warehouse.dart'; // Warehouse 모델 클래스를 import
 import 'payment_page.dart'; // 결제 페이지를 import
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart'; // AuthProvider를 import합니다.
+import 'login_page.dart';
 
 class WarehouseDetailsPage extends StatefulWidget {
   final Warehouse warehouse;
@@ -121,12 +124,18 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentPage(warehouseName: widget.warehouse.name),
-                    ),
-                  );
+                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+                  if (!authProvider.isLoggedIn) {
+                    _showLoginDialog();
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentPage(warehouseName: widget.warehouse.name),
+                      ),
+                    );
+                  }
                 },
                 child: Text('창고 이용하기'),
                 style: ElevatedButton.styleFrom(
@@ -178,4 +187,33 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
       ],
     );
   }
+void _showLoginDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('로그인 필요'),
+        content: Text('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?'),
+        actions: [
+          TextButton(
+            child: Text('로그인'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.pushNamed(context, '/login').then((_) {
+                // 로그인 후 디테일 페이지로 돌아옴
+                setState(() {}); // 상태를 갱신하여 UI를 업데이트
+              });
+            },
+          ),
+          TextButton(
+            child: Text('취소'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 }
