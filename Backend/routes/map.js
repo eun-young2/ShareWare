@@ -42,5 +42,31 @@ router.get("/all/warehouses", (req, res) => {
     });
 });
 
+// 특정 user_id의 예약된 창고 좌표 및 추가 정보 가져오기
+router.get("/user/:user_id", (req, res) => {
+    const userId = req.params.user_id; // user_id 매개변수 받기
+    const query = `
+        SELECT 
+            w.wh_branch_name, w.wh_addr, w.contact_info, 
+            w.business_hours, w.lat, w.lon, w.facilities 
+        FROM 
+            tb_reservation r
+        INNER JOIN 
+            tb_warehouse w ON r.wh_idx = w.wh_idx
+        WHERE 
+            r.user_id = ?`;
+
+    conn.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error("데이터베이스 쿼리 오류: ", err);
+            return res.status(500).json({ error: "데이터베이스 오류" });
+        }
+        if (results.length > 0) {
+            res.json(results); // 결과를 JSON 형식으로 반환
+        } else {
+            res.status(404).json({ error: "예약된 창고를 찾을 수 없습니다" });
+        }
+    });
+});
 
 module.exports = router;

@@ -59,7 +59,7 @@ async def generate_qr(user_id: str):
             raise HTTPException(status_code=404, detail="Reservation not found")
 
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        qr_data = f"User ID: {reservation.user_id}, Unit Index: {reservation.unit_idx}, Warehouse Index: {reservation.wh_idx}, Time: {current_time}"
+        qr_data = f"User ID: {reservation.user_id}, reserv_idx: {reservation.reserv_idx}, Time: {current_time}"
         img = qrcode.make(qr_data)
 
         buffered = io.BytesIO()
@@ -100,7 +100,7 @@ async def invalidate_qr(reserv_idx: int):
     db = SessionLocal()
     try:
         # QR 코드의 유효성을 0으로 설정
-        qr_code_entry = db.query(QRCode).filter(QRCode.reserv_idx == reserv_idx, QRCode.is_valid == 1).first()
+        qr_code_entry = db.query(QRCode).filter(QRCode.reserv_idx == reserv_idx, QRCode.is_valid == 1).order_by(QRCode.created_at.desc()).first()  # 최신 순으로 정렬하여 첫 번째 항목 선택
         
         if not qr_code_entry:
             raise HTTPException(status_code=404, detail="QR code not found or already invalidated")
