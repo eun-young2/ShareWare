@@ -11,9 +11,7 @@ import 'my_page.dart'; // 마이페이지탭
 import 'login_page.dart'; // 로그인 페이지
 import 'signup_page.dart'; // 회원가입 페이지
 import 'bottom_nav_bar.dart';
-
-import 'package:flutter_application_33/rtsp_stream.dart';
-
+import 'payment_page.dart';
 import 'rtsp.dart'; // rtsp 스트리밍 페이지 가져오기
 
 void main() async {
@@ -43,11 +41,23 @@ class SharewareApp extends StatelessWidget {
         textTheme: TextTheme(
           bodyLarge: TextStyle(fontSize: 14, color: Color(0xFF4A4A4A)),
           bodyMedium: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF4A4A4A)), // bodyText2를 bodyMedium으로 수정
+            fontSize: 14,
+            color: Color(0xFF4A4A4A),
+          ),
         ),
       ),
-      home: MainPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainPage(), // 메인 페이지
+        '/login': (context) => LoginPage(), // 로그인 페이지
+        '/signup': (context) => SignupPage(), // 회원가입 페이지
+        '/payment': (context) => PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
+        '/storage_select': (context) => KakaoMapTest(), // 창고 찾기 페이지
+        '/qr': (context) => QRPage(), // QR 페이지
+        '/my_warehouse': (context) => MyWarehousePage(), // 마이 창고 페이지
+        '/my_page': (context) => MyPage(), // 마이 페이지
+        '/rtsp_stream': (context) => RTSPVideoScreen(), // RTSP 스트리밍 페이지
+      },
     );
   }
 }
@@ -78,7 +88,6 @@ class _MainPageState extends State<MainPage> {
     ];
   }
 
-  // 이 함수는 BottomNavigationBar에서 선택된 탭의 인덱스를 기반으로 페이지를 전환하는 역할
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index; // 선택된 인덱스 업데이트
@@ -172,10 +181,7 @@ class MainPageContent extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 20.0),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => KakaoMapTest()),
-                    );
+                    Navigator.pushNamed(context, '/storage_select'); // 창고 찾기 페이지로 이동
                   },
                   child: Text(
                     '창고 찾기',
@@ -203,7 +209,7 @@ class MainPageContent extends StatelessWidget {
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {}, // 이용안내 기능 추가 예정
                       child: Text('이용안내'),
                     ),
                   ),
@@ -217,7 +223,7 @@ class MainPageContent extends StatelessWidget {
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {}, // QR 입장코드 발급 기능 추가 예정
                       child: Text('QR 입장코드 발급'),
                     ),
                   ),
@@ -231,7 +237,7 @@ class MainPageContent extends StatelessWidget {
                         ),
                         padding: EdgeInsets.symmetric(vertical: 30.0),
                       ),
-                      onPressed: () {},
+                      onPressed: () {}, // 고객센터 기능 추가 예정
                       child: Text('고객센터'),
                     ),
                   ),
@@ -276,12 +282,7 @@ class MainPageContent extends StatelessWidget {
                 // 버튼 추가: RTSP 스트리밍 페이지로 이동
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              RTSPVideoScreen()), // RTSP 페이지로 이동
-                    );
+                    Navigator.pushNamed(context, '/rtsp_stream'); // RTSP 페이지로 이동
                   },
                   child: Text('RTSP 스트리밍 페이지로 이동'),
                 ),

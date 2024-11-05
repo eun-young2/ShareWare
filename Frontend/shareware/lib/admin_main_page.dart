@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'reservation_page.dart'; // 추가된 부분
+import 'cctvv_page.dart'; // CCTV 페이지 추가
+import 'reservation_page.dart'; // 예약 관리 페이지 추가
+import 'storage_management_page.dart'; // 창고 관리 페이지 추가
 
 void main() {
   runApp(AdminMainPage());
@@ -9,25 +11,25 @@ class AdminMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CCTVPage(),
+      home: CCTVDashboard(),
     );
   }
 }
 
-class CCTVPage extends StatefulWidget {
+class CCTVDashboard extends StatefulWidget {
   @override
-  _CCTVPageState createState() => _CCTVPageState();
+  _CCTVDashboardState createState() => _CCTVDashboardState();
 }
 
-class _CCTVPageState extends State<CCTVPage> {
+class _CCTVDashboardState extends State<CCTVDashboard> {
   int _selectedIndex = 0;
 
   // 페이지 목록
   final List<Widget> _pages = [
-    CCTVPageContent(),
-    NotificationsPage(),
-    CustomerInquiryPage(),
-    ReservationPage(), // 예약 관리 페이지 추가
+    DashboardPage(), // 대시보드 페이지
+    CCTVPage(), // CCTV 페이지
+    ReservationPage(), // 예약 관리 페이지
+    StorageManagementPage(), // 창고 관리 페이지 추가
   ];
 
   void _onItemTapped(int index) {
@@ -58,10 +60,10 @@ class _CCTVPageState extends State<CCTVPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '대시보드'),
-          BottomNavigationBarItem(icon: Icon(Icons.access_alarm), label: '알림관리'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: '고객문의'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '예약관리'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
+          BottomNavigationBarItem(icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
+          BottomNavigationBarItem(icon: Icon(Icons.warehouse), label: '창고 관리'), // 창고 관리 아이콘
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -72,8 +74,8 @@ class _CCTVPageState extends State<CCTVPage> {
   }
 }
 
-// CCTV 페이지의 본문
-class CCTVPageContent extends StatelessWidget {
+// 대시보드 페이지
+class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -103,7 +105,7 @@ class CCTVPageContent extends StatelessWidget {
             style: TextStyle(color: Colors.grey),
           ),
           SizedBox(height: 16),
-          Text('CCTV', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('CCTV 상태', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Container(
             height: 300,
             padding: const EdgeInsets.all(16),
@@ -179,32 +181,6 @@ class CCTVPageContent extends StatelessWidget {
           SizedBox(height: 4),
           Text(change, style: TextStyle(color: change.contains('-') ? Colors.red : Colors.green)),
         ],
-      ),
-    );
-  }
-}
-
-// 알림 관리 페이지
-class NotificationsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '알림 관리 페이지',
-        style: TextStyle(fontSize: 24),
-      ),
-    );
-  }
-}
-
-// 고객 문의 페이지
-class CustomerInquiryPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '고객 문의 페이지',
-        style: TextStyle(fontSize: 24),
       ),
     );
   }
