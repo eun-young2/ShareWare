@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
       // 기본적으로 메인 페이지로 이동
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainPage()),
+        MaterialPageRoute(builder: (context) => AdminMainPage()),
       );
     }
   } else {

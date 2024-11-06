@@ -13,15 +13,17 @@ class StorageManagementPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '창고 정보',
+              '창고 수량',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
-            _buildStorageCard('창고 A', '10개', '정상'),
+            _buildStorageCard('큐브', '10개', '정상'),
             SizedBox(height: 16),
-            _buildStorageCard('창고 B', '5개', '부족'),
+            _buildStorageCard('엑스트라', '5개', '부족'),
             SizedBox(height: 16),
-            _buildStorageCard('창고 C', '20개', '정상'),
+            _buildStorageCard('미니', '20개', '정상'),
+            SizedBox(height: 16),
+            _buildStorageCard('스텐다드', '13개', '정상'),
             Spacer(),
             ElevatedButton(
               onPressed: () {

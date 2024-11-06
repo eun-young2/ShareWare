@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'cctvv_page.dart'; // CCTV 페이지 추가
 import 'reservation_page.dart'; // 예약 관리 페이지 추가
 import 'storage_management_page.dart'; // 창고 관리 페이지 추가
+import 'alarm_page.dart'; // 알람 페이지 추가 (이 페이지를 생성해야 합니다)
 
 void main() {
   runApp(AdminMainPage());
@@ -43,17 +44,7 @@ class _CCTVDashboardState extends State<CCTVDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: DropdownButton<String>(
-            value: '쉐어웨어 광주동명점',
-            items: <String>['쉐어웨어 광주동명점', '다른 지점1', '다른 지점2'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (_) {},
-            underline: SizedBox(),
-          ),
+          child: Text('ShareWare'), // 지점 선택 드롭박스를 제거하고 단순히 제목만 표시
         ),
       ),
       body: _pages[_selectedIndex], // 선택된 페이지 표시
@@ -83,21 +74,30 @@ class DashboardPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(Icons.notifications),
-              SizedBox(width: 8),
-              Text(
-                '서버통신 비정상 감지',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Spacer(),
-              Text(
-                'Yesterday',
-                style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-              ),
-            ],
+          GestureDetector(
+            onTap: () {
+              // 서버통신 비정상 감지 클릭 시 알람 페이지로 이동
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AlarmPage()), // 알람 페이지로 이동
+              );
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.notifications),
+                SizedBox(width: 8),
+                Text(
+                  '서버통신 비정상 감지',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Spacer(),
+                Text(
+                  'Yesterday',
+                  style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 4),
           Text(
