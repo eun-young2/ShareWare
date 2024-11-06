@@ -193,7 +193,7 @@ class MainPageContent extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
-                            color: Colors.orange,
+                            color: Color(0xFFAFD485),
                           ),
                         ),
                         TextSpan(
