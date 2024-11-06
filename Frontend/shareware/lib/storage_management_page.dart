@@ -55,7 +55,7 @@ class StorageManagementPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  backgroundColor: Color(0xFF4A4A4A),
+                  backgroundColor: Color(0xFF9A9A9A),
                   foregroundColor: Colors.white,
                 ),
               ),

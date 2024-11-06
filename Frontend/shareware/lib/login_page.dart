@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isAdminLogin = false;
 
   Color customGreen = Color(0xFFAFD485);
-  Color customGray = Color(0xFF4A4A4A);
+  Color customGray = Color(0xFF9A9A9A);
 
   Future<void> login() async {
     final String apiUrl = '${Config.local}/user/login';

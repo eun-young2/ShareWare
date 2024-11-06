@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_33/cctvv_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/qr_provider.dart'; // qr전역관리 provider
 import 'providers/auth_provider.dart'; // 로그인상태 전역관리 provider
-import 'rtsp_stream.dart';
 import 'storage_select.dart'; // 창고찾기지도탭
 import 'qr_page.dart'; // qr탭
 import 'my_warehouse_page.dart'; // 마이창고탭
@@ -51,12 +51,13 @@ class SharewareApp extends StatelessWidget {
         '/': (context) => MainPage(), // 메인 페이지
         '/login': (context) => LoginPage(), // 로그인 페이지
         '/signup': (context) => SignupPage(), // 회원가입 페이지
-        '/payment': (context) => PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
+        '/payment': (context) =>
+            PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
         '/storage_select': (context) => KakaoMapTest(), // 창고 찾기 페이지
         '/qr': (context) => QRPage(), // QR 페이지
         '/my_warehouse': (context) => MyWarehousePage(), // 마이 창고 페이지
         '/my_page': (context) => MyPage(), // 마이 페이지
-        '/rtsp_stream': (context) => RTSPVideoScreen(), // RTSP 스트리밍 페이지
+        '/rtsp_stream': (context) => CCTVPage(), // RTSP 스트리밍 페이지
       },
     );
   }
@@ -181,7 +182,8 @@ class MainPageContent extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 20.0),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/storage_select'); // 창고 찾기 페이지로 이동
+                    Navigator.pushNamed(
+                        context, '/storage_select'); // 창고 찾기 페이지로 이동
                   },
                   child: Text(
                     '창고 찾기',
@@ -277,14 +279,6 @@ class MainPageContent extends StatelessWidget {
                 Text(
                   '앱에서 다양한 창고를 쉽게 찾아보세요.',
                   style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 20.0),
-                // 버튼 추가: RTSP 스트리밍 페이지로 이동
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/rtsp_stream'); // RTSP 페이지로 이동
-                  },
-                  child: Text('RTSP 스트리밍 페이지로 이동'),
                 ),
                 SizedBox(height: 20.0),
               ],
