@@ -23,55 +23,64 @@ class _LoginPageState extends State<LoginPage> {
   Color customGreen = Color(0xFFAFD485);
   Color customGray = Color(0xFF4A4A4A);
 
- Future<void> login() async {
-  final String apiUrl = '${Config.local}/user/login';
+  Future<void> login() async {
+    final String apiUrl = '${Config.local}/user/login';
 
-  final response = await http.post(
-    Uri.parse(apiUrl),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'userid': usernameController.text,
-      'password': passwordController.text,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    print("API Response: $data");
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.login(data['token']);
-
-    if (data['userId'] != null) {
-      await authProvider.setUserId(data['userId']);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('사용자 ID가 응답에 없습니다.')),
-      );
-      return;
-    }
-
-    // 여기서 현재 페이지의 타입에 따라 이동할 페이지를 결정합니다.
-    if (isAdminLogin && data['role'] != 'admin') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('관리자로 로그인할 수 없습니다.')),
-      );
-    } else {
-      print('로그인 성공');
-      // 기본적으로 메인 페이지로 이동
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MainPage()),
-      );
-    }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('로그인 실패')),
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'userid': usernameController.text,
+        'password': passwordController.text,
+      }),
     );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print("API Response: $data");
+
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login(data['token']);
+
+      if (data['userId'] != null) {
+        await authProvider.setUserId(data['userId']);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사용자 ID가 응답에 없습니다.')),
+        );
+        return;
+      }
+
+      // 여기서 현재 페이지의 타입에 따라 이동할 페이지를 결정합니다.
+      if (!isAdminLogin && data['role'] == 'admin') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사용자로 로그인할 수 없습니다.')),
+        );
+      } else if (isAdminLogin && data['role'] != 'admin') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('관리자로 로그인할 수 없습니다.')),
+        );
+      } else {
+        print('로그인 성공');
+        if (isAdminLogin && data['role'] == 'admin') {
+          // 관리자로 로그인 시 AdminMainPage로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminMainPage()),
+          );
+        } else {
+          // 일반 사용자로 로그인 시 MainPage로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => MainPage()),
+          );
+        }
+      }
+    }
   }
-}
+
   Future<void> checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -125,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      isAdminLogin = false; 
+                      isAdminLogin = false;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -140,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      isAdminLogin = true; 
+                      isAdminLogin = true;
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -170,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                login(); 
+                login();
               },
               child: Text('로그인'),
             ),

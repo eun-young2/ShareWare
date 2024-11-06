@@ -42,28 +42,32 @@ class _CCTVDashboardState extends State<CCTVDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: DropdownButton<String>(
-            value: '쉐어웨어 광주동명점',
-            items: <String>['쉐어웨어 광주동명점', '다른 지점1', '다른 지점2'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (_) {},
-            underline: SizedBox(),
+          // title: Center(
+          //   child: DropdownButton<String>(
+          //     value: '쉐어웨어 광주동명점',
+          //     items: <String>['쉐어웨어 광주동명점', '다른 지점1', '다른 지점2'].map((String value) {
+          //       return DropdownMenuItem<String>(
+          //         value: value,
+          //         child: Text(value),
+          //       );
+          //     }).toList(),
+          //     onChanged: (_) {},
+          //     underline: SizedBox(),
+          //   ),
+          // ),
           ),
-        ),
-      ),
       body: _pages[_selectedIndex], // 선택된 페이지 표시
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
-          BottomNavigationBarItem(icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
-          BottomNavigationBarItem(icon: Icon(Icons.warehouse), label: '창고 관리'), // 창고 관리 아이콘
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
+          BottomNavigationBarItem(
+              icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
+          BottomNavigationBarItem(
+              icon: Icon(Icons.warehouse), label: '창고 관리'), // 창고 관리 아이콘
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -95,7 +99,8 @@ class DashboardPage extends StatelessWidget {
               Spacer(),
               Text(
                 'Yesterday',
-                style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -105,7 +110,8 @@ class DashboardPage extends StatelessWidget {
             style: TextStyle(color: Colors.grey),
           ),
           SizedBox(height: 16),
-          Text('CCTV 상태', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('CCTV 상태',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Container(
             height: 300,
             padding: const EdgeInsets.all(16),
@@ -178,9 +184,12 @@ class DashboardPage extends StatelessWidget {
         children: [
           Text(title, style: TextStyle(color: Colors.grey)),
           SizedBox(height: 8),
-          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          Text(value,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           SizedBox(height: 4),
-          Text(change, style: TextStyle(color: change.contains('-') ? Colors.red : Colors.green)),
+          Text(change,
+              style: TextStyle(
+                  color: change.contains('-') ? Colors.red : Colors.green)),
         ],
       ),
     );
