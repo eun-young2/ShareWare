@@ -252,7 +252,7 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                             size: 50,
                             color: Colors.grey.shade300, // 연한 회색으로 설정
                           ),
-                    title: Text(_items[index]['prod_name']),
+                    title: Text(_items[index]['prod_name'] ?? '이름없음'),
                     subtitle: Text(
                       (_items[index]['prod_info'] == null ||
                               (_items[index]['prod_info'] as String).isEmpty)
@@ -267,8 +267,8 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                             : Colors.black, // 설명이 있을 경우 기본 색상
                       ),
                     ),
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => RegisterItemsPage(
@@ -280,6 +280,14 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                           ),
                         ),
                       );
+
+                      if (result == true) {
+                        // 캐시 삭제하여 최신 데이터 로드
+                        final cacheKey =
+                            '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
+                        _cachedItems.remove(cacheKey); // 캐시 삭제
+                        await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
+                      }
                     },
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
@@ -350,8 +358,8 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
         height: 48.0,
         color: Color(0xFFAFD485),
         child: TextButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => RegisterItemsPage(
@@ -360,6 +368,14 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                 ),
               ),
             );
+
+            if (result == true) {
+              // 캐시 삭제하여 최신 데이터 로드
+              final cacheKey =
+                  '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
+              _cachedItems.remove(cacheKey); // 캐시 삭제
+              await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),

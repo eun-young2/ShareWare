@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_33/cctvv_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/qr_provider.dart'; // qr전역관리 provider
 import 'providers/auth_provider.dart'; // 로그인상태 전역관리 provider
-import 'rtsp_stream.dart';
 import 'storage_select.dart'; // 창고찾기지도탭
 import 'qr_page.dart'; // qr탭
 import 'my_warehouse_page.dart'; // 마이창고탭
@@ -51,12 +51,13 @@ class SharewareApp extends StatelessWidget {
         '/': (context) => MainPage(), // 메인 페이지
         '/login': (context) => LoginPage(), // 로그인 페이지
         '/signup': (context) => SignupPage(), // 회원가입 페이지
-        '/payment': (context) => PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
+        '/payment': (context) =>
+            PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
         '/storage_select': (context) => KakaoMapTest(), // 창고 찾기 페이지
         '/qr': (context) => QRPage(), // QR 페이지
         '/my_warehouse': (context) => MyWarehousePage(), // 마이 창고 페이지
         '/my_page': (context) => MyPage(), // 마이 페이지
-        '/rtsp_stream': (context) => RTSPVideoScreen(), // RTSP 스트리밍 페이지
+        '/rtsp_stream': (context) => CCTVPage(), // RTSP 스트리밍 페이지
       },
     );
   }
@@ -131,163 +132,94 @@ class MainPageContent extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 이미지 슬라이드
-            Container(
-              height: 200.0,
-              child: PageView.builder(
-                itemCount: warehouseImages.length,
-                pageSnapping: true,
-                controller: PageController(viewportFraction: 0.8),
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Image.asset(
-                        warehouseImages[index],
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  );
-                },
+            // 상단 "Shareware" 제목과 로고
+            Text(
+              'Shareware',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-            ),
-            SizedBox(height: 10.0),
-            // 검색창
-            Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: '창고 검색',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.search),
-                ),
-                style: TextStyle(fontSize: 14),
-              ),
+              textAlign: TextAlign.center,
             ),
             SizedBox(height: 20.0),
+            // 로고 이미지 (크기 확대)
+            Container(
+              height: 250.0, // 로고 크기 확대
+              width: 250.0,
+              child: Image.asset(
+                'assets/ShareWare_logo.png', // 로고 이미지 경로
+                fit: BoxFit.contain,
+              ),
+            ),
+            SizedBox(height: 40.0), // 버튼 위 여백 조정
             // 창고 찾기 버튼
             Center(
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
+                width: MediaQuery.of(context).size.width * 0.8,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFAFD485),
+                    backgroundColor: Color(0xFFAFD485), // 버튼 색상
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 20.0),
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/storage_select'); // 창고 찾기 페이지로 이동
+                    Navigator.pushNamed(context, '/storage_select');
                   },
                   child: Text(
                     '창고 찾기',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF4A4A4A),
+                      fontSize: 18,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 20.0),
-            // 이용 안내 및 기타 버튼
-            SizedBox(
-              height: 90.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            SizedBox(height: 40.0), // 버튼과 하단 문구 사이 간격 조정
+            // 기존 설명 문구 유지 및 가운데 정렬
+            Center(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFAFD485),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '쉐어웨어',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.orange,
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 30.0),
-                      ),
-                      onPressed: () {}, // 이용안내 기능 추가 예정
-                      child: Text('이용안내'),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFAFD485),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
+                        TextSpan(
+                          text: '만의\n스마트한 ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 30.0),
-                      ),
-                      onPressed: () {}, // QR 입장코드 발급 기능 추가 예정
-                      child: Text('QR 입장코드 발급'),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFAFD485),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
+                        TextSpan(
+                          text: '이용이 가능합니다!',
+                          style: TextStyle(fontSize: 18),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 30.0),
-                      ),
-                      onPressed: () {}, // 고객센터 기능 추가 예정
-                      child: Text('고객센터'),
+                      ],
                     ),
+                    textAlign: TextAlign.center,
                   ),
+                  SizedBox(height: 10.0),
+                  Text(
+                    '앱에서 다양한 창고를 쉽게 찾아보세요.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20.0),
                 ],
               ),
-            ),
-            SizedBox(height: 20.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '쉐어웨어',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.orange,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '만의\n스마트한 ',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '이용이 가능합니다!',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10.0),
-                Text(
-                  '앱에서 다양한 창고를 쉽게 찾아보세요.',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 20.0),
-                // 버튼 추가: RTSP 스트리밍 페이지로 이동
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/rtsp_stream'); // RTSP 페이지로 이동
-                  },
-                  child: Text('RTSP 스트리밍 페이지로 이동'),
-                ),
-                SizedBox(height: 20.0),
-              ],
             ),
           ],
         ),

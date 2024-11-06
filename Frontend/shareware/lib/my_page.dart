@@ -108,7 +108,7 @@ class _MyPageState extends State<MyPage> {
                 borderRadius: BorderRadius.circular(4),
               ),
               backgroundColor: authProvider.isLoggedIn
-                  ? Color(0xFF4A4A4A)
+                  ? Color(0xFF9A9A9A)
                   : Color(0xFFAFD485),
               foregroundColor: Colors.white,
             ),

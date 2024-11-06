@@ -171,7 +171,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
       final updatedItem = jsonDecode(response.body);
       widget.onSubmit(updatedItem);
 
-      Navigator.pop(context);
+      Navigator.pop(context, true); // true 값을 전달하여 성공적으로 등록/수정되었음을 알림
     } else {
       print('등록 실패: ${response.body}');
       ScaffoldMessenger.of(context).showSnackBar(
