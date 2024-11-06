@@ -84,6 +84,8 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int monthlyVisitors = 0;
   int dailyVisitors = 0;
+  String monthlyChange = "+0%";
+  String dailyChange = "+0%";
 
   @override
   void initState() {
@@ -109,9 +111,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
+        print('Monthly Change: ${data['monthly_change']}');
+        print('Daily Change: ${data['daily_change']}');
+
         setState(() {
           monthlyVisitors = data['monthly_visitors']; // 월간 방문객 수 업데이트
           dailyVisitors = data['daily_visitors']; // 금일 방문객 수 업데이트
+          monthlyChange = data['monthly_change'] ?? "No Data"; // 월간 변동률 업데이트
+          dailyChange = data['daily_change'] ?? "No Data"; // 금일 변동률 업데이트
         });
       } else {
         print(
@@ -148,7 +156,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: _buildStatisticCard(
                     '월간 방문객',
                     monthlyVisitors.toString(), // API에서 가져온 월간 방문객 수 표시
-                    monthlyVisitors > 100 ? "+5%" : "+0%", // 예시 변동률
+                    monthlyChange, // API에서 가져온 월간 방문객 변동률 표시
                   ),
                 ),
                 SizedBox(width: 16),
@@ -156,7 +164,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: _buildStatisticCard(
                     '금일 방문객',
                     dailyVisitors.toString(), // API에서 가져온 금일 방문객 수 표시
-                    dailyVisitors > 10 ? "-10%" : "+0%", // 예시 변동률
+                    dailyChange, // API에서 가져온 금일 방문객 변동률 표시
                   ),
                 ),
               ],
