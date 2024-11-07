@@ -36,16 +36,35 @@ router.get('/branches', verifyToken, (req, res) => {
 
 // QR 코드 검증 라우트
 router.get('/check-qr', (req, res) => {
-    const { reserv_idx } = req.query; // reserv_idx를 쿼리에서 가져옴
-    const query = 'SELECT is_valid FROM tb_qr WHERE reserv_idx = ?';
+    const { reserv_idx } = req.query;
+    const query = 'SELECT is_valid FROM tb_qr WHERE reserv_idx = ? ORDER BY created_at DESC LIMIT 1';
 
-    conn.query(query, [reserv_idx.split(':')[1]], (error, results) => {
-        
+    conn.query(query, [reserv_idx.split(':')[1]], async (error, results) => {
         if (error) {
             return res.status(500).send('Database error');
         }
+
+        console.log('Query results:', results);
+        console.log('is_valid value:', results[0].is_valid);
+        
+
         if (results.length > 0 && results[0].is_valid === 1) {
+            
             res.json({ is_valid: 1, message: '문이 열렸습니다' });
+
+            // FastAPI에 요청 전송
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/send_to_model/${reserv_idx.split(':')[1].trim()}`, {
+                    method: 'POST'
+                });
+                console.log(`FastAPI response status: ${response.status}`);
+
+                if (!response.ok) {
+                    console.error('Failed to send data to FastAPI');
+                }
+            } catch (err) {
+                console.error('Error calling FastAPI:', err);
+            }
         } else {
             res.json({ is_valid: 0, message: '유효하지 않은 QR코드입니다' });
         }
