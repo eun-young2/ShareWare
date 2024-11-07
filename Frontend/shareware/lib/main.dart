@@ -135,15 +135,7 @@ class MainPageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 상단 "Shareware" 제목과 로고
-            Text(
-              'Shareware',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
+
             SizedBox(height: 20.0),
             // 로고 이미지 (크기 확대)
             Container(
