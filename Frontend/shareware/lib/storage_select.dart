@@ -10,9 +10,6 @@ import 'warehouse.dart'; // 이 파일을 import
 
 const String kakaoMapKey = 'cb8f3da28528e158b5e76f2e88e968b8';
 
-void main() {
-  runApp(MaterialApp(home: KakaoMapTest()));
-}
 
 class KakaoMapTest extends StatefulWidget {
   @override
@@ -314,70 +311,80 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
             Center(
               child: CircularProgressIndicator(),
             ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.2,
-            minChildSize: 0.1,
-            maxChildSize: 0.6,
-            builder: (BuildContext context, ScrollController scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10.0,
-                      spreadRadius: 5.0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        // 핸들을 클릭하면 기본적인 드래그 동작을 시작할 수 있도록
-                        Scrollable.of(context)?.position?.jumpTo(
-                            Scrollable.of(context)!.position.pixels + 100);
-                      },
-                      child: Container(
-                        width: 60,
-                        height: 8, // 핸들의 높이를 늘림
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: _warehouses.length,
-                        itemBuilder: (context, index) {
-                          final warehouse = _warehouses[index];
-                          return ListTile(
-                            title: Text(warehouse.name),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('주소: ${warehouse.address}'),
-                                Text('연락처: ${warehouse.contact}'),
-                                Text('영업시간: ${warehouse.hours}'),
-                                Text(
-                                  '주차 가능 여부: ${warehouse.getParkingAvailability()}',
-                                ),
-                              ],
-                            ),
-                            onTap: () => _navigateToWarehouseDetails(warehouse),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+DraggableScrollableSheet(
+  initialChildSize: 0.2,
+  minChildSize: 0.1,
+  maxChildSize: 0.6,
+  builder: (BuildContext context, ScrollController scrollController) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10.0,
+            spreadRadius: 5.0,
           ),
+        ],
+      ),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Scrollable.of(context)?.position?.jumpTo(
+                  Scrollable.of(context)!.position.pixels + 100);
+            },
+            child: Container(
+              width: 60,
+              height: 8,
+              margin: EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: _warehouses.length,
+              itemBuilder: (context, index) {
+                final warehouse = _warehouses[index];
+                return ListTile(
+                  leading: Image.asset(
+                    warehouse.imageUrl.isNotEmpty ? warehouse.imageUrl : 'assets/warehouse1.jpg',
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(
+                    warehouse.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
+                    ),
+                  ),
+                  subtitle: Text('${warehouse.address}'),
+                  trailing: Text(
+                    "영업중",
+                    style: TextStyle(
+                      color: Colors.blue, // 파란색 텍스트
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: () => _navigateToWarehouseDetails(warehouse),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+)
+
+
+,
         ],
       ),
     );
