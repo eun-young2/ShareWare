@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import base64
+import requests
 
 # MySQL 데이터베이스 설정
 DATABASE_URL = "mysql+pymysql://Insa5_App_final_3:aischool3@project-db-stu3.smhrd.com:3307/Insa5_App_final_3"
@@ -44,6 +45,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # QR 발급
 @app.get("/generate_qr/{user_id}")
@@ -91,6 +93,39 @@ async def generate_qr(user_id: str):
         print(f"Error: {e}")  # 오류 메시지를 콘솔에 출력
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
+    finally:
+        db.close()
+
+# 새로운 엔드포인트: 특정 조건에 맞으면 모델에 `user_id`와 `unit_idx`를 전송
+@app.post("/send_to_model/{reserv_idx}")
+async def send_to_model(reserv_idx: int):
+    db = SessionLocal()
+    try:
+        # `tb_reservation` 테이블에서 `reserv_idx`에 해당하는 항목 조회
+        reservation = db.query(Reservation).filter(Reservation.reserv_idx == reserv_idx).first()
+        if not reservation:
+            raise HTTPException(status_code=404, detail="Reservation not found")
+
+        # 전송할 데이터 구성
+        data = {
+            "user_id": reservation.user_id,
+            "unit_idx": reservation.unit_idx
+        }
+
+        # 콘솔에 로그 출력 (전송할 데이터 확인)
+        print(f"Sending data to model: {data}")
+
+        # 모델 서버에 데이터 전송 "http://model-url.com/endpoint"
+        response = requests.post(f"http://127.0.0.1:8000/send_to_model/{reserv_idx}", json=data)
+
+        # 응답 검증
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Failed to send data to model")
+
+        return {"message": "Data sent to model successfully"}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
 

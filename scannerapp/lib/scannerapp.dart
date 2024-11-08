@@ -60,11 +60,13 @@ class _QRViewExampleState extends State<QRViewExample> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) async {
-      if (!isDialogShown) { // 다이얼로그가 표시되지 않았을 때만 실행
+      if (!isDialogShown) {
+        // 다이얼로그가 표시되지 않았을 때만 실행
         final qrData = scanData.code;
         if (qrData != null) {
           final parts = qrData.split(',');
-          if (parts.length == 3) { // QR 코드가 세 가지 값을 가질 때
+          if (parts.length == 3) {
+            // QR 코드가 세 가지 값을 가질 때
             final userId = parts[0].trim();
             final reservIdx = parts[1].trim(); // reserv_idx 값
             final time = parts[2].trim();
@@ -74,25 +76,24 @@ class _QRViewExampleState extends State<QRViewExample> {
             });
 
             // 서버에 요청 보내기
-            final response = await http.get(Uri.parse('http://172.30.1.31:3000/qr/check-qr?reserv_idx=$reservIdx'));
+            final response = await http.get(Uri.parse(
+                'http://172.30.1.56:3000/qr/check-qr?reserv_idx=$reservIdx'));
 
             String message;
             if (response.statusCode == 200) {
-             try {
-              final jsonResponse = jsonDecode(response.body);
-              if (jsonResponse['is_valid'] == 1) {
-                message = jsonResponse['message'];
-              } else {
-                message = jsonResponse['message'];
+              try {
+                final jsonResponse = jsonDecode(response.body);
+                if (jsonResponse['is_valid'] == 1) {
+                  message = jsonResponse['message'];
+                } else {
+                  message = jsonResponse['message'];
+                }
+              } catch (e) {
+                message = '응답 처리 오류';
               }
-            } catch (e) {
-              message = '응답 처리 오류';
+            } else {
+              message = '서버 연결 실패';
             }
-          } else {
-            message = '서버 연결 실패';
-          }
-
-
 
             showDialog(
               context: context,
