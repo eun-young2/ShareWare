@@ -11,10 +11,6 @@ import 'package:kakaomap_webview/kakaomap_webview.dart';
 
 const String kakaoMapKey = 'cb8f3da28528e158b5e76f2e88e968b8';
 
-void main() {
-  runApp(MaterialApp(home: MyWarehousePage()));
-}
-
 class MyWarehousePage extends StatefulWidget {
   @override
   _MyWarehousePageState createState() => _MyWarehousePageState();

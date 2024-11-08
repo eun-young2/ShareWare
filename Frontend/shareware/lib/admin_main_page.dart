@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'cctvv_page.dart'; // CCTV 페이지 추가
+import 'cctv_page_1.dart'; // CCTV 페이지 추가
+import 'cctv_page_2.dart';
+import 'cctv_page_3.dart';
 import 'reservation_page.dart'; // 예약 관리 페이지 추가
 import 'storage_management_page.dart'; // 창고 관리 페이지 추가
 import 'alarm_page.dart'; // 알람 페이지 추가 (이 페이지를 생성해야 합니다)
@@ -9,31 +11,18 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 
-void main() {
-  runApp(AdminMainPage());
-}
-
-class AdminMainPage extends StatelessWidget {
+class AdminMainPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CCTVDashboard(),
-    );
-  }
+  _AdminMainPageState createState() => _AdminMainPageState();
 }
 
-class CCTVDashboard extends StatefulWidget {
-  @override
-  _CCTVDashboardState createState() => _CCTVDashboardState();
-}
-
-class _CCTVDashboardState extends State<CCTVDashboard> {
+class _AdminMainPageState extends State<AdminMainPage> {
   int _selectedIndex = 0;
 
   // 페이지 목록
   final List<Widget> _pages = [
     DashboardPage(), // 대시보드 페이지
-    CCTVPage(), // CCTV 페이지
+    CCTVPage(),
     ReservationPage(), // 예약 관리 페이지
     StorageManagementPage(), // 창고 관리 페이지 추가
     AlarmPage(), // 알람 페이지 추가
@@ -47,29 +36,36 @@ class _CCTVDashboardState extends State<CCTVDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text('ShareWare'), // 지점 선택 드롭박스를 제거하고 단순히 제목만 표시
+    return PopScope(
+      canPop: false, // 뒤로가기 동작 차단
+      child: Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text('ShareWare'),
+          ),
+          automaticallyImplyLeading: false,
         ),
-      ),
-      body: _pages[_selectedIndex], // 선택된 페이지 표시
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
-          BottomNavigationBarItem(
-              icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
-          BottomNavigationBarItem(
-              icon: Icon(Icons.warehouse), label: '창고 관리'), // 창고 관리 아이콘
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        body: IndexedStack(
+          index: _selectedIndex, // 선택된 인덱스에 해당하는 페이지만 표시
+          children: _pages, // 페이지 리스트
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
+            BottomNavigationBarItem(
+                icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
+            BottomNavigationBarItem(
+                icon: Icon(Icons.warehouse), label: '창고 관리'), // 창고 관리 아이콘
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+        ),
       ),
     );
   }

@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
 import 'config.dart';
-
-class RTSPApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CCTVPage(),
-    );
-  }
-}
 
 class CCTVPage extends StatefulWidget {
   @override
@@ -54,7 +47,10 @@ class _CCTVPageState extends State<CCTVPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('CCTV Stream')),
+      appBar: AppBar(
+        title: Text('CCTV Stream'),
+        automaticallyImplyLeading: false,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -87,5 +83,3 @@ class _CCTVPageState extends State<CCTVPage> {
     );
   }
 }
-
-void main() => runApp(RTSPApp());

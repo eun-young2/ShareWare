@@ -10,10 +10,6 @@ import 'warehouse.dart'; // 이 파일을 import
 
 const String kakaoMapKey = 'cb8f3da28528e158b5e76f2e88e968b8';
 
-void main() {
-  runApp(MaterialApp(home: KakaoMapTest()));
-}
-
 class KakaoMapTest extends StatefulWidget {
   @override
   State<KakaoMapTest> createState() => _KakaoMapTestState();

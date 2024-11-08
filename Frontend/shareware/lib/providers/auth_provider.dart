@@ -40,10 +40,19 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     // QRProvider의 resetQRCode 호출
     final qrProvider = Provider.of<QRProvider>(context, listen: false);
     qrProvider.resetQRCode(); // 로그아웃 시 QR 코드 리셋
     print('QR리셋');
+
+    // CCTV 스트림 연결 해제 시도 및 결과 확인
+    bool isStreamDisconnected = await disconnCCTVStream();
+    if (isStreamDisconnected) {
+      print('CCTV 스트림이 성공적으로 해제되었습니다.');
+    } else {
+      print('CCTV 스트림 해제에 실패했습니다.');
+    }
 
     await prefs.remove('token');
     _isLoggedIn = false;
@@ -52,11 +61,31 @@ class AuthProvider with ChangeNotifier {
     print('로그아웃 토큰삭제');
     notifyListeners(); // 상태 변화 알림
   }
-    Future<void> setUserId(String userId) async {
+
+  Future<void> setUserId(String userId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', userId); // SharedPreferences에 저장
     _userId = userId; // 메모리에도 저장
     notifyListeners(); // 상태 변화 알림
+  }
+
+// 서버에 CCTV 스트림을 끊는 요청을 보내는 메서드
+  Future<bool> disconnCCTVStream() async {
+    final String apiUrl = '${Config.local}/rtsp/disconnect';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        print('서버에서 스트림 연결 해제 성공');
+        return true; // 성공적으로 해제된 경우
+      } else {
+        print('스트림 연결 해제 실패: ${response.statusCode}');
+        return false; // 해제 실패
+      }
+    } catch (e) {
+      print('스트림 해제 요청 중 오류 발생: $e');
+      return false; // 요청 중 오류 발생
+    }
   }
 
 //프로필 가져오기
