@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_33/cctvv_page.dart';
+import 'package:flutter_application_33/cctv_page_1.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/qr_provider.dart'; // qr전역관리 provider
@@ -57,7 +57,6 @@ class SharewareApp extends StatelessWidget {
         '/qr': (context) => QRPage(), // QR 페이지
         '/my_warehouse': (context) => MyWarehousePage(), // 마이 창고 페이지
         '/my_page': (context) => MyPage(), // 마이 페이지
-        '/rtsp_stream': (context) => CCTVPage(), // RTSP 스트리밍 페이지
       },
     );
   }
@@ -135,15 +134,7 @@ class MainPageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // 상단 "Shareware" 제목과 로고
-            Text(
-              'Shareware',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
+
             SizedBox(height: 20.0),
             // 로고 이미지 (크기 확대)
             Container(
