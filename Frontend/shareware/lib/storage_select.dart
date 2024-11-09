@@ -120,12 +120,12 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     }
   }
 
-  // 32번째부터 10개 창고 선택
+  // 31번째부터 10개 창고 선택
   List<Warehouse> _selectSubsetOfWarehouses(List<Warehouse> warehouses) {
-    if (warehouses.length < 32) {
-      return []; // 데이터가 32개 미만인 경우 빈 리스트 반환
+    if (warehouses.length < 31) {
+      return []; // 데이터가 31개 미만인 경우 빈 리스트 반환
     }
-    return warehouses.skip(32).take(10).toList();
+    return warehouses.skip(31).take(10).toList();
   }
 
   // 검색된 창고 마커 추가 스크립트

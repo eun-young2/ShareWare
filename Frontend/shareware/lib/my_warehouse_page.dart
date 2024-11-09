@@ -265,37 +265,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                     }
                   },
                 ),
-                Divider(),
-                ListTile(
-                  title: Text(
-                    'QR 발급 내역',
-                    style: TextStyle(fontSize: 20), // 폰트 크기 1.5배로 키움
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    if (!authProvider.isLoggedIn) {
-                      _showLoginRequiredDialog(context);
-                    } else {
-                      // QR 발급 내역 페이지로 이동하는 로직 추가 가능
-                    }
-                  },
-                ),
-                Divider(),
-                ListTile(
-                  title: Text(
-                    '결제 관리',
-                    style: TextStyle(fontSize: 20), // 폰트 크기 1.5배로 키움
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    if (!authProvider.isLoggedIn) {
-                      _showLoginRequiredDialog(context);
-                    } else {
-                      // 결제 관리 페이지로 이동하는 로직 추가 가능
-                    }
-                  },
-                ),
-                Divider(),
+               
               ],
             ),
           ),

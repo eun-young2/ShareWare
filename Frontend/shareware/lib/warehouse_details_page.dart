@@ -139,7 +139,7 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                 },
                 child: Text('창고 이용하기'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
+                  backgroundColor: Color(0xFFAFD485),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(

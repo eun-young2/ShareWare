@@ -125,34 +125,95 @@ class _PaymentPageState extends State<PaymentPage> {
 
   // 결제 확인 팝업 (로그인 확인 기능 제거)
   void _showPaymentConfirmation() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('결제 재확인'),
-          content: Text(
-            '지점: ${widget.warehouseName}\n'
-            '유닛 유형: $selectedUnitType\n'
-            '이용 기간: $selectedWeeks 주\n'
-            '결제 금액: ${unitPrice.toString()}원',
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12), // 둥근 모서리
+        ),
+        title: Text(
+          '결제 재확인',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2D2D2D), // 제목 색상
           ),
-          actions: [
-            TextButton(
-              child: Text('결제하기'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => QRPage()),
-                );
-              },
+        ),
+        content: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '지점: ${widget.warehouseName}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '유닛 유형: $selectedUnitType',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '이용 시작일: ${selectedDate == null ? '선택 안됨' : DateFormat('yyyy-MM-dd').format(selectedDate!)}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '이용 기간: $selectedWeeks 주',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '결제 금액: ${unitPrice.toString()}원',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D2D2D),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          // 취소 버튼
+          TextButton(
+            child: Text(
+              '취소',
+              style: TextStyle(color: Colors.grey),
             ),
-            TextButton(
-              child: Text('취소'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            onPressed: () {
+              Navigator.of(context).pop(); // 팝업 닫기
+            },
+          ),
+          // 결제하기 버튼
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFFAFD485), // 버튼 색상
+              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 0,
             ),
+            child: Text(
+              '결제하기',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => QRPage()),
+              );
+            },
+          ),
+
           ],
         );
       },

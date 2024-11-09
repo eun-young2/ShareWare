@@ -11,7 +11,7 @@ class StorageManagementPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('창고 관리'),
-        automaticallyImplyLeading: false,
+    
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,12 +31,7 @@ class StorageManagementPage extends StatelessWidget {
             SizedBox(height: 16),
             _buildStorageCard('스텐다드', '13개', '정상'),
             Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                // 추가 버튼 클릭 시의 행동
-              },
-              child: Text('창고 추가'),
-            ),
+         
             Spacer(),
             SizedBox(
               width: double.infinity,
