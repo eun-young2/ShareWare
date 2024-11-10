@@ -28,11 +28,10 @@ class _QRPageState extends State<QRPage> {
   Future<void> fetchBranches() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // JWT 토큰을 HTTP 헤더에 포함하여 서버에 요청
     final response = await http.get(
-      Uri.parse('${Config.local}/qr/branches'), // Config에서 API URL 사용
+      Uri.parse('${Config.local}/qr/branches'),
       headers: {
-        'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰을 헤더에 추가
+        'Authorization': 'Bearer ${authProvider.token}',
       },
     );
 
@@ -41,16 +40,39 @@ class _QRPageState extends State<QRPage> {
 
       setState(() {
         branches = List<Map<String, String>>.from(
-          (data['branches'] as List).map((branch) => {
-                'name': branch['name'].toString(),
-                'address': branch['address'].toString(),
-                'contact': branch['contact'].toString(),
-              }),
-        ); // 서버로부터 지점 정보 가져오기
+          (data['branches'] as List).map((branch) {
+            return {
+              'wh_idx': branch['wh_idx'].toString(), // wh_idx 추가
+              'name': branch['name'].toString(),
+              'address': branch['address'].toString(),
+              'contact': branch['contact'].toString(),
+            };
+          }),
+        );
       });
     } else {
-      // 오류 처리
       print('지점 정보 가져오기 실패: ${response.statusCode}');
+    }
+  }
+
+  void sendExitLog(String userId, String whIdx) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    final response = await http.post(
+      Uri.parse('${Config.local}/qr/exit'), // 서버 주소를 적절히 변경
+      headers: {
+        'Authorization': 'Bearer ${authProvider.token}', // JWT 토큰 추가
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'wh_idx': whIdx}),
+    );
+
+    if (response.statusCode == 200) {
+      print('퇴실 로그가 성공적으로 전송되었습니다.');
+      // 사용자에게 성공 메시지를 보여줄 수 있습니다.
+    } else {
+      print('퇴실 로그 전송 실패: ${response.body}');
+      // 오류 메시지를 사용자에게 표시할 수 있습니다.
     }
   }
 
@@ -200,7 +222,8 @@ class _QRPageState extends State<QRPage> {
                     } else {
                       // QR 발급 로직
                       if (userId != null) {
-                        qrProvider.generateQRCode(userId); // QR 코드 생성
+                        qrProvider.generateQRCode(
+                            userId, selectedBranch!['name']); // QR 코드 생성
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -311,6 +334,23 @@ class _QRPageState extends State<QRPage> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        final userId =
+                            authProvider.userId; // AuthProvider를 통해 사용자 ID 가져오기
+                        final whIdx = qrProvider
+                            .selectedBranchWhIdx; // 선택된 지점의 wh_idx 가져오기
+
+                        // entry된 whIdx와 exit 시의 whIdx 비교
+                        print(
+                            'entry whIdx: ${qrProvider.entryWhIdx}, exit whIdx: $whIdx');
+
+                        if (userId != null &&
+                            whIdx != null &&
+                            whIdx == qrProvider.entryWhIdx.toString()) {
+                          sendExitLog(userId, whIdx); // 퇴실 로그 전송 함수 호출
+                        } else {
+                          print(
+                              '유효한 사용자 ID나 지점 정보가 없거나, entry 시의 wh_idx와 일치하지 않습니다.');
+                        }
                         qrProvider.resetQRCode();
                         print('QR 코드 퇴실');
                         setState(() {
