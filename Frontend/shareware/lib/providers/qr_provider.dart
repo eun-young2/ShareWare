@@ -16,11 +16,13 @@ class QRProvider with ChangeNotifier {
   String? selectedBranchAddress;
   String? selectedBranchContact;
   int? reservIdx; // 예약 인덱스를 저장할 변수 추가
+  Map<String, String>? _selectedBranch;
+  int? entryWhIdx;
 
-  Future<void> generateQRCode(String userId) async {
+  Future<void> generateQRCode(String userId, dynamic whName) async {
     try {
       final response = await http.get(Uri.parse(
-              'http://10.0.2.2:8000/generate_qr/$userId') // userId를 URL에 포함
+              'http://10.0.2.2:8000/generate_qr/$userId/$whName') // userId를 URL에 포함
           );
 
       if (response.statusCode == 200) {
@@ -70,6 +72,8 @@ class QRProvider with ChangeNotifier {
     selectedBranchName = branch['name'];
     selectedBranchAddress = branch['address'];
     selectedBranchContact = branch['contact'];
+    _selectedBranch = branch;
+    entryWhIdx = int.tryParse(branch['wh_idx'] ?? ''); // entry된 wh_idx 설정
     notifyListeners();
   }
 
@@ -114,5 +118,10 @@ class QRProvider with ChangeNotifier {
     String minutes = twoDigits(duration.inMinutes.remainder(60));
     String seconds = twoDigits(duration.inSeconds.remainder(60));
     return "$hours:$minutes:$seconds";
+  }
+
+  // Getter for wh_idx of the selected branch
+  String? get selectedBranchWhIdx {
+    return _selectedBranch?['wh_idx'];
   }
 }

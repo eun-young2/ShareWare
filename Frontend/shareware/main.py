@@ -3,17 +3,25 @@ from fastapi.middleware.cors import CORSMiddleware
 import qrcode
 import io
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import base64
 import requests
+import json
+
 
 # MySQL 데이터베이스 설정
 DATABASE_URL = "mysql+pymysql://Insa5_App_final_3:aischool3@project-db-stu3.smhrd.com:3307/Insa5_App_final_3"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+def to_dict(obj):
+    """SQLAlchemy 객체를 사전 형태로 변환"""
+    return {column.name: getattr(obj, column.name) for column in obj.__table__.columns}
+
 
 # Reservation 모델 정의
 class Reservation(Base):
@@ -48,13 +56,28 @@ app.add_middleware(
 
 
 # QR 발급
-@app.get("/generate_qr/{user_id}")
-async def generate_qr(user_id: str):
+@app.get("/generate_qr/{user_id}/{wh_name}")
+async def generate_qr(user_id: str, wh_name: str):
     db = SessionLocal()
     try:
+        query =  text("""
+            SELECT wh_idx
+            FROM tb_warehouse
+            WHERE wh_branch_name = :wh_name
+        """)
+        result = db.execute(query, {"wh_name": wh_name}).fetchone()
+
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Warehouse not found")
+
+        wh_idx = result[0]
+
+
         reservation = db.query(Reservation).filter(
             Reservation.user_id == user_id,
-            Reservation.reserv_status == 'in_use'
+            Reservation.wh_idx == wh_idx,
+            Reservation.reserv_status == 'in_use',
         ).first()
 
         if not reservation:
@@ -79,16 +102,20 @@ async def generate_qr(user_id: str):
             created_at=datetime.now()  # 현재 시간
         )
 
+       # print("이거는?", json.dumps(to_dict(qr_code_entry), indent=4, default=str))
+
         db.add(qr_code_entry)  # QR 코드 엔트리 추가
+        a = reservation.reserv_idx
         db.commit()  # 데이터베이스에 저장
         db.refresh(qr_code_entry)  # 새로 생성된 엔티티를 새로고침
 
          # JSON 응답 반환
         return {
             "qr_code": img_base64,
-            "reserv_idx": reservation.reserv_idx,
+            "reserv_idx": a,
             "message": "QR code generated successfully"
         }
+    
     except Exception as e:
         print(f"Error: {e}")  # 오류 메시지를 콘솔에 출력
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -116,7 +143,7 @@ async def send_to_model(reserv_idx: int):
         print(f"Sending data to model: {data}")
 
         # 모델 서버에 데이터 전송 "http://model-url.com/endpoint"
-        response = requests.post(f"http://127.0.0.1:8000/send_to_model/{reserv_idx}", json=data)
+       # response = requests.post(f"http://127.0.0.1:8000/send_to_model/{reserv_idx}", json=data)
 
         # 응답 검증
         if response.status_code != 200:
@@ -136,7 +163,9 @@ async def invalidate_qr(reserv_idx: int):
     try:
         # QR 코드의 유효성을 0으로 설정
         qr_code_entry = db.query(QRCode).filter(QRCode.reserv_idx == reserv_idx, QRCode.is_valid == 1).order_by(QRCode.created_at.desc()).first()  # 최신 순으로 정렬하여 첫 번째 항목 선택
-        
+
+       # print("qr",json.dumps(to_dict(qr_code_entry), indent=4, default=str))
+       
         if not qr_code_entry:
             raise HTTPException(status_code=404, detail="QR code not found or already invalidated")
         
@@ -155,4 +184,4 @@ if __name__ == "__main__":
     import uvicorn
    # Base.metadata.drop_all(bind=engine)  # 기존 테이블 삭제
    # Base.metadata.create_all(bind=engine)  # 새 테이블 생성
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
