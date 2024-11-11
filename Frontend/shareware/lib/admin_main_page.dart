@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cctv_page_1.dart'; // CCTV 페이지 추가
-import 'cctv_page_2.dart';
-import 'cctv_page_3.dart';
+import 'cctv_page.dart'; // CCTV 페이지 추가
 import 'reservation_page.dart'; // 예약 관리 페이지 추가
 import 'storage_management_page.dart'; // 창고 관리 페이지 추가
 import 'alarm_page.dart'; // 알람 페이지 추가 (이 페이지를 생성해야 합니다)
