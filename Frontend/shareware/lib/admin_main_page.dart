@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'entry_log_page.dart'; // 출입 로그 페이지 추가
-import 'cctv_page_1.dart'; // CCTV 페이지 추가
+import 'cctv_page.dart'; // CCTV 페이지 추가
 import 'reservation_page.dart'; // 예약 관리 페이지 추가
 import 'storage_management_page.dart'; // 창고 관리 페이지 추가
 import 'alarm_page.dart'; // 알람 페이지 추가
@@ -120,7 +120,8 @@ class _DashboardPageState extends State<DashboardPage> {
           dailyChange = data['daily_change'] ?? "No Data"; // 금일 변동률 업데이트
         });
       } else {
-        print('Failed to load visitor stats. Status code: ${response.statusCode}');
+        print(
+            'Failed to load visitor stats. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Exception occurred: $e'); // 예외 발생 시 출력
@@ -180,7 +181,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => EntryLogPage()), // 출입 로그 페이지로 이동
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                EntryLogPage()), // 출입 로그 페이지로 이동
                       );
                     },
                   ),
