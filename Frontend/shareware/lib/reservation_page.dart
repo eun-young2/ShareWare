@@ -44,7 +44,7 @@ class _ReservationPageState extends State<ReservationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('예약 관리'),
-        automaticallyImplyLeading: false,
+        
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

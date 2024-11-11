@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'entry_log_page.dart'; // 출입 로그 페이지 추가
 import 'cctv_page.dart'; // CCTV 페이지 추가
 import 'reservation_page.dart'; // 예약 관리 페이지 추가
 import 'storage_management_page.dart'; // 창고 관리 페이지 추가
-import 'alarm_page.dart'; // 알람 페이지 추가 (이 페이지를 생성해야 합니다)
+import 'alarm_page.dart'; // 알람 페이지 추가
 import 'config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -20,10 +21,11 @@ class _AdminMainPageState extends State<AdminMainPage> {
   // 페이지 목록
   final List<Widget> _pages = [
     DashboardPage(), // 대시보드 페이지
-    CCTVPage(),
+    CCTVPage(), // CCTV 페이지
+    EntryLogPage(), // 출입 로그 페이지 추가
     ReservationPage(), // 예약 관리 페이지
-    StorageManagementPage(), // 창고 관리 페이지 추가
-    AlarmPage(), // 알람 페이지 추가
+    StorageManagementPage(), // 창고 관리 페이지
+    AlarmPage(), // 알람 페이지
   ];
 
   void _onItemTapped(int index) {
@@ -54,6 +56,8 @@ class _AdminMainPageState extends State<AdminMainPage> {
                 icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
             BottomNavigationBarItem(
                 icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
+            BottomNavigationBarItem(
+                icon: Icon(Icons.access_time), label: '출입 관리'), // 출입 관리 아이콘
             BottomNavigationBarItem(
                 icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
             BottomNavigationBarItem(
@@ -172,12 +176,14 @@ class _DashboardPageState extends State<DashboardPage> {
                 Expanded(
                   child: _buildNavigationButton(
                     context,
-                    'CCTV 관리',
-                    Icons.camera_alt,
+                    '출입 관리',
+                    Icons.access_time,
                     () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CCTVPage()),
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                EntryLogPage()), // 출입 로그 페이지로 이동
                       );
                     },
                   ),

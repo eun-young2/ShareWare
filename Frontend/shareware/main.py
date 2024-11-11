@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import qrcode
 import io
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import base64
@@ -48,12 +48,25 @@ app.add_middleware(
 
 
 # QR 발급
-@app.get("/generate_qr/{user_id}")
-async def generate_qr(user_id: str):
+@app.get("/generate_qr/{user_id}/{wh_name}")
+async def generate_qr(user_id: str, wh_name: str):
     db = SessionLocal()
     try:
+        query =  text("""
+            SELECT wh_idx
+            FROM tb_warehouse
+            WHERE wh_branch_name = :wh_name
+        """)
+        result = db.execute(query, {"wh_name": wh_name}).fetchone()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Warehouse not found")
+
+        wh_idx = result[0]
+
         reservation = db.query(Reservation).filter(
             Reservation.user_id == user_id,
+            Reservation.wh_idx == wh_idx,
             Reservation.reserv_status == 'in_use'
         ).first()
 
@@ -116,7 +129,7 @@ async def send_to_model(reserv_idx: int):
         print(f"Sending data to model: {data}")
 
         # 모델 서버에 데이터 전송 "http://model-url.com/endpoint"
-        response = requests.post(f"http://127.0.0.1:8000/send_to_model/{reserv_idx}", json=data)
+       # response = requests.post(f"http://127.0.0.1:8000/send_to_model/{reserv_idx}", json=data)
 
         # 응답 검증
         if response.status_code != 200:
