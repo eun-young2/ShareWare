@@ -84,6 +84,7 @@ class _QRPageState extends State<QRPage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('QR 입장 코드 발급'),
       ),
       body: Padding(

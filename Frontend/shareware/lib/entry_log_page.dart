@@ -54,6 +54,7 @@ class _EntryLogPageState extends State<EntryLogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('출입 로그'),
       ),
       body: Padding(

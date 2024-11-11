@@ -12,8 +12,6 @@ import 'package:flutter/services.dart';
 
 const String kakaoMapKey = 'cb8f3da28528e158b5e76f2e88e968b8';
 
-
-
 class MyWarehousePage extends StatefulWidget {
   @override
   _MyWarehousePageState createState() => _MyWarehousePageState();
@@ -44,7 +42,9 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
         final data = json.decode(response.body);
 
         if (data.isNotEmpty) {
-          return data.map<Warehouse>((item) => Warehouse.fromJson(item)).toList();
+          return data
+              .map<Warehouse>((item) => Warehouse.fromJson(item))
+              .toList();
         } else {
           print("데이터 없음: 예약된 창고가 없습니다.");
           return [];
@@ -94,8 +94,8 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('마이 창고'),
-      
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,13 +159,15 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                               ),
                               SizedBox(height: 8),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0), // 좌우 여백
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0), // 좌우 여백
                                 child: Row(
                                   children: [
                                     // 지도와 여백을 Row로 배치
                                     Expanded(
                                       child: Container(
-                                        width: screenWidth * 0.75, // 화면의 3/4을 지도에 할당
+                                        width: screenWidth *
+                                            0.75, // 화면의 3/4을 지도에 할당
                                         height: 200,
                                         child: KakaoMapView(
                                           width: double.infinity,
@@ -186,25 +188,31 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                               SizedBox(height: 8),
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 8),
                                 color: Colors.grey[100],
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: Text(
                                         warehouses[0].address,
-                                        style: TextStyle(fontSize: 16, color: Colors.black),
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.black),
                                         textAlign: TextAlign.left,
                                       ),
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        Clipboard.setData(ClipboardData(text: warehouses[0].address));
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text("주소가 복사되었습니다.")),
+                                        Clipboard.setData(ClipboardData(
+                                            text: warehouses[0].address));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text("주소가 복사되었습니다.")),
                                         );
                                       },
-                                      child: Icon(Icons.copy, size: 20, color: Colors.black54),
+                                      child: Icon(Icons.copy,
+                                          size: 20, color: Colors.black54),
                                     ),
                                   ],
                                 ),
@@ -243,7 +251,8 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
           ),
           Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 9.0), // 리스트 항목에 좌우 여백 추가
+            padding:
+                const EdgeInsets.symmetric(horizontal: 9.0), // 리스트 항목에 좌우 여백 추가
             child: Column(
               children: [
                 ListTile(
@@ -259,13 +268,13 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ManageItemsPage(selectedIndex: 3),
+                          builder: (context) =>
+                              ManageItemsPage(selectedIndex: 3),
                         ),
                       );
                     }
                   },
                 ),
-               
               ],
             ),
           ),
