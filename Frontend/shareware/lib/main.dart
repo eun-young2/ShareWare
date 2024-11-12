@@ -10,7 +10,7 @@ import 'my_page.dart'; // 마이페이지탭
 import 'login_page.dart'; // 로그인 페이지
 import 'signup_page.dart'; // 회원가입 페이지
 import 'bottom_nav_bar.dart';
-import 'payment_page.dart';
+import 'booking_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,8 +49,8 @@ class SharewareApp extends StatelessWidget {
         '/': (context) => MainPage(), // 메인 페이지
         '/login': (context) => LoginPage(), // 로그인 페이지
         '/signup': (context) => SignupPage(), // 회원가입 페이지
-        '/payment': (context) =>
-            PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
+        '/booking': (context) =>
+            BookingPage(warehouseName: 'Some Warehouse'), // 예약 페이지
         '/storage_select': (context) => KakaoMapTest(), // 창고 찾기 페이지
         '/qr': (context) => QRPage(), // QR 페이지
         '/my_warehouse': (context) => MyWarehousePage(), // 마이 창고 페이지
