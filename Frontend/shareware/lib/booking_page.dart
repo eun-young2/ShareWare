@@ -5,6 +5,7 @@ import 'package:flutter_application_33/qr_page.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'payment_page.dart';
 
 class BookingPage extends StatefulWidget {
   final String warehouseName;
@@ -682,7 +683,7 @@ class _BookingPageState extends State<BookingPage> {
             children: [
               Text(
                 '${widget.warehouseName}',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
               Text(
@@ -694,10 +695,14 @@ class _BookingPageState extends State<BookingPage> {
                 decoration: InputDecoration(
                   hintText: '이용 시작일을 선택해주세요.',
                   border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_today),
+                  suffixIcon: Icon(
+                    Icons.calendar_today,
+                    color: Colors.grey[400],
+                  ),
                   hintStyle: TextStyle(
-                    color:
-                        selectedStartDate == null ? Colors.grey : Colors.black,
+                    color: selectedStartDate == null
+                        ? Colors.grey[500]
+                        : Colors.black,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey[300]!),
@@ -740,10 +745,13 @@ class _BookingPageState extends State<BookingPage> {
                         decoration: InputDecoration(
                           hintText: '종료일을 선택해주세요.',
                           border: OutlineInputBorder(),
-                          suffixIcon: Icon(Icons.calendar_today),
+                          suffixIcon: Icon(
+                            Icons.calendar_today,
+                            color: Colors.grey[400],
+                          ),
                           hintStyle: TextStyle(
                             color: selectedEndDate == null
-                                ? Colors.grey
+                                ? Colors.grey[500]
                                 : Colors.black,
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -842,7 +850,7 @@ class _BookingPageState extends State<BookingPage> {
           ),
         ),
       ),
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -882,7 +890,7 @@ class _BookingPageState extends State<BookingPage> {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  '${selectedUnitType} ${roundedSize}형 / ${NumberFormat('#,###').format((unitPrice * (82 / 100)).round())}원',
+                  '${selectedUnitType} ${roundedSize} / ${NumberFormat('#,###').format((unitPrice * (82 / 100)).round())}원',
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -892,23 +900,41 @@ class _BookingPageState extends State<BookingPage> {
             ),
             Spacer(),
             ElevatedButton(
-              onPressed: _showPaymentConfirmation,
+              onPressed: (selectedStartDate != null &&
+                      (isSelectingDuration || selectedEndDate != null))
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PaymentPage(
+                                  warehouseName: widget.warehouseName,
+                                  unitType: selectedUnitType,
+                                  unitSize: roundedSize,
+                                  startDate: selectedStartDate!,
+                                  unitPrice: unitPrice,
+                                )),
+                      );
+                    }
+                  : null, // 조건이 만족하지 않으면 onPressed가 null로 설정되어 버튼 비활성화
               child: Text(
                 '예약하기',
                 style: TextStyle(
                   fontWeight: FontWeight.bold, // 텍스트를 굵게 설정
-                  fontSize: 20,
+                  fontSize: 18,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                backgroundColor: Color(0xFFAFD485),
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                backgroundColor: (selectedStartDate != null &&
+                        (isSelectingDuration || selectedEndDate != null))
+                    ? Color(0xFFAFD485) // 조건을 만족할 때 버튼 색상
+                    : Colors.grey, // 조건을 만족하지 않을 때 회색으로 비활성화 색상
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-            ),
+            )
           ],
         ),
       ),
