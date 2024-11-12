@@ -26,6 +26,7 @@ class _MyPageState extends State<MyPage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(showProfile ? '프로필' : '마이페이지'),
         leading: showProfile
             ? IconButton(

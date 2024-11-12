@@ -43,8 +43,8 @@ class _ReservationPageState extends State<ReservationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('예약 관리'),
-        
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

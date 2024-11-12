@@ -281,6 +281,7 @@ String _generateMarkersScript() {
     return Scaffold(
       appBar: AppBar(
         title: Text('창고찾기'),
+        automaticallyImplyLeading: false,
       ),
       body: Stack(
         children: [
@@ -333,79 +334,80 @@ String _generateMarkersScript() {
             Center(
               child: CircularProgressIndicator(),
             ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.2,
-            minChildSize: 0.1,
-            maxChildSize: 0.6,
-            builder: (BuildContext context, ScrollController scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10.0,
-                      spreadRadius: 5.0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Scrollable.of(context)?.position?.jumpTo(
-                          Scrollable.of(context)!.position.pixels + 100);
-                      },
-                      child: Container(
-                        width: 60,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: _warehouses.length,
-                        itemBuilder: (context, index) {
-                          final warehouse = _warehouses[index];
-                          return ListTile(
-                            leading: Image.asset(
-                              warehouse.imageUrl.isNotEmpty
-                                  ? warehouse.imageUrl
-                                  : 'assets/warehouse1.jpg',
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
-                            ),
-                            title: Text(
-                              warehouse.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
-                              ),
-                            ),
-                            subtitle: Text('${warehouse.address}'),
-                            trailing: Text(
-                              "영업중",
-                              style: TextStyle(
-                                color: Colors.blue, // 파란색 텍스트
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onTap: () => _navigateToWarehouseDetails(warehouse),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+DraggableScrollableSheet(
+  initialChildSize: 0.2,
+  minChildSize: 0.1,
+  maxChildSize: 0.6,
+  builder: (BuildContext context, ScrollController scrollController) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10.0,
+            spreadRadius: 5.0,
           ),
+        ],
+      ),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Scrollable.of(context)?.position?.jumpTo(
+                  Scrollable.of(context)!.position.pixels + 100);
+            },
+            child: Container(
+              width: 60,
+              height: 8,
+              margin: EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: scrollController,
+              itemCount: _warehouses.length,
+              itemBuilder: (context, index) {
+                final warehouse = _warehouses[index];
+                return ListTile(
+                  leading: Image.asset(
+                    warehouse.imageUrl.isNotEmpty ? warehouse.imageUrl : 'assets/warehouse1.jpg',
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(
+                    warehouse.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
+                    ),
+                  ),
+                  subtitle: Text('${warehouse.address}'),
+                  trailing: Text(
+                    "영업중",
+                    style: TextStyle(
+                      color: Colors.blue, // 파란색 텍스트
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: () => _navigateToWarehouseDetails(warehouse),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+)
+
+
+,
         ],
       ),
     );

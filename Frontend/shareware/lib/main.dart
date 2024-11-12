@@ -10,8 +10,7 @@ import 'my_page.dart'; // 마이페이지탭
 import 'login_page.dart'; // 로그인 페이지
 import 'signup_page.dart'; // 회원가입 페이지
 import 'bottom_nav_bar.dart';
-import 'payment_page.dart';
-import 'rtsp.dart'; // rtsp 스트리밍 페이지 가져오기
+import 'booking_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,8 +49,8 @@ class SharewareApp extends StatelessWidget {
         '/': (context) => MainPage(), // 메인 페이지
         '/login': (context) => LoginPage(), // 로그인 페이지
         '/signup': (context) => SignupPage(), // 회원가입 페이지
-        '/payment': (context) =>
-            PaymentPage(warehouseName: 'Some Warehouse'), // 결제 페이지
+        '/booking': (context) =>
+            BookingPage(warehouseName: 'Some Warehouse'), // 예약 페이지
         '/storage_select': (context) => KakaoMapTest(), // 창고 찾기 페이지
         '/qr': (context) => QRPage(), // QR 페이지
         '/my_warehouse': (context) => MyWarehousePage(), // 마이 창고 페이지
@@ -95,25 +94,29 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Shareware'),
-        centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset(
-            'assets/ShareWare_logo.png',
-            fit: BoxFit.contain,
+    return PopScope(
+      canPop: false, // 뒤로가기 동작 차단
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('Shareware'),
+          centerTitle: true,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/ShareWare_logo.png',
+              fit: BoxFit.contain,
+            ),
           ),
         ),
-      ),
-      body: IndexedStack(
-        index: _selectedIndex, // 선택된 페이지 인덱스
-        children: _pages, // IndexedStack으로 페이지 전환 처리
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스 전달
-        onTap: _onItemTapped, // 탭이 클릭되었을 때 호출
+        body: IndexedStack(
+          index: _selectedIndex, // 선택된 페이지 인덱스
+          children: _pages, // IndexedStack으로 페이지 전환 처리
+        ),
+        bottomNavigationBar: BottomNavBar(
+          currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스 전달
+          onTap: _onItemTapped, // 탭이 클릭되었을 때 호출
+        ),
       ),
     );
   }

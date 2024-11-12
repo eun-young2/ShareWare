@@ -10,8 +10,8 @@ class StorageManagementPage extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('창고 관리'),
-    
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,7 +31,6 @@ class StorageManagementPage extends StatelessWidget {
             SizedBox(height: 16),
             _buildStorageCard('스텐다드', '13개', '정상'),
             Spacer(),
-         
             Spacer(),
             SizedBox(
               width: double.infinity,

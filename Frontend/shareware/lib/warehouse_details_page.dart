@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'warehouse.dart'; // Warehouse 모델 클래스를 import
-import 'payment_page.dart'; // 결제 페이지를 import
+import 'booking_page.dart'; // 결제 페이지를 import
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart'; // AuthProvider를 import합니다.
 import 'login_page.dart';
@@ -41,9 +41,11 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                   child: Row(
                     children: [
-                      Text('🌡️', style: TextStyle(fontSize: 18)), // 이모지 크기 원래대로 유지
+                      Text('🌡️',
+                          style: TextStyle(fontSize: 18)), // 이모지 크기 원래대로 유지
                       SizedBox(width: 3),
-                      Text('적정 온도', style: TextStyle(color: Colors.black, fontSize: 12)),
+                      Text('적정 온도',
+                          style: TextStyle(color: Colors.black, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -58,7 +60,8 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                     children: [
                       Text('💧', style: TextStyle(fontSize: 18)),
                       SizedBox(width: 3),
-                      Text('적정 습도', style: TextStyle(color: Colors.black, fontSize: 12)),
+                      Text('적정 습도',
+                          style: TextStyle(color: Colors.black, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -89,7 +92,9 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                   icon: Icon(Icons.copy, size: 16),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('주소가 복사되었습니다: ${widget.warehouse.address}')),
+                      SnackBar(
+                          content:
+                              Text('주소가 복사되었습니다: ${widget.warehouse.address}')),
                     );
                   },
                   padding: EdgeInsets.zero,
@@ -124,7 +129,8 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  final authProvider =
+                      Provider.of<AuthProvider>(context, listen: false);
 
                   if (!authProvider.isLoggedIn) {
                     _showLoginDialog();
@@ -132,7 +138,8 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PaymentPage(warehouseName: widget.warehouse.name),
+                        builder: (context) =>
+                            BookingPage(warehouseName: widget.warehouse.name),
                       ),
                     );
                   }
@@ -182,38 +189,38 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
             ],
           ),
         ),
-        if (isSelected)
-          Divider(thickness: 1.5, color: Colors.black),
+        if (isSelected) Divider(thickness: 1.5, color: Colors.black),
       ],
     );
   }
-void _showLoginDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('로그인 필요'),
-        content: Text('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?'),
-        actions: [
-          TextButton(
-            child: Text('로그인'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.pushNamed(context, '/login').then((_) {
-                // 로그인 후 디테일 페이지로 돌아옴
-                setState(() {}); // 상태를 갱신하여 UI를 업데이트
-              });
-            },
-          ),
-          TextButton(
-            child: Text('취소'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+
+  void _showLoginDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('로그인 필요'),
+          content: Text('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?'),
+          actions: [
+            TextButton(
+              child: Text('로그인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushNamed(context, '/login').then((_) {
+                  // 로그인 후 디테일 페이지로 돌아옴
+                  setState(() {}); // 상태를 갱신하여 UI를 업데이트
+                });
+              },
+            ),
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
