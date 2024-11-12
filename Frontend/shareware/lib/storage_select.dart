@@ -39,6 +39,8 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     if (_webViewController != null) {
       _webViewController.runJavascript(
           'map.setCenter(new kakao.maps.LatLng($_currentLat, $_currentLon));');
+          _webViewController.runJavascript(
+        'map.setLevel(8);');  // 값이 작을수록 확대되고, 클수록 축소됨    
     }
   }
 

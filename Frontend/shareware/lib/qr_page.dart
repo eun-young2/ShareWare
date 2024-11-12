@@ -339,6 +339,7 @@ class _QRPageState extends State<QRPage> {
                             authProvider.userId; // AuthProvider를 통해 사용자 ID 가져오기
                         final whIdx = qrProvider
                             .selectedBranchWhIdx; // 선택된 지점의 wh_idx 가져오기
+                        final reservIdx = qrProvider.reservIdx;
 
                         // entry된 whIdx와 exit 시의 whIdx 비교
                         print(

@@ -18,10 +18,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool isAdminLogin = false;
+  bool isAdminLogin = false;  // 기본값: 사용자 로그인
+  bool isUserLoginSelected = true;  // 기본값: 사용자 로그인 버튼 선택
+  bool isAdminLoginSelected = false; // 기본값: 관리자 로그인 버튼 비선택
 
-  Color customGreen = Color(0xFFAFD485);
-  Color customGray = Color(0xFF9A9A9A);
+  Color customGreen = Color(0xFFAFD485); // 네이버의 초록색
+  Color customGray = Color(0xFFB3B3B3); // 네이버 스타일의 회색
 
   Future<void> login() async {
     final String apiUrl = '${Config.local}/user/login';
@@ -53,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // 여기서 현재 페이지의 타입에 따라 이동할 페이지를 결정합니다.
+      // 로그인 후 페이지 전환
       if (!isAdminLogin && data['role'] == 'admin') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('사용자로 로그인할 수 없습니다.')),
@@ -96,7 +98,6 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         print('로그인 상태입니다: ${response.body}');
         // 로그인 상태이지만 메인 페이지로 이동하지 않음
-        // (상태 업데이트가 필요한 경우에만 수행)
       } else {
         print('로그인되지 않음: ${response.body}');
       }
@@ -115,84 +116,159 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white, // 네이버 느낌의 흰색 배경
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: Colors.black), // 검은색 화살표
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: Text('로그인'),
+        title: Text(
+          '로그인',
+          style: TextStyle(
+            color: Colors.black, // 검은색 로그인 텍스트
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        elevation: 0, // 그림자 없애기
       ),
-      body: Padding(
+      body: SingleChildScrollView( // 바텀 오버플로우를 방지하는 ScrollView 추가
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isAdminLogin = false;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isAdminLogin ? customGray : customGreen,
+        child: Center( // 모든 위젯을 중앙에 배치
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 네이버 스타일의 로고 추가
+              Image.asset(
+                'assets/ShareWare_logo.png', // 로고 이미지
+                width: 120,
+                height: 120,
+              ),
+              SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        isAdminLogin = false;
+                        isUserLoginSelected = true;
+                        isAdminLoginSelected = false;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isUserLoginSelected ? customGreen : Colors.white, // 버튼 색상 변경
+                      minimumSize: Size(180, 50), // 가로 길이와 세로 길이 조정
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
+                        borderRadius: BorderRadius.circular(8.0), // 둥근 모서리
+                      ),
+                    ),
+                    child: Text(
+                      '사용자 로그인',
+                      style: TextStyle(color: isUserLoginSelected ? Colors.white : Colors.black), // 텍스트 색상 변경
+                    ),
                   ),
-                  child: Text(
-                    '사용자 로그인',
-                    style: TextStyle(color: Colors.white),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        isAdminLogin = true;
+                        isAdminLoginSelected = true;
+                        isUserLoginSelected = false;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isAdminLoginSelected ? customGreen : Colors.white, // 버튼 색상 변경
+                      minimumSize: Size(180, 50), // 가로 길이와 세로 길이 조정
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
+                        borderRadius: BorderRadius.circular(8.0), // 둥근 모서리
+                      ),
+                    ),
+                    child: Text(
+                      '관리자 로그인',
+                      style: TextStyle(color: isAdminLoginSelected ? Colors.white : Colors.black), // 텍스트 색상 변경
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              // 아이디 입력 필드
+              TextField(
+                controller: usernameController,
+                style: TextStyle(color: Colors.black), // 아이디 텍스트 색상 검은색
+                decoration: InputDecoration(
+                  labelText: isAdminLogin ? '관리자 아이디' : '아이디',
+                  labelStyle: TextStyle(color: Colors.black), // 네이버 스타일의 초록색
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: customGreen, width: 1.5), // 항상 초록색 테두리
                   ),
                 ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isAdminLogin = true;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isAdminLogin ? customGreen : customGray,
+              ),
+              SizedBox(height: 20),
+              // 비밀번호 입력 필드
+              TextField(
+                controller: passwordController,
+                style: TextStyle(color: Colors.black), // 비밀번호 텍스트 색상 검은색
+                decoration: InputDecoration(
+                  labelText: '비밀번호',
+                  labelStyle: TextStyle(color: Colors.black), // 네이버 스타일의 초록색
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: customGreen, width: 1.5), // 항상 초록색 테두리
                   ),
-                  child: Text('관리자 로그인', style: TextStyle(color: Colors.white)),
                 ),
-              ],
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: usernameController,
-              decoration: InputDecoration(
-                labelText: isAdminLogin ? '관리자 아이디' : '아이디',
-                border: OutlineInputBorder(),
+                obscureText: true,
               ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: '비밀번호',
-                border: OutlineInputBorder(),
+              SizedBox(height: 20),
+              // 로그인 버튼 (사용자, 관리자 동일하게 통일)
+              ElevatedButton(
+                onPressed: () {
+                  login();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // 흰색 버튼 배경
+                  foregroundColor: customGreen, // 버튼 텍스트 색상 (초록색)
+                  padding: EdgeInsets.symmetric(vertical: 14.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
+                  ),
+                  minimumSize: Size(double.infinity, 50), // 버튼을 화면 너비에 맞게 길게 만들기
+                ),
+                child: Text(
+                  '로그인',
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                ),
               ),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                login();
-              },
-              child: Text('로그인'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignupPage()),
-                );
-              },
-              child: Text('회원가입'),
-            ),
-          ],
+              SizedBox(height: 20),
+              // 회원가입 버튼
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignupPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // 흰색 버튼 배경
+                  foregroundColor: customGreen, // 버튼 텍스트 색상 (초록색)
+                  padding: EdgeInsets.symmetric(vertical: 14.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
+                  ),
+                  minimumSize: Size(double.infinity, 50), // 버튼을 화면 너비에 맞게 길게 만들기
+                ),
+                child: Text(
+                  '회원가입',
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
