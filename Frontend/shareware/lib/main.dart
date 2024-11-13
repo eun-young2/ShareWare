@@ -31,6 +31,7 @@ class SharewareApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Shareware',
+      debugShowCheckedModeBanner: false,  // 디버그 배너 제거
       theme: ThemeData(
         primaryColor: Color(0xFFAFD485),
         colorScheme: ColorScheme.fromSwatch().copyWith(
