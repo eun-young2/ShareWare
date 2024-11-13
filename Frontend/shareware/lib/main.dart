@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/qr_provider.dart'; // qr전역관리 provider
@@ -11,10 +12,12 @@ import 'login_page.dart'; // 로그인 페이지
 import 'signup_page.dart'; // 회원가입 페이지
 import 'bottom_nav_bar.dart';
 import 'booking_page.dart';
+import 'payment_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: "assets/.env");
+  await initializeDateFormatting('ko_KR', null); // 로케일 초기화
   runApp(
     MultiProvider(
       providers: [
@@ -61,11 +64,15 @@ class SharewareApp extends StatelessWidget {
 }
 
 class MainPage extends StatefulWidget {
+  final int selectedIndex;
+
+  MainPage({this.selectedIndex = 0}); // 선택된 인덱스의 기본값을 0으로 설정
+
   @override
-  _MainPageState createState() => _MainPageState();
+  MainPageState createState() => MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class MainPageState extends State<MainPage> {
   final List<String> warehouseImages = [
     'assets/warehouse1.jpg',
     // 추가 이미지 경로
@@ -77,6 +84,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.selectedIndex; // 생성자에서 받은 selectedIndex를 초기화
     _pages = [
       MainPageContent(warehouseImages: warehouseImages),
       KakaoMapTest(), // 창고 찾기 지도페이지
@@ -86,7 +94,7 @@ class _MainPageState extends State<MainPage> {
     ];
   }
 
-  void _onItemTapped(int index) {
+  void onItemTapped(int index) {
     setState(() {
       _selectedIndex = index; // 선택된 인덱스 업데이트
     });
@@ -97,25 +105,27 @@ class _MainPageState extends State<MainPage> {
     return PopScope(
       canPop: false, // 뒤로가기 동작 차단
       child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text('Shareware'),
-          centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              'assets/ShareWare_logo.png',
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
+        appBar: _selectedIndex == 0
+            ? AppBar(
+                automaticallyImplyLeading: false,
+                title: Text('Shareware'),
+                centerTitle: true,
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    'assets/ShareWare_logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              )
+            : null,
         body: IndexedStack(
           index: _selectedIndex, // 선택된 페이지 인덱스
           children: _pages, // IndexedStack으로 페이지 전환 처리
         ),
         bottomNavigationBar: BottomNavBar(
           currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스 전달
-          onTap: _onItemTapped, // 탭이 클릭되었을 때 호출
+          onTap: onItemTapped, // 탭이 클릭되었을 때 호출
         ),
       ),
     );

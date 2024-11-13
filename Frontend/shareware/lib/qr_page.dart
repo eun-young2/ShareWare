@@ -170,6 +170,7 @@ class _QRPageState extends State<QRPage> {
             if (!qrProvider.isQRGenerated)
               SizedBox(
                 width: double.infinity,
+                height: 55,
                 child: ElevatedButton(
                   onPressed: () {
                     if (!authProvider.isLoggedIn) {
@@ -284,7 +285,10 @@ class _QRPageState extends State<QRPage> {
                       }
                     }
                   },
-                  child: Text('입장 QR 발급하기'),
+                  child: Text(
+                    '입장 QR 발급하기',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 15.0), // 세로 여백
                     shape: RoundedRectangleBorder(

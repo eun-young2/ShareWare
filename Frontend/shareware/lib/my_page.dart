@@ -88,6 +88,7 @@ class _MyPageState extends State<MyPage> {
         Spacer(),
         SizedBox(
           width: double.infinity,
+          height: 55,
           child: ElevatedButton(
             onPressed: () {
               if (authProvider.isLoggedIn) {

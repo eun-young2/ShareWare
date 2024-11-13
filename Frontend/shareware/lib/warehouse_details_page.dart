@@ -27,7 +27,7 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

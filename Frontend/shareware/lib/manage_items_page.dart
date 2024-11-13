@@ -192,12 +192,12 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
       appBar: AppBar(
         title: Text('내 물품 관리'),
       ),
-      body: Column(
-        children: [
-          // 창고 선택 드롭다운 추가
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // 창고 선택 드롭다운 추가
+            Row(
               children: [
                 Expanded(
                   child: DropdownButton<Map<String, dynamic>>(
@@ -227,167 +227,184 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
                 ),
               ],
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _items.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: EdgeInsets.all(10),
-                  child: ListTile(
-                    leading: (_items[index]['prod_img'] != null &&
-                            _items[index]['prod_img'] is String)
-                        ? Image.memory(
-                            base64Decode(
-                                (_items[index]['prod_img'] as String).trim()),
-                            width: 50,
-                            height: 50,
-                            errorBuilder: (context, error, stackTrace) {
-                              print('이미지 디코딩 오류: $error');
-                              return Icon(Icons.broken_image, size: 50);
-                            },
-                          )
-                        : Icon(
-                            Icons.photo_size_select_actual_outlined,
-                            size: 50,
-                            color: Colors.grey.shade300, // 연한 회색으로 설정
-                          ),
-                    title: Text(_items[index]['prod_name'] ?? '이름없음'),
-                    subtitle: Text(
-                      (_items[index]['prod_info'] == null ||
-                              (_items[index]['prod_info'] as String).isEmpty)
-                          ? '설명 없음'
-                          : _items[index]['prod_info'] as String,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: (_items[index]['prod_info'] == null ||
-                                (_items[index]['prod_info'] as String).isEmpty)
-                            ? Colors.grey.shade400 // 설명 없음일 경우 희미한 회색
-                            : Colors.black, // 설명이 있을 경우 기본 색상
-                      ),
-                    ),
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RegisterItemsPage(
-                            onSubmit: (editedItem) {
-                              _editItem(index, editedItem);
-                            },
-                            existingItem: _items[index],
-                            selectedWarehouseData: _selectedWarehouse,
-                          ),
-                        ),
-                      );
+            SizedBox(height: 8),
 
-                      if (result == true) {
-                        // 캐시 삭제하여 최신 데이터 로드
-                        final cacheKey =
-                            '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
-                        _cachedItems.remove(cacheKey); // 캐시 삭제
-                        await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
-                      }
-                    },
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterItemsPage(
-                                onSubmit: (editedItem) {
-                                  _editItem(index, editedItem);
-                                },
-                                existingItem: _items[index],
-                                selectedWarehouseData: _selectedWarehouse,
-                              ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _items.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    margin: EdgeInsets.all(10),
+                    child: ListTile(
+                      leading: (_items[index]['prod_img'] != null &&
+                              _items[index]['prod_img'] is String)
+                          ? Image.memory(
+                              base64Decode(
+                                  (_items[index]['prod_img'] as String).trim()),
+                              width: 50,
+                              height: 50,
+                              errorBuilder: (context, error, stackTrace) {
+                                print('이미지 디코딩 오류: $error');
+                                return Icon(Icons.broken_image, size: 50);
+                              },
+                            )
+                          : Icon(
+                              Icons.photo_size_select_actual_outlined,
+                              size: 50,
+                              color: Colors.grey.shade300, // 연한 회색으로 설정
                             ),
-                          );
-                        } else if (value == 'delete') {
-                          final prodIdx = _items[index]['prod_idx'];
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('삭제 확인'),
-                                content: Text('이 물품을 삭제하시겠습니까?'),
-                                actions: [
-                                  TextButton(
-                                    child: Text('취소'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: Text('삭제'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      _deleteItem(prodIdx); // 삭제 요청 호출
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                      title: Text(
+                        _items[index]['prod_name'] ?? '이름없음',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        (_items[index]['prod_info'] == null ||
+                                (_items[index]['prod_info'] as String).isEmpty)
+                            ? '설명 없음'
+                            : _items[index]['prod_info'] as String,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: (_items[index]['prod_info'] == null ||
+                                  (_items[index]['prod_info'] as String)
+                                      .isEmpty)
+                              ? Colors.grey.shade400 // 설명 없음일 경우 희미한 회색
+                              : Colors.grey[800], // 설명이 있을 경우 기본 색상
+                        ),
+                      ),
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterItemsPage(
+                              onSubmit: (editedItem) {
+                                _editItem(index, editedItem);
+                              },
+                              existingItem: _items[index],
+                              selectedWarehouseData: _selectedWarehouse,
+                            ),
+                          ),
+                        );
+
+                        if (result == true) {
+                          // 캐시 삭제하여 최신 데이터 로드
+                          final cacheKey =
+                              '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
+                          _cachedItems.remove(cacheKey); // 캐시 삭제
+                          await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
                         }
                       },
-                      itemBuilder: (BuildContext context) {
-                        return [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Text('수정하기'),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Text('삭제하기'),
-                          ),
-                        ];
-                      },
-                      icon: Icon(Icons.more_vert),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterItemsPage(
+                                  onSubmit: (editedItem) {
+                                    _editItem(index, editedItem);
+                                  },
+                                  existingItem: _items[index],
+                                  selectedWarehouseData: _selectedWarehouse,
+                                ),
+                              ),
+                            );
+                          } else if (value == 'delete') {
+                            final prodIdx = _items[index]['prod_idx'];
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('삭제 확인'),
+                                  content: Text('이 물품을 삭제하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('취소'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('삭제'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        _deleteItem(prodIdx); // 삭제 요청 호출
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Text('수정하기'),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('삭제하기'),
+                            ),
+                          ];
+                        },
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.grey[400],
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomSheet: Container(
-        width: double.infinity,
-        height: 48.0,
-        color: Color(0xFFAFD485),
-        child: TextButton(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RegisterItemsPage(
-                  onSubmit: _addItem,
-                  selectedWarehouseData: _selectedWarehouse, // 선택된 창고 데이터 전달
+
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegisterItemsPage(
+                        onSubmit: _addItem,
+                        selectedWarehouseData:
+                            _selectedWarehouse, // 선택된 창고 데이터 전달
+                      ),
+                    ),
+                  );
+
+                  if (result == true) {
+                    // 캐시 삭제하여 최신 데이터 로드
+                    final cacheKey =
+                        '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
+                    _cachedItems.remove(cacheKey); // 캐시 삭제
+                    await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
+                  }
+                },
+                child: Text(
+                  '보관 물품 등록하기',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  backgroundColor: Color(0xFFAFD485),
+                  foregroundColor: Colors.white,
                 ),
               ),
-            );
-
-            if (result == true) {
-              // 캐시 삭제하여 최신 데이터 로드
-              final cacheKey =
-                  '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
-              _cachedItems.remove(cacheKey); // 캐시 삭제
-              await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Text(
-              '보관 물품 등록하기',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
             ),
-          ),
+          ],
         ),
       ),
     );
