@@ -18,8 +18,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool isAdminLogin = false;  // 기본값: 사용자 로그인
-  bool isUserLoginSelected = true;  // 기본값: 사용자 로그인 버튼 선택
+  bool isAdminLogin = false; // 기본값: 사용자 로그인
+  bool isUserLoginSelected = true; // 기본값: 사용자 로그인 버튼 선택
   bool isAdminLoginSelected = false; // 기본값: 관리자 로그인 버튼 비선택
 
   Color customGreen = Color(0xFFAFD485); // 네이버의 초록색
@@ -132,13 +132,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
         elevation: 0, // 그림자 없애기
       ),
-      body: SingleChildScrollView( // 바텀 오버플로우를 방지하는 ScrollView 추가
+      body: SingleChildScrollView(
+        // 바텀 오버플로우를 방지하는 ScrollView 추가
         padding: const EdgeInsets.all(16.0),
-        child: Center( // 모든 위젯을 중앙에 배치
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 네이버 스타일의 로고 추가
               Image.asset(
                 'assets/ShareWare_logo.png', // 로고 이미지
                 width: 120,
@@ -157,16 +157,21 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isUserLoginSelected ? customGreen : Colors.white, // 버튼 색상 변경
-                      minimumSize: Size(180, 50), // 가로 길이와 세로 길이 조정
+                      backgroundColor: isUserLoginSelected
+                          ? customGreen
+                          : Colors.white, // 버튼 색상 변경
+                      minimumSize: Size(180, 50),
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
-                        borderRadius: BorderRadius.circular(8.0), // 둥근 모서리
+                        side: BorderSide(color: customGreen, width: 1.5),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
                     child: Text(
                       '사용자 로그인',
-                      style: TextStyle(color: isUserLoginSelected ? Colors.white : Colors.black), // 텍스트 색상 변경
+                      style: TextStyle(
+                          color: isUserLoginSelected
+                              ? Colors.white
+                              : Colors.black), // 텍스트 색상 변경
                     ),
                   ),
                   SizedBox(width: 10),
@@ -179,16 +184,22 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isAdminLoginSelected ? customGreen : Colors.white, // 버튼 색상 변경
+                      backgroundColor: isAdminLoginSelected
+                          ? customGreen
+                          : Colors.white, // 버튼 색상 변경
                       minimumSize: Size(180, 50), // 가로 길이와 세로 길이 조정
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
+                        side: BorderSide(
+                            color: customGreen, width: 1.5), // 초록색 테두리
                         borderRadius: BorderRadius.circular(8.0), // 둥근 모서리
                       ),
                     ),
                     child: Text(
                       '관리자 로그인',
-                      style: TextStyle(color: isAdminLoginSelected ? Colors.white : Colors.black), // 텍스트 색상 변경
+                      style: TextStyle(
+                          color: isAdminLoginSelected
+                              ? Colors.white
+                              : Colors.black), // 텍스트 색상 변경
                     ),
                   ),
                 ],
@@ -203,7 +214,8 @@ class _LoginPageState extends State<LoginPage> {
                   labelStyle: TextStyle(color: Colors.black), // 네이버 스타일의 초록색
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: customGreen, width: 1.5), // 항상 초록색 테두리
+                    borderSide: BorderSide(
+                        color: customGreen, width: 1.5), // 항상 초록색 테두리
                   ),
                 ),
               ),
@@ -217,7 +229,8 @@ class _LoginPageState extends State<LoginPage> {
                   labelStyle: TextStyle(color: Colors.black), // 네이버 스타일의 초록색
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: customGreen, width: 1.5), // 항상 초록색 테두리
+                    borderSide: BorderSide(
+                        color: customGreen, width: 1.5), // 항상 초록색 테두리
                   ),
                 ),
                 obscureText: true,
@@ -236,7 +249,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(8.0),
                     side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
                   ),
-                  minimumSize: Size(double.infinity, 50), // 버튼을 화면 너비에 맞게 길게 만들기
+                  minimumSize:
+                      Size(double.infinity, 50), // 버튼을 화면 너비에 맞게 길게 만들기
                 ),
                 child: Text(
                   '로그인',
@@ -260,7 +274,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(8.0),
                     side: BorderSide(color: customGreen, width: 1.5), // 초록색 테두리
                   ),
-                  minimumSize: Size(double.infinity, 50), // 버튼을 화면 너비에 맞게 길게 만들기
+                  minimumSize:
+                      Size(double.infinity, 50), // 버튼을 화면 너비에 맞게 길게 만들기
                 ),
                 child: Text(
                   '회원가입',

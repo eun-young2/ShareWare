@@ -47,6 +47,38 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     }
   }
 
+    // 서버로 이미지 전송 메서드
+  Future<void> _sendImageToServer() async {
+
+    final url = Uri.parse('http://10.0.2.2:8000/detect_prod');
+    final requestBody = jsonEncode({
+      'image_data': _encodedImage, // Base64 인코딩된 이미지 데이터 전송
+    });
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: requestBody,
+      );
+
+      if (response.statusCode == 200) {
+        print('서버 응답 성공: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('이미지 전송 성공')),
+        );
+      } else {
+        print('서버 응답 실패: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('이미지 전송 실패')),
+        );
+      }
+    } catch (e) {
+      print('이미지 전송 중 오류 발생: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이미지 전송 중 오류가 발생했습니다.')),
+      );
+    }
+  }
   // 갤러리에 이미지 저장 메서드
   Future<void> _saveImageToGallery(XFile image) async {
     if (await Permission.manageExternalStorage.isGranted) {
@@ -88,15 +120,22 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     if (pickedFile != null) {
       setState(() {
         _image = pickedFile;
-        _decodedImage = null; // 새로운 이미지를 선택하면 기존 이미지를 초기화
-        _encodeImageToBase64(pickedFile); // 이미지 base64 인코딩
+        _decodedImage = null; // 기존 디코딩된 이미지 초기화
       });
 
+      // 새 이미지를 base64 인코딩하고 _encodedImage 업데이트
+      await _encodeImageToBase64(pickedFile);
+
+      // 갤러리에서 선택된 경우에는 이미지 저장
       if (source == ImageSource.camera) {
         _saveImageToGallery(pickedFile);
       }
+
+      // 서버로 이미지 전송
+      await _sendImageToServer();
     }
   }
+
 
   // 이미지 base64 인코딩 메서드
   Future<void> _encodeImageToBase64(XFile image) async {

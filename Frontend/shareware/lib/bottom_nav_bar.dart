@@ -13,13 +13,14 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed, // 모든 라벨 항상 표시
       backgroundColor: Colors.white,
-      selectedItemColor: Colors.blue,
+      selectedItemColor: Color(0xFFAFD485),
       unselectedItemColor: Colors.grey,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
-          label: 'HOME',
+          label: '홈',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.map),

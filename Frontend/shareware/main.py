@@ -9,6 +9,10 @@ from sqlalchemy.orm import sessionmaker
 import base64
 import requests
 import json
+from ultralytics import YOLO
+import numpy as np
+import cv2
+from pydantic import BaseModel
 
 
 # MySQL 데이터베이스 설정
@@ -41,6 +45,15 @@ class QRCode(Base):
     is_valid = Column(Integer)  # 유효성 (1 또는 0)
     created_at = Column(DateTime)  # 생성 시간
     
+
+# YOLO 모델 로드
+model = YOLO("yolo11n.pt") 
+
+forbidden_lst = ['cat','Person', 'Car', 'Boat', 'Flower', 'Bench', 'Potted Plant', 'SUV', 'Van', 'Couch', 'Bus', 'Wild Bird', 'Motorcycle', 'Truck', 'Sailboat', 'Bed', 'Horse', 'Sink', 'Apple', 'Pickup Truck', 'Dog', 'Cow', 'Cake', 'Sheep', 'Other Fish', 'Orange/Tangerine', 'Tomato', 'Machinery Vehicle', 'Green Vegetables', 'Banana', 'Airplane', 'Mouse', 'Train', 'Pumpkin', 'Sports Car', 'Dessert', 'Scooter', 'Crane', 'Lemon', 'Duck', 'Cat', 'Broccoli', 'Piano', 'Pizza', 'Elephant', 'Gun', 'Gas stove', 'Donut', 'Carrot', 'Toilet', 'Strawberry', 'Pepper', 'Pigeon', 'Pie', 'Cookies', 'Zebra', 'Grape', 'Giraffe', 'Potato', 'Sausage', 'Egg', 'Candy', 'Fire Truck', 'Cucumber', 'Pear', 'Heavy Truck', 'Hamburger','Ship','Onion','Green beans','Chicken','Watermelon','Ice cream','French Fries','Cabbage','Hot dog','Peach','Rice','Deer','Goose','Pineapple','Ambulance','Mango','Penguin','Corn','Lettuce','Garlic','Swan','Helicopter','Green Onion','Sandwich','Nuts','Plum','Rickshaw','Goldfish','Kiwi fruit','Shrimp','Sushi','Cheese','Cherry','Pasta','Avocado','Hami melon','Mushroom','Bear','Eggplant','Coconut','Pig','Chips','Steak','Camel','Formula 1','Pomegranate','Crab','Meatball','Papaya','Antelope','Parrot','Seal','Butterfly','Donkey','Lion','Dolphin','Egg tart','Jellyfish','Grapefruit','Radish','Baozi','French','Spring Rolls','Monkey','Rabbit','Yak','Red Cabbage','Asparagus','Scallop','Noodles','Dumpling','Oyster','Lobster','Durian','Okra']
+
+# 요청 데이터 모델 정의
+class ImageData(BaseModel):
+    image_data: str  # Base64로 인코딩된 이미지 데이터를 받음
 
 # FastAPI 앱 생성
 app = FastAPI()
@@ -179,6 +192,40 @@ async def invalidate_qr(reserv_idx: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
     finally:
         db.close()
+
+@app.post("/detect_prod")
+async def detect_prod(image_data: ImageData):
+    try:
+        if image_data:
+            # BLOB 데이터를 numpy 배열로 변환
+            image_bytes = base64.b64decode(image_data.image_data)
+            image_array = np.frombuffer(image_bytes, dtype=np.uint8)
+            image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+            
+            # YOLO 모델로 객체 탐지 수행
+            results = model(image)
+            # results = model('Frontend/shareware/assets/cat.jpg')
+
+            # 클래스 ID와 이름 매핑을 위한 딕셔너리 가져오기
+            class_names = model.names
+            
+            # 탐지된 객체의 라벨 정보 수집
+            detected_labels = []
+            for result in results:
+                for detection in result.boxes:
+                    class_id = int(detection.cls)  # 클래스 ID 추출
+                    label_name = class_names[class_id]  # 클래스 이름 가져오기
+                    detected_labels.append(label_name)
+            
+            # 'cat' 또는 'dog'이 있는지 확인하고 메시지 출력
+            if any(label in forbidden_lst for label in detected_labels):
+                print("보관 부적격 물품이 있습니다")
+            else:
+                print("객체 탐지 종료")
+    except:
+        print("db에 파일 없음")
+
+
 
 if __name__ == "__main__":
     import uvicorn
