@@ -23,7 +23,7 @@ class UserInfo(BaseModel):
 @router.post("/receive_user_info")
 def receive_user_info(user_info: UserInfo):
     user_info_queue.put(user_info.dict())
-    print(f"Received user info: {user_info.dict()}")  # 사용자 정보 수신 시 출력
+    # print(f"Received user info: {user_info.dict()}")  # 사용자 정보 수신 시 출력
     return {"message": "User info received successfully"}
 
 # 필요한 함수들을 전역 범위로 이동
@@ -160,7 +160,7 @@ def process_frame(
                         assigned_user = user_info_list_copy.pop(0)
                         assigned_user_id = assigned_user["user_id"]
                         tracking_id_to_user_id[track_id] = assigned_user_id
-                        # print(f"Track ID {track_id} assigned to User ID {assigned_user_id}")
+                        print(f"Track ID {track_id} assigned to User ID {assigned_user_id}")
                     else:
                         assigned_user_id = "Unauthorized"
 
@@ -170,13 +170,13 @@ def process_frame(
 
             # Unauthorized 사용자 영상 저장
             if assigned_user_id == "Unauthorized":
-                print(f"Unauthorized person detected: Track ID {track_id}")
+                # print(f"Unauthorized person detected: Track ID {track_id}")
                 handle_unauthorized_person(
                     frame, track_id, x1, y1, x2, y2, color, label_text, video_writers,
                     start_time, video_save_path
                 )
             else:
-                print(f"Authorized person: User ID {assigned_user_id}, Track ID {track_id}")
+                # print(f"Authorized person: User ID {assigned_user_id}, Track ID {track_id}")
                 handle_authorized_person(
                     frame, track_id, assigned_user_id, person_center,
                     user_targets, start_time, video_writers,
