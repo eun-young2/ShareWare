@@ -368,38 +368,49 @@ DraggableScrollableSheet(
               ),
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              controller: scrollController,
-              itemCount: _warehouses.length,
-              itemBuilder: (context, index) {
-                final warehouse = _warehouses[index];
-                return ListTile(
-                  leading: Image.asset(
-                    warehouse.imageUrl.isNotEmpty ? warehouse.imageUrl : 'assets/warehouse1.jpg',
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text(
-                    warehouse.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
-                    ),
-                  ),
-                  subtitle: Text('${warehouse.address}'),
-                  trailing: Text(
-                    "영업중",
-                    style: TextStyle(
-                      color: Colors.blue, // 파란색 텍스트
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onTap: () => _navigateToWarehouseDetails(warehouse),
-                );
-              },
-            ),
+   Expanded(
+  child: ListView.builder(
+    controller: scrollController,
+    itemCount: _warehouses.length,
+    itemBuilder: (context, index) {
+      final warehouse = _warehouses[index];
+
+      // warehouse.imageUrl 값이 비어있는지 확인하는 print문 추가
+      print("Checking imageUrl for warehouse ${warehouse.name}: ${warehouse.imageUrl}");
+
+      // warehouse.imageUrl 값이 비어있으면 순차적인 이미지 사용
+      String imageUrl = warehouse.imageUrl.isNotEmpty
+          ? 'assets/warehouse${(index % 6) + 1}.jpg'  // imageUrl이 비어 있지 않으면 그대로 사용
+          : warehouse.imageUrl;// index에 따라 순차적으로 이미지 사용
+
+      return ListTile(
+        leading: Image.asset(
+          imageUrl,
+          width: 70,
+          height: 70,
+          fit: BoxFit.cover,
+        ),
+        title: Text(
+          warehouse.name,
+          style: TextStyle(
+            fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
           ),
+        ),
+        subtitle: Text('${warehouse.address}'),
+        trailing: Text(
+          "영업중",
+          style: TextStyle(
+            color: Colors.blue, // 파란색 텍스트
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () => _navigateToWarehouseDetails(warehouse),
+      );
+    },
+  ),
+),
+
+
         ],
       ),
     );
