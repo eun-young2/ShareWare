@@ -45,3 +45,5 @@ app.*.map.json
 # shareware/lib/config.dart
 
 assets/.env
+
+recorded_videos/

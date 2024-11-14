@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, HTTPException
+from fastapi import FastAPI, Response, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 import qrcode
 import io
@@ -56,20 +56,20 @@ class ImageData(BaseModel):
     image_data: str  # Base64로 인코딩된 이미지 데이터를 받음
 
 # FastAPI 앱 생성
-app = FastAPI()
+router = APIRouter()
 
 # CORS 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# router.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 # QR 발급
-@app.get("/generate_qr/{user_id}/{wh_name}")
+@router.get("/generate_qr/{user_id}/{wh_name}")
 async def generate_qr(user_id: str, wh_name: str):
     db = SessionLocal()
     try:
@@ -137,7 +137,7 @@ async def generate_qr(user_id: str, wh_name: str):
         db.close()
 
 # 새로운 엔드포인트: 특정 조건에 맞으면 모델에 `user_id`와 `unit_idx`를 전송
-@app.post("/send_to_model/{reserv_idx}")
+@router.post("/send_to_model/{reserv_idx}")
 async def send_to_model(reserv_idx: int):
     db = SessionLocal()
     try:
@@ -159,8 +159,11 @@ async def send_to_model(reserv_idx: int):
        # response = requests.post(f"http://127.0.0.1:8000/send_to_model/{reserv_idx}", json=data)
 
         # 응답 검증
-        if response.status_code != 200:
-            raise HTTPException(status_code=500, detail="Failed to send data to model")
+        #if response.status_code != 200:
+        #    raise HTTPException(status_code=500, detail="Failed to send data to model")
+
+        from model import user_info_queue
+        user_info_queue.put(data)
 
         return {"message": "Data sent to model successfully"}
     except Exception as e:
@@ -170,7 +173,7 @@ async def send_to_model(reserv_idx: int):
         db.close()
 
 # QR isvalid=0 업데이트
-@app.put("/invalidate_qr/{reserv_idx}")
+@router.put("/invalidate_qr/{reserv_idx}")
 async def invalidate_qr(reserv_idx: int):
     db = SessionLocal()
     try:
@@ -193,7 +196,7 @@ async def invalidate_qr(reserv_idx: int):
     finally:
         db.close()
 
-@app.post("/detect_prod")
+@router.post("/detect_prod")
 async def detect_prod(image_data: ImageData):
     try:
         if image_data:
@@ -227,8 +230,8 @@ async def detect_prod(image_data: ImageData):
 
 
 
-if __name__ == "__main__":
-    import uvicorn
+#if __name__ == "__main__":
+#    import uvicorn
    # Base.metadata.drop_all(bind=engine)  # 기존 테이블 삭제
    # Base.metadata.create_all(bind=engine)  # 새 테이블 생성
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+#    uvicorn.run(app, host="0.0.0.0", port=8000)
