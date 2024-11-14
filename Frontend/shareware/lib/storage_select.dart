@@ -1,5 +1,6 @@
-import 'dart:convert';
+import 'dart:convert'; // base64 인코딩을 위해 추가된 부분
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle; // base64 인코딩을 위해 추가된 부분
 import 'package:http/http.dart' as http;
 import 'package:kakaomap_webview/kakaomap_webview.dart';
 import 'config.dart';
@@ -39,8 +40,8 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     if (_webViewController != null) {
       _webViewController.runJavascript(
           'map.setCenter(new kakao.maps.LatLng($_currentLat, $_currentLon));');
-      _webViewController.runJavascript(
-        'map.setLevel(8);');  // 값이 작을수록 확대되고, 클수록 축소됨    
+      _webViewController
+          .runJavascript('map.setLevel(8);'); // 값이 작을수록 확대되고, 클수록 축소됨
     }
   }
 
@@ -120,51 +121,56 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     }
   }
 
-  // 마커 추가 스크립트 (창고 이름을 마커 위에 직각 말풍선처럼 표시)
-String _generateMarkersScript() {
-  StringBuffer script = StringBuffer();
-  script.writeln('var markers = [];'); // 마커 배열 초기화
-
-  for (var i = 0; i < _warehouses.length; i++) {
-    var warehouse = _warehouses[i];
-    script.writeln('''
-    var markerPosition$i = new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon});
-    var marker$i = new kakao.maps.Marker({
-      position: markerPosition$i
-    });
-    marker$i.setMap(map);
-    markers.push(marker$i);
-
-    // 마커 클릭 시 말풍선 표시
-    var content = `
-      <div style="padding:10px; background-color:#fff; border:1px solid #00f; border-radius: 3px; font-size: 14px; white-space: nowrap; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);">
-        <img src="assets/ShareWare_logo.png" style="width: 50px; height: 50px; display:block; margin-bottom: 5px;" />
-        <div style="font-weight: bold; font-size: 16px;">${warehouse.name}</div>
-        <div>${warehouse.address}</div>
-      </div>
-    `;
-    var customOverlay$i = new kakao.maps.CustomOverlay({
-      position: markerPosition$i,
-      content: content,
-      yAnchor: 1.2 // 마커 위로 약간 위쪽에 위치시킴
-    });
-
-    // 마커 클릭 시 말풍선 표시
-    kakao.maps.event.addListener(marker$i, 'click', function() {
-      customOverlay$i.setMap(map); // 클릭 시 보이도록 설정
-    });
-
-    // 마커 클릭 외의 다른 곳을 클릭 시 말풍선이 사라지도록 설정
-    kakao.maps.event.addListener(map, 'click', function() {
-      customOverlay$i.setMap(null); // 다른 곳 클릭 시 말풍선 사라짐
-    });
-    ''');
-
+  // base64로 로고 이미지 로드하는 함수 추가
+  Future<String> _loadLogoAsBase64() async {
+    final bytes = await rootBundle
+        .load('assets/ShareWare_logo.png'); // assets 폴더의 로고 파일 로드
+    return base64Encode(bytes.buffer.asUint8List()); // base64 인코딩하여 반환
   }
 
-  return script.toString();
-}
+  // 마커 추가 스크립트 (창고 이름을 마커 위에 직각 말풍선처럼 표시)
+  String _generateMarkersScript(String logoDataUri) {
+    StringBuffer script = StringBuffer();
+    script.writeln('var markers = [];'); // 마커 배열 초기화
 
+    for (var i = 0; i < _warehouses.length; i++) {
+      var warehouse = _warehouses[i];
+      script.writeln('''
+      var markerPosition$i = new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon});
+      var marker$i = new kakao.maps.Marker({
+        position: markerPosition$i
+      });
+      marker$i.setMap(map);
+      markers.push(marker$i);
+
+      // 마커 클릭 시 말풍선 표시
+      var content = `
+        <div style="padding:10px; background-color:#fff; border:1px solid #00f; border-radius: 3px; font-size: 14px; white-space: nowrap; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); text-align: center;">
+          <img src="$logoDataUri" style="width: 40px; height: 40px; margin-bottom: 5px;" />
+          <div style="font-weight: bold; font-size: 16px;">${warehouse.name}</div>
+          <div>${warehouse.address}</div>
+        </div>
+      `;
+      var customOverlay$i = new kakao.maps.CustomOverlay({
+        position: markerPosition$i,
+        content: content,
+        yAnchor: 1.2 // 마커 위로 약간 위쪽에 위치시킴
+      });
+
+      // 마커 클릭 시 말풍선 표시
+      kakao.maps.event.addListener(marker$i, 'click', function() {
+        customOverlay$i.setMap(map); // 클릭 시 보이도록 설정
+      });
+
+      // 마커 클릭 외의 다른 곳을 클릭 시 말풍선이 사라지도록 설정
+      kakao.maps.event.addListener(map, 'click', function() {
+        customOverlay$i.setMap(null); // 다른 곳 클릭 시 말풍선 사라짐
+      });
+      ''');
+    }
+
+    return script.toString();
+  }
 
   // 마커 초기화
   void _clearMarkers() {
@@ -183,9 +189,11 @@ String _generateMarkersScript() {
   }
 
   // 여러 개의 마커를 지도에 추가하는 함수
-  void _addMarkers() {
+  void _addMarkers() async {
     if (_webViewController != null) {
-      final markersScript = _generateMarkersScript();
+      final logoBase64 = await _loadLogoAsBase64(); // 로고 이미지를 base64로 변환
+      final logoDataUri = 'data:image/png;base64,$logoBase64';
+      final markersScript = _generateMarkersScript(logoDataUri);
       _webViewController.runJavascript(markersScript).then((_) {
         print("JavaScript 실행 성공: 마커 추가됨");
 
@@ -334,91 +342,87 @@ String _generateMarkersScript() {
             Center(
               child: CircularProgressIndicator(),
             ),
-DraggableScrollableSheet(
-  initialChildSize: 0.2,
-  minChildSize: 0.1,
-  maxChildSize: 0.6,
-  builder: (BuildContext context, ScrollController scrollController) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10.0,
-            spreadRadius: 5.0,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () {
-              Scrollable.of(context)?.position?.jumpTo(
-                  Scrollable.of(context)!.position.pixels + 100);
+          DraggableScrollableSheet(
+            initialChildSize: 0.2,
+            minChildSize: 0.1,
+            maxChildSize: 0.6,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10.0,
+                      spreadRadius: 5.0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Scrollable.of(context)?.position?.jumpTo(
+                            Scrollable.of(context)!.position.pixels + 100);
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 8,
+                        margin: EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: _warehouses.length,
+                        itemBuilder: (context, index) {
+                          final warehouse = _warehouses[index];
+
+                          // warehouse.imageUrl 값이 비어있는지 확인하는 print문 추가
+                          print(
+                              "Checking imageUrl for warehouse ${warehouse.name}: ${warehouse.imageUrl}");
+
+                          // warehouse.imageUrl 값이 비어있으면 순차적인 이미지 사용
+                          String imageUrl = warehouse.imageUrl.isNotEmpty
+                              ? 'assets/warehouse${(index % 6) + 1}.jpg' // imageUrl이 비어 있지 않으면 그대로 사용
+                              : warehouse.imageUrl; // index에 따라 순차적으로 이미지 사용
+
+                          return ListTile(
+                            leading: Image.asset(
+                              imageUrl,
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover,
+                            ),
+                            title: Text(
+                              warehouse.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
+                              ),
+                            ),
+                            subtitle: Text('${warehouse.address}'),
+                            trailing: Text(
+                              "영업중",
+                              style: TextStyle(
+                                color: Colors.blue, // 파란색 텍스트
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onTap: () => _navigateToWarehouseDetails(warehouse),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
-            child: Container(
-              width: 60,
-              height: 8,
-              margin: EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
           ),
-   Expanded(
-  child: ListView.builder(
-    controller: scrollController,
-    itemCount: _warehouses.length,
-    itemBuilder: (context, index) {
-      final warehouse = _warehouses[index];
-
-      // warehouse.imageUrl 값이 비어있는지 확인하는 print문 추가
-      print("Checking imageUrl for warehouse ${warehouse.name}: ${warehouse.imageUrl}");
-
-      // warehouse.imageUrl 값이 비어있으면 순차적인 이미지 사용
-      String imageUrl = warehouse.imageUrl.isNotEmpty
-          ? 'assets/warehouse${(index % 6) + 1}.jpg'  // imageUrl이 비어 있지 않으면 그대로 사용
-          : warehouse.imageUrl;// index에 따라 순차적으로 이미지 사용
-
-      return ListTile(
-        leading: Image.asset(
-          imageUrl,
-          width: 70,
-          height: 70,
-          fit: BoxFit.cover,
-        ),
-        title: Text(
-          warehouse.name,
-          style: TextStyle(
-            fontWeight: FontWeight.bold, // 지점명 폰트 두껍게
-          ),
-        ),
-        subtitle: Text('${warehouse.address}'),
-        trailing: Text(
-          "영업중",
-          style: TextStyle(
-            color: Colors.blue, // 파란색 텍스트
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        onTap: () => _navigateToWarehouseDetails(warehouse),
-      );
-    },
-  ),
-),
-
-
-        ],
-      ),
-    );
-  },
-)
-
-
-,
         ],
       ),
     );
