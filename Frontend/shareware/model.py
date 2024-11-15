@@ -9,6 +9,17 @@ from ultralytics import YOLO
 import numpy as np
 import time
 import os
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, text
+from sqlalchemy.orm import sessionmaker, relationship, configure_mappers
+from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+import requests  # Node.js 서버로 HTTP 요청을 보내기 위해 추가
+
+# MySQL 데이터베이스 설정
+DATABASE_URL = "mysql+pymysql://Insa5_App_final_3:aischool3@project-db-stu3.smhrd.com:3307/Insa5_App_final_3"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 router = APIRouter()
 
@@ -50,6 +61,46 @@ def initialize_video_writer(video_save_path, filename, width, height):
         10,
         (width, height)
     )
+
+# tb_user 모델 정의
+class User(Base):
+    __tablename__ = 'tb_user'
+    user_id = Column(String, primary_key=True, index=True)
+    user_name = Column(String)
+    user_pw = Column(String)
+    user_phone = Column(String)
+    user_type = Column(String)
+    joined_at = Column(DateTime)
+
+    abnormal_behaviors = relationship("AbnormalBehavior", back_populates="user")
+
+# AbnormalBehavior 모델 정의
+class AbnormalBehavior(Base):
+    __tablename__ = "tb_abnormal_behavior"
+    behavior_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("tb_user.user_id"), nullable=True)
+    unit_idx = Column(Integer, ForeignKey("tb_urban_warehouse.unit_idx"), nullable=True)
+    behavior_type = Column(String)
+    behavior_details = Column(String)
+    created_at = Column(DateTime)
+    alert = Column(Integer, default=0)
+    user = relationship("User", back_populates="abnormal_behaviors")
+    warehouse = relationship("UrbanWarehouse", back_populates="abnormal_behaviors")
+
+# tb_urban_warehouse 모델 정의
+class UrbanWarehouse(Base):
+    __tablename__ = 'tb_urban_warehouse'
+    unit_idx = Column(Integer, primary_key=True, index=True)
+    # 필요한 다른 컬럼들 정의
+
+    abnormal_behaviors = relationship("AbnormalBehavior", back_populates="warehouse")
+
+
+def to_dict(obj):
+    """SQLAlchemy 객체를 사전 형태로 변환"""
+    return {column.name: getattr(obj, column.name) for column in obj.__table__.columns}
+
+configure_mappers()
 
 def run_model():
     # YOLO 모델 로드
@@ -190,7 +241,7 @@ def handle_unauthorized_person(
     frame, track_id, x1, y1, x2, y2, color, label_text, video_writers,
     start_time, video_save_path
 ):
-    """미허가자에 대한 영상 저장 처리"""
+    """미허가자에 대한 영상 저장 처리 및 이상행동 기록"""
     frame_height, frame_width = frame.shape[:2]
     # 프레임에 바운딩 박스와 라벨 그리기
     frame_with_box = frame.copy()
@@ -214,6 +265,26 @@ def handle_unauthorized_person(
         )
         # print(f"Started recording for Unauthorized track_id {track_id}")
 
+        # 데이터베이스에 이상행동 기록 추가
+        db = SessionLocal()
+        try:
+            new_behavior = AbnormalBehavior(
+                user_id=None,  # 비허가자이므로 user_id 없음
+                unit_idx=None,  # 비허가자이므로 unit_idx 없음
+                behavior_type='이상행동',
+                behavior_details=f"Unauthorized person detected: Track ID {track_id}",
+                created_at=datetime.now(),
+                alert=0
+            )
+            db.add(new_behavior)
+            db.commit()
+            db.refresh(new_behavior)
+
+            # Node.js 서버로 HTTP 요청 보내기
+            requests.post('http://172.30.1.56:3000/user/notify_abnormal_behavior', json={'behavior_id': new_behavior.behavior_id})
+        finally:
+            db.close()
+
     # 프레임 저장
     if track_id in video_writers:
         video_writers[track_id].write(frame_with_box)
@@ -223,7 +294,7 @@ def handle_authorized_person(
     start_time, video_writers, THEFT_DETECTION_THRESHOLD,
     video_save_path, track, x1, y1, x2, y2, color, label_text
 ):
-    """허가된 사용자에 대한 영상 저장 처리"""
+    """허가된 사용자에 대한 영상 저장 처리 및 이상행동 기록"""
     if assigned_user_id in user_targets:
         target_coords = calculate_polygon_center(
             user_targets[assigned_user_id]
@@ -261,7 +332,27 @@ def handle_authorized_person(
                         frame_width, frame_height
                     )
                     # print(f"Started recording for User ID "
-                        #   f"{assigned_user_id}, track_id {track_id}")
+                    #       f"{assigned_user_id}, track_id {track_id}")
+
+                    # 데이터베이스에 이상행동 기록 추가
+                    db = SessionLocal()
+                    try:
+                        new_behavior = AbnormalBehavior(
+                            user_id=assigned_user_id,
+                            unit_idx=None,  # unit_idx를 알 수 있다면 추가
+                            behavior_type='이상행동',
+                            behavior_details=f"Theft suspicion for User ID {assigned_user_id}, Track ID {track_id}",
+                            created_at=datetime.now(),
+                            alert=0
+                        )
+                        db.add(new_behavior)
+                        db.commit()
+                        db.refresh(new_behavior)
+
+                        # Node.js 서버로 HTTP 요청 보내기
+                        requests.post('http://172.30.1.56:3000/user/notify_abnormal_behavior', json={'behavior_id': new_behavior.behavior_id})
+                    finally:
+                        db.close()
 
                 # 프레임 저장
                 if track_id in video_writers:
@@ -283,3 +374,4 @@ def handle_authorized_person(
 @router.on_event("startup")
 async def startup_event():
     threading.Thread(target=run_model, daemon=True).start()
+

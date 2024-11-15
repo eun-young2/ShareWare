@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'dart:io';
 
 class AdminMainPage extends StatefulWidget {
   @override
@@ -17,16 +18,73 @@ class AdminMainPage extends StatefulWidget {
 
 class _AdminMainPageState extends State<AdminMainPage> {
   int _selectedIndex = 0;
+  WebSocket? _webSocket; // WebSocket 인스턴스 선언
 
   // 페이지 목록
   final List<Widget> _pages = [
-    DashboardPage(), // 대시보드 페이지
-    CCTVPage(), // CCTV 페이지
-    EntryLogPage(), // 출입 로그 페이지 추가
-    ReservationPage(), // 예약 관리 페이지
-    StorageManagementPage(), // 창고 관리 페이지
-    AlarmPage(), // 알람 페이지
+    DashboardPage(),
+    CCTVPage(),
+    EntryLogPage(),
+    ReservationPage(),
+    StorageManagementPage(),
+    AlarmPage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _connectWebSocket(); // WebSocket 연결 설정
+  }
+
+  @override
+  void dispose() {
+    _webSocket?.close();
+    super.dispose();
+  }
+
+  // WebSocket 연결 및 메시지 수신 설정
+  void _connectWebSocket() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final token = authProvider.token;
+
+    try {
+      // WebSocket 연결
+      _webSocket = await WebSocket.connect('ws://172.30.1.56:3000');
+      print('WebSocket 연결 성공');
+
+      // 서버에 토큰을 사용해 인증 요청 보내기
+      _webSocket?.add(jsonEncode({'type': 'authenticate', 'token': token}));
+
+      // 메시지 수신 처리
+      _webSocket?.listen((message) {
+        final data = jsonDecode(message);
+
+        // 알림 메시지 수신 시 처리
+        if (data['type'] == 'notification') {
+          _showNotification(data['message']);
+        }
+      });
+    } catch (e) {
+      print('WebSocket 연결 실패: $e');
+    }
+  }
+
+  // 알림 표시
+  void _showNotification(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("알림"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("확인"),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,32 +94,40 @@ class _AdminMainPageState extends State<AdminMainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false, // 뒤로가기 동작 차단
+    return WillPopScope(
+      onWillPop: () async => false,
       child: Scaffold(
         appBar: AppBar(
-          title: Center(
-            child: Text('ShareWare'),
-          ),
+          title: Center(child: Text('ShareWare')),
           automaticallyImplyLeading: false,
         ),
         body: IndexedStack(
-          index: _selectedIndex, // 선택된 인덱스에 해당하는 페이지만 표시
-          children: _pages, // 페이지 리스트
+          index: _selectedIndex,
+          children: _pages,
         ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard), label: '대시보드'), // 대시보드 아이콘
+              icon: Icon(Icons.dashboard),
+              label: '대시보드',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.camera), label: 'CCTV'), // CCTV 아이콘
+              icon: Icon(Icons.camera),
+              label: 'CCTV',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.access_time), label: '출입 관리'), // 출입 관리 아이콘
+              icon: Icon(Icons.access_time),
+              label: '출입 관리',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: '예약 관리'), // 예약 관리 아이콘
+              icon: Icon(Icons.settings),
+              label: '예약 관리',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.warehouse), label: '창고 관리'), // 창고 관리 아이콘
+              icon: Icon(Icons.warehouse),
+              label: '창고 관리',
+            ),
           ],
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
