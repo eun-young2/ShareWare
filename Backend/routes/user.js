@@ -189,5 +189,53 @@ module.exports = function (wss) {
         });
     });
 
+    // 알람 목록을 가져오는 API
+router.get('/notifications', verifyToken, (req, res) => {
+    const userId = req.user.userid;  // verifyToken 미들웨어에서 가져온 user_id
+
+    // 관리자만 접근 가능
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: '관리자만 접근 가능합니다.' });
+    }
+
+    const query = 'SELECT behavior_id, behavior_type, created_at, alert, is_read FROM tb_abnormal_behavior WHERE alert = 1 ORDER BY created_at DESC';
+    conn.query(query,[userId], (error, results) => {
+        if (error) {
+            console.log('SQL 에러:', error);
+            return res.status(500).json({ message: '서버 오류' });
+        }
+
+        // 결과가 없으면 빈 배열 반환
+        if (results.length === 0) {
+            return res.status(404).json({ message: '알림이 없습니다.' });
+        }
+
+        // 알림 목록 반환
+        res.status(200).json({ notifications: results });
+    });
+});
+
+// 알람 읽음 처리 API
+router.put('/mark-as-read/:behaviorId', verifyToken, (req, res) => {
+
+    console.log('파라미터:', req.params);
+    const behaviorId = req.params.behaviorId;
+
+    const query = 'UPDATE tb_abnormal_behavior SET is_read = 1 WHERE behavior_id = ?';
+    conn.query(query, [behaviorId], (error, results) => {
+        
+        if (error) {
+            console.log('SQL 에러:', error);
+            return res.status(500).json({ message: '서버 오류' });
+        }
+
+        if (results.affectedRows > 0) {
+            res.status(200).json({ message: '알람이 읽음으로 표시되었습니다.' });
+        } else {
+            res.status(404).json({ message: '알람을 찾을 수 없습니다.' });
+        }
+    });
+});
+    
     return router;
 };

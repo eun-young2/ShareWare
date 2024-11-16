@@ -14,6 +14,7 @@ from sqlalchemy.orm import sessionmaker, relationship, configure_mappers
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import requests  # Node.js 서버로 HTTP 요청을 보내기 위해 추가
+import json
 
 # MySQL 데이터베이스 설정
 DATABASE_URL = "mysql+pymysql://Insa5_App_final_3:aischool3@project-db-stu3.smhrd.com:3307/Insa5_App_final_3"
@@ -107,8 +108,8 @@ def run_model():
     model = load_model("yolo11n.pt")
 
     # CCTV 스트림 URL 또는 IP 카메라 주소
-    cctv_url = 'rtsp://sangbeom:lee5322984!@172.30.1.17:554/stream1'
-    cap = cv2.VideoCapture(cctv_url)
+    cctv_url = 'http://172.30.1.56:3000/rtsp/stream'
+    cap = cv2.VideoCapture(cctv_url, cv2.CAP_FFMPEG)
 
     if not cap.isOpened():
         print("Error: Could not open CCTV stream.")
@@ -276,6 +277,7 @@ def handle_unauthorized_person(
                 created_at=datetime.now(),
                 alert=0
             )
+            print("비허가자", json.dumps(to_dict(new_behavior), indent=4, default=str))
             db.add(new_behavior)
             db.commit()
             db.refresh(new_behavior)
