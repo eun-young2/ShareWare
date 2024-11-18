@@ -237,7 +237,7 @@ class AlarmDetailPage extends StatelessWidget {
             SizedBox(height: 20),
             Divider(),
             SizedBox(height: 16),
-            Text('알람 상세 내용:\n\n이곳에 알람에 대한 자세한 내용이 표시됩니다.'),
+            Text('알람 상세 내용:\n\n창고에서 이상행동이 탐지되었습니다.'),
             Spacer(),
             // ElevatedButton(
             //   onPressed: () {
