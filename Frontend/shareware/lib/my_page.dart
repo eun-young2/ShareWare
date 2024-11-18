@@ -23,6 +23,7 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final profile = authProvider.profile;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,15 +44,16 @@ class _MyPageState extends State<MyPage> {
         padding: const EdgeInsets.all(16.0),
         child: showProfile
             ? _buildProfileSection(authProvider)
-            : _buildMainSection(authProvider),
+            : _buildMainSection(authProvider, profile),
       ),
     );
   }
 
-  Widget _buildMainSection(AuthProvider authProvider) {
+  Widget _buildMainSection(AuthProvider authProvider, Map<String, dynamic> profile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (authProvider.isLoggedIn) _buildGreetingSection(profile),
         Text(
           '내 정보',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -119,6 +121,47 @@ class _MyPageState extends State<MyPage> {
       ],
     );
   }
+Widget _buildGreetingSection(Map<String, dynamic> profile) {
+  return Container(
+    padding: EdgeInsets.all(16),
+    margin: EdgeInsets.only(bottom: 16),
+    color: Color(0xFFF2F2F2), // 연한 회색 배경
+    width: double.infinity, // 가로로 꽉 차도록 설정
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '안녕하세요,',
+          style: TextStyle(
+            fontSize: 20, // 전체적으로 글자 크기 키움
+            color: Colors.black54,
+          ),
+        ),
+        SizedBox(height: 4), // 계행을 위한 간격
+        Row(
+          children: [
+            Text(
+              '${profile['user_name'] ?? '회원님'}', // 이름 부분
+              style: TextStyle(
+                fontSize: 26, // 이름 폰트 크기 더 크게
+                fontWeight: FontWeight.bold, // 이름을 진하게 설정
+                color: Colors.blue, // 이름 색을 어두운 색으로 설정
+              ),
+            ),
+            Text(
+              '님!',
+              style: TextStyle(
+                fontSize: 20, // '님' 부분은 원래 크기 유지
+                color: Colors.black54, // '님'은 원래 색상 유지
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildProfileSection(AuthProvider authProvider) {
     final profile = authProvider.profile;

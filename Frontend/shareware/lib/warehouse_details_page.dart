@@ -41,11 +41,9 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                   child: Row(
                     children: [
-                      Text('🌡️',
-                          style: TextStyle(fontSize: 18)), // 이모지 크기 원래대로 유지
+                      Text('🌡️', style: TextStyle(fontSize: 18)),
                       SizedBox(width: 3),
-                      Text('적정 온도',
-                          style: TextStyle(color: Colors.black, fontSize: 12)),
+                      Text('적정 온도', style: TextStyle(color: Colors.black, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -60,8 +58,7 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                     children: [
                       Text('💧', style: TextStyle(fontSize: 18)),
                       SizedBox(width: 3),
-                      Text('적정 습도',
-                          style: TextStyle(color: Colors.black, fontSize: 12)),
+                      Text('적정 습도', style: TextStyle(color: Colors.black, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -92,9 +89,7 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                   icon: Icon(Icons.copy, size: 16),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text('주소가 복사되었습니다: ${widget.warehouse.address}')),
+                      SnackBar(content: Text('주소가 복사되었습니다: ${widget.warehouse.address}')),
                     );
                   },
                   padding: EdgeInsets.zero,
@@ -115,14 +110,27 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                 VerticalDivider(width: 12, thickness: 1, color: Colors.black),
                 SizedBox(width: 4),
                 _infoButton('P', 'parking', '주차'),
+                SizedBox(width: 4),
+                VerticalDivider(width: 12, thickness: 1, color: Colors.black),
+                SizedBox(width: 4),
+                _infoButton('🔐', 'security', '보안/출입'),
+                SizedBox(width: 4),
+                VerticalDivider(width: 12, thickness: 1, color: Colors.black),
+                SizedBox(width: 4),
+                _infoButton('📶', 'wifi', '와이파이'),
+               
               ],
             ),
             SizedBox(height: 4),
             Divider(thickness: 1, color: Colors.black),
             SizedBox(height: 4),
             Text(
-              '• ${_currentInfo == 'hours' ? '24시간 운영' : widget.warehouse.getParkingAvailability()}',
-              style: TextStyle(fontSize: 16), // 점을 추가하여 리스트 느낌
+              '• ${_currentInfo == 'hours' ? '24시간 운영' : 
+                   _currentInfo == 'parking' ? widget.warehouse.getParkingAvailability() : 
+                   _currentInfo == 'security' ? '보안 시스템이 완비되어 있습니다. 출입은 QR로만 가능합니다.' : 
+                   _currentInfo == 'wifi' ? '무료 Wi-Fi 제공. 비밀번호는 관리실에서 확인 가능합니다.' : 
+                    ''}',
+              style: TextStyle(fontSize: 16),
             ),
             Spacer(),
             Container(
