@@ -8,6 +8,7 @@ import 'providers/auth_provider.dart';
 import 'main.dart';
 import 'signup_page.dart';
 import 'admin_main_page.dart';
+import 'forgot_password_page.dart'; // 비밀번호 찾기 페이지 import
 
 class LoginPage extends StatefulWidget {
   @override
@@ -21,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool isAdminLogin = false;
   bool isUserLoginSelected = true;
   bool isAdminLoginSelected = false;
+  bool isPasswordVisible = false; // 비밀번호 보이기/숨기기 상태
 
   Color customGreen = Color(0xFFAFD485); // 초록색
   Color customGray = Color(0xFFB3B3B3); // 회색
@@ -110,7 +112,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 화면 크기 가져오기
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -206,21 +207,42 @@ class _LoginPageState extends State<LoginPage> {
                 controller: usernameController,
                 decoration: InputDecoration(
                   labelText: isAdminLogin ? '관리자 아이디' : '아이디',
-                  border: OutlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.grey[700]), // 기본 색상 연한 회색
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: customGreen, width: 1.5),
+                    borderSide: BorderSide(color: customGreen, width: 1.5), // 테두리 색상 변경
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: customGreen, width: 2.0), // 포커스 시 테두리 색상 변경
                   ),
                 ),
               ),
               SizedBox(height: screenHeight * 0.02),
               TextField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: !isPasswordVisible, // 비밀번호 보이기/숨기기
                 decoration: InputDecoration(
                   labelText: '비밀번호',
-                  border: OutlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.grey[700]), // 기본 색상 연한 회색
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: customGreen, width: 1.5),
+                    borderSide: BorderSide(color: customGreen, width: 1.5), // 테두리 색상 변경
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: customGreen, width: 2.0), // 포커스 시 테두리 색상 변경
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.grey[500],
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -228,36 +250,52 @@ class _LoginPageState extends State<LoginPage> {
               ElevatedButton(
                 onPressed: login,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // 흰색 버튼 배경
-                  foregroundColor: customGreen, // 버튼 텍스트 색상
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                  backgroundColor: Colors.white,
+                  foregroundColor: customGreen,
+                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       side: BorderSide(color: customGreen, width: 1.5)),
-                  minimumSize: Size(screenWidth, screenHeight * 0.06),
+                  minimumSize:
+                      Size(screenWidth * 0.7, screenHeight * 0.05),
                 ),
                 child: Text('로그인',
                     style: TextStyle(color: Colors.black, fontSize: 16)),
               ),
               SizedBox(height: screenHeight * 0.02),
-              ElevatedButton(
+              TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SignupPage()),
+                    MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // 흰색 버튼 배경
-                  foregroundColor: customGreen, // 버튼 텍스트 색상
-                  padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      side: BorderSide(color: customGreen, width: 1.5)),
-                  minimumSize: Size(screenWidth, screenHeight * 0.06),
+                child: Text(
+                  '비밀번호를 잊으셨나요?',
+                  style: TextStyle(color: customGreen),
                 ),
-                child: Text('회원가입',
-                    style: TextStyle(color: Colors.black, fontSize: 16)),
+              ),
+              SizedBox(height: screenHeight * 0.02),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '계정이 없으신가요?',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupPage()),
+                      );
+                    },
+                    child: Text(
+                      '회원가입',
+                      style: TextStyle(color: customGreen),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
