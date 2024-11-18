@@ -220,13 +220,14 @@ async def detect_prod(image_data: ImageData):
                     label_name = class_names[class_id]  # 클래스 이름 가져오기
                     detected_labels.append(label_name)
             
-            # 'cat' 또는 'dog'이 있는지 확인하고 메시지 출력
+             # 부적격 물품 체크
             if any(label in forbidden_lst for label in detected_labels):
-                print("보관 부적격 물품이 있습니다")
+                return {"status": "failure", "message": "보관 부적격 물품입니다."}
             else:
-                print("객체 탐지 종료")
-    except:
-        print("db에 파일 없음")
+                return {"status": "success", "message": "객체 탐지 종료"}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 

@@ -30,7 +30,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
   String? _encodedImage;
-  Uint8List? _decodedImage; // Base64에서 디코딩된 이미지
+  Uint8List? _decodedImage;
   bool _isEditing = false;
 
   @override
@@ -47,13 +47,13 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     }
   }
 
-    // 서버로 이미지 전송 메서드
+  // 이미지 전송 함수
   Future<void> _sendImageToServer() async {
-
     final url = Uri.parse('http://10.0.2.2:8000/detect_prod');
     final requestBody = jsonEncode({
       'image_data': _encodedImage, // Base64 인코딩된 이미지 데이터 전송
     });
+
     try {
       final response = await http.post(
         url,
@@ -62,24 +62,71 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
       );
 
       if (response.statusCode == 200) {
-        print('서버 응답 성공: ${response.body}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('이미지 전송 성공')),
-        );
+        // 응답이 200 OK일 때만 처리
+        try {
+          final responseBody = jsonDecode(response.body);
+          
+          // 응답이 status 필드를 포함하고 있는지 확인
+          if (responseBody != null && responseBody['status'] != null) {
+            if (responseBody['status'] == 'failure') {
+              // 서버에서 "보관 부적격 물품" 메시지를 받으면 AlertDialog로 알림 표시
+              _showErrorDialog('보관 불가 물품입니다.');
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('이미지 전송 성공')),
+              );
+            }
+          } else {
+            // 응답에 "status" 필드가 없거나 null인 경우
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('서버 응답이 잘못되었습니다.')),
+            );
+          }
+        } catch (e) {
+          // JSON 파싱 중 오류 발생
+          print('JSON 파싱 오류: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('서버 응답을 처리하는 중 오류가 발생했습니다.')),
+          );
+        }
       } else {
+        // 서버 응답이 200이 아닌 경우
         print('서버 응답 실패: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('이미지 전송 실패')),
         );
       }
     } catch (e) {
+      // 요청 전송 중 오류 발생
       print('이미지 전송 중 오류 발생: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('이미지 전송 중 오류가 발생했습니다.')),
       );
     }
   }
-  // 갤러리에 이미지 저장 메서드
+
+  // 보관 불가 물품에 대한 알림을 다이얼로그로 표시
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('알림'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();  // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 갤러리에 이미지 저장 함수
   Future<void> _saveImageToGallery(XFile image) async {
     if (await Permission.manageExternalStorage.isGranted) {
       try {
@@ -114,30 +161,26 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     }
   }
 
-  // 이미지 선택 메서드
+  // 이미지 선택 함수
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
         _image = pickedFile;
-        _decodedImage = null; // 기존 디코딩된 이미지 초기화
+        _decodedImage = null;
       });
 
-      // 새 이미지를 base64 인코딩하고 _encodedImage 업데이트
       await _encodeImageToBase64(pickedFile);
 
-      // 갤러리에서 선택된 경우에는 이미지 저장
       if (source == ImageSource.camera) {
         _saveImageToGallery(pickedFile);
       }
 
-      // 서버로 이미지 전송
       await _sendImageToServer();
     }
   }
 
-
-  // 이미지 base64 인코딩 메서드
+  // 이미지를 Base64로 인코딩
   Future<void> _encodeImageToBase64(XFile image) async {
     final bytes = await image.readAsBytes();
     final base64Image = base64Encode(bytes);
@@ -146,7 +189,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     });
   }
 
-  // 이미지 선택 옵션을 띄우는 메서드
+  // 이미지 선택을 위한 소스 선택 팝업
   void _showImageSourceSelection() {
     showModalBottomSheet(
       context: context,
@@ -158,7 +201,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
               title: Text('카메라 실행'),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.camera); // 카메라에서 이미지 선택
+                _pickImage(ImageSource.camera);
               },
             ),
             ListTile(
@@ -166,7 +209,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
               title: Text('갤러리에서 선택'),
               onTap: () {
                 Navigator.pop(context);
-                _pickImage(ImageSource.gallery); // 갤러리에서 이미지 선택
+                _pickImage(ImageSource.gallery);
               },
             ),
           ],
@@ -175,7 +218,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
     );
   }
 
-  // 물품 등록 및 수정 함수
+  // 물품 등록/수정 함수
   Future<void> _submitItem() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userId = authProvider.userId;
@@ -210,7 +253,7 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
       final updatedItem = jsonDecode(response.body);
       widget.onSubmit(updatedItem);
 
-      Navigator.pop(context, true); // true 값을 전달하여 성공적으로 등록/수정되었음을 알림
+      Navigator.pop(context, true);
     } else {
       print('등록 실패: ${response.body}');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -237,15 +280,13 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 사진 추가 및 미리보기 영역
             Row(
               children: [
                 Expanded(
-                  // Row의 자식으로 Expanded 사용하여 너비를 최대화
                   child: GestureDetector(
                     onTap: _showImageSourceSelection,
                     child: Container(
-                      height: 200, // 고정된 높이 설정
+                      height: 200,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8),
@@ -304,15 +345,12 @@ class _RegisterItemsPageState extends State<RegisterItemsPage> {
                 ),
               ],
             ),
-
             SizedBox(height: 16),
             Text("지점명"),
-            Text(
-                widget.selectedWarehouseData?['wh_branch_name'] ?? '선택된 지점 없음'),
+            Text(widget.selectedWarehouseData?['wh_branch_name'] ?? '선택된 지점 없음'),
             SizedBox(height: 16),
             Text("유닛번호"),
-            Text(widget.selectedWarehouseData?['unit_idx']?.toString() ??
-                '유닛 없음'),
+            Text(widget.selectedWarehouseData?['unit_idx']?.toString() ?? '유닛 없음'),
             SizedBox(height: 16),
             Text("물건 이름"),
             TextField(

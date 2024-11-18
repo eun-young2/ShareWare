@@ -362,48 +362,59 @@ class _ManageItemsPageState extends State<ManageItemsPage> {
               ),
             ),
 
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RegisterItemsPage(
-                        onSubmit: _addItem,
-                        selectedWarehouseData:
-                            _selectedWarehouse, // 선택된 창고 데이터 전달
-                      ),
-                    ),
-                  );
+        SizedBox(
+  width: double.infinity,
+  height: 55,
+  child: ElevatedButton(
+    onPressed: () async {
+      // 창고가 선택되지 않은 경우 경고 메시지 표시
+      if (_selectedWarehouse == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('먼저 사용 중인 창고를 선택해 주세요.'),
+            backgroundColor: Colors.black,
+          ),
+        );
+        return; // 창고 선택을 강제로 요구하는 부분
+      }
 
-                  if (result == true) {
-                    // 캐시 삭제하여 최신 데이터 로드
-                    final cacheKey =
-                        '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
-                    _cachedItems.remove(cacheKey); // 캐시 삭제
-                    await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
-                  }
-                },
-                child: Text(
-                  '보관 물품 등록하기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  backgroundColor: Color(0xFFAFD485),
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RegisterItemsPage(
+            onSubmit: _addItem,
+            selectedWarehouseData: _selectedWarehouse, // 선택된 창고 데이터 전달
+          ),
+        ),
+      );
+
+      if (result == true) {
+        // 캐시 삭제하여 최신 데이터 로드
+        final cacheKey =
+            '${_selectedWarehouse?['wh_idx']}-${_selectedWarehouse?['unit_idx']}';
+        _cachedItems.remove(cacheKey); // 캐시 삭제
+        await _loadItemsForSelectedWarehouse(); // 서버에서 새 데이터 가져오기
+      }
+    },
+    child: Text(
+      '보관 물품 등록하기',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      padding: EdgeInsets.symmetric(vertical: 15.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(4),
+      ),
+      backgroundColor: Color(0xFFAFD485),
+      foregroundColor: Colors.white,
+    ),
+  ),
+)
+
           ],
         ),
       ),
