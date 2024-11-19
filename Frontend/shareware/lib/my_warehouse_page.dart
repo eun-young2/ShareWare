@@ -140,7 +140,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                       } else {
                         final warehouses = snapshot.data!;
                         return Padding(
-                          padding: const EdgeInsets.all(0.0), // 양옆 여백 제거
+                          padding: const EdgeInsets.all(0.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -160,14 +160,12 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                               SizedBox(height: 8),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0), // 좌우 여백
+                                    horizontal: 16.0),
                                 child: Row(
                                   children: [
-                                    // 지도와 여백을 Row로 배치
                                     Expanded(
                                       child: Container(
-                                        width: screenWidth *
-                                            0.75, // 화면의 3/4을 지도에 할당
+                                        width: screenWidth * 0.75,
                                         height: 200,
                                         child: KakaoMapView(
                                           width: double.infinity,
@@ -243,7 +241,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
           SizedBox(height: 16),
           Divider(),
           Padding(
-            padding: const EdgeInsets.only(left: 16.0), // 왼쪽 여백을 16으로 설정
+            padding: const EdgeInsets.only(left: 16.0),
             child: Text(
               '이용 관리',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -252,13 +250,13 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
           Divider(),
           Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 9.0), // 리스트 항목에 좌우 여백 추가
+                const EdgeInsets.symmetric(horizontal: 9.0),
             child: Column(
               children: [
                 ListTile(
                   title: Text(
                     '내 물품 관리',
-                    style: TextStyle(fontSize: 20), // 폰트 크기 1.5배로 키움
+                    style: TextStyle(fontSize: 20),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios),
                   onTap: () {
@@ -275,6 +273,21 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                     }
                   },
                 ),
+                ListTile(
+                  title: Text(
+                    '결제 관리',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    if (!authProvider.isLoggedIn) {
+                      _showLoginRequiredDialog(context);
+                    } else {
+                      // 결제 관리 페이지로 이동
+             
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -283,3 +296,5 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
     );
   }
 }
+
+

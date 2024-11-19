@@ -392,7 +392,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                             trailing: Text(
                               "영업중",
                               style: TextStyle(
-                                color: Colors.blue, // 파란색 텍스트
+                                color: Color(0xFFAFD485), // 파란색 텍스트
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

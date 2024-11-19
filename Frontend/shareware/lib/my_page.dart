@@ -10,6 +10,7 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   bool showProfile = false;
+  bool isNotificationEnabled = true; // 기본 상태를 ON으로 설정
 
   @override
   void initState() {
@@ -75,10 +76,17 @@ class _MyPageState extends State<MyPage> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         Divider(),
+        // 알림설정 스위치로 변경 (기본 상태 ON)
         ListTile(
           title: Text('알림설정'),
-          trailing: Icon(Icons.arrow_forward_ios),
-          onTap: () {},
+          trailing: Switch(
+            value: isNotificationEnabled,
+            onChanged: (bool value) {
+              setState(() {
+                isNotificationEnabled = value;
+              });
+            },
+          ),
         ),
         Divider(),
         ListTile(
@@ -121,47 +129,47 @@ class _MyPageState extends State<MyPage> {
       ],
     );
   }
-Widget _buildGreetingSection(Map<String, dynamic> profile) {
-  return Container(
-    padding: EdgeInsets.all(16),
-    margin: EdgeInsets.only(bottom: 16),
-    color: Color(0xFFF2F2F2), // 연한 회색 배경
-    width: double.infinity, // 가로로 꽉 차도록 설정
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '안녕하세요,',
-          style: TextStyle(
-            fontSize: 20, // 전체적으로 글자 크기 키움
-            color: Colors.black54,
-          ),
-        ),
-        SizedBox(height: 4), // 계행을 위한 간격
-        Row(
-          children: [
-            Text(
-              '${profile['user_name'] ?? '회원님'}', // 이름 부분
-              style: TextStyle(
-                fontSize: 26, // 이름 폰트 크기 더 크게
-                fontWeight: FontWeight.bold, // 이름을 진하게 설정
-                color: Colors.blue, // 이름 색을 어두운 색으로 설정
-              ),
-            ),
-            Text(
-              '님!',
-              style: TextStyle(
-                fontSize: 20, // '님' 부분은 원래 크기 유지
-                color: Colors.black54, // '님'은 원래 색상 유지
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
 
+  Widget _buildGreetingSection(Map<String, dynamic> profile) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 16),
+      color: Color(0xFFF2F2F2), // 연한 회색 배경
+      width: double.infinity, // 가로로 꽉 차도록 설정
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '안녕하세요,',
+            style: TextStyle(
+              fontSize: 20, // 전체적으로 글자 크기 키움
+              color: Colors.black54,
+            ),
+          ),
+          SizedBox(height: 4), // 계행을 위한 간격
+          Row(
+            children: [
+              Text(
+                '${profile['user_name'] ?? '회원님'}', // 이름 부분
+                style: TextStyle(
+                  fontSize: 26, // 이름 폰트 크기 더 크게
+                  fontWeight: FontWeight.bold, // 이름을 진하게 설정
+                  color: Color(0xFFAFD485), // 이름 색을 어두운 색으로 설정
+                ),
+              ),
+              Text(
+                '님!',
+                style: TextStyle(
+                  fontSize: 20, // '님' 부분은 원래 크기 유지
+                  color: Colors.black54, // '님'은 원래 색상 유지
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildProfileSection(AuthProvider authProvider) {
     final profile = authProvider.profile;
@@ -308,28 +316,21 @@ void _showDeleteAccountDialog(BuildContext context, AuthProvider authProvider) {
           ),
           TextButton(
             onPressed: () async {
-              // 다이얼로그 닫기
-              //Navigator.of(context).pop();
-
               // 탈퇴 요청 처리
               bool success = await authProvider.deleteAccount();
 
               if (success) {
-                // 프레임이 완전히 끝난 후 페이지 이동
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                    (Route<dynamic> route) => false,
-                  );
+                // 회원탈퇴 성공 후 로그인 페이지로 이동
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  (Route<dynamic> route) => false,
+                );
 
-                  // 스낵바 표시
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('회원 탈퇴가 완료되었습니다.')),
-                  );
-                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('회원 탈퇴가 완료되었습니다.')),
+                );
               } else {
-                // 탈퇴 실패 시 스낵바 표시
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('회원 탈퇴에 실패했습니다.')),
                 );
