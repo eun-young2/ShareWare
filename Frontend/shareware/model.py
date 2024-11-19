@@ -9,12 +9,13 @@ from ultralytics import YOLO
 import numpy as np
 import time
 import os
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, text
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import sessionmaker, relationship, configure_mappers
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import requests  # Node.js 서버로 HTTP 요청을 보내기 위해 추가
 import json
+import base64
 
 # MySQL 데이터베이스 설정
 DATABASE_URL = "mysql+pymysql://Insa5_App_final_3:aischool3@project-db-stu3.smhrd.com:3307/Insa5_App_final_3"
@@ -87,6 +88,7 @@ class AbnormalBehavior(Base):
     alert = Column(Integer, default=0)
     user = relationship("User", back_populates="abnormal_behaviors")
     warehouse = relationship("UrbanWarehouse", back_populates="abnormal_behaviors")
+    images = relationship("AbnormalBehaviorImage", back_populates="behavior")
 
 # tb_urban_warehouse 모델 정의
 class UrbanWarehouse(Base):
@@ -96,6 +98,13 @@ class UrbanWarehouse(Base):
 
     abnormal_behaviors = relationship("AbnormalBehavior", back_populates="warehouse")
 
+class AbnormalBehaviorImage(Base):
+    __tablename__ = "tb_abnormal_behavior_images"
+    image_id = Column(Integer, primary_key=True, index=True)
+    behavior_id = Column(Integer, ForeignKey("tb_abnormal_behavior.behavior_id"))
+    image_url = Column(Text)
+    created_at = Column(DateTime, default=datetime.now)
+    behavior = relationship("AbnormalBehavior", back_populates="images")
 
 def to_dict(obj):
     """SQLAlchemy 객체를 사전 형태로 변환"""
@@ -282,6 +291,18 @@ def handle_unauthorized_person(
             db.commit()
             db.refresh(new_behavior)
 
+            # 영상을 Base64로 인코딩
+            _, buffer = cv2.imencode('.jpg', frame_with_box)
+            base64_image = base64.b64encode(buffer).decode('utf-8')
+
+            # 이미지 정보 저장
+            new_image = AbnormalBehaviorImage(
+                behavior_id=new_behavior.behavior_id,
+                image_url=base64_image
+            )
+            db.add(new_image)
+            db.commit()
+
             # Node.js 서버로 HTTP 요청 보내기
             requests.post('http://172.30.1.56:3000/user/notify_abnormal_behavior', json={'behavior_id': new_behavior.behavior_id})
         finally:
@@ -350,6 +371,18 @@ def handle_authorized_person(
                         db.add(new_behavior)
                         db.commit()
                         db.refresh(new_behavior)
+
+                        # 영상을 Base64로 인코딩
+                        _, buffer = cv2.imencode('.jpg', frame_with_box)
+                        base64_image = base64.b64encode(buffer).decode('utf-8')
+
+                        # 이미지 정보 저장
+                        new_image = AbnormalBehaviorImage(
+                            behavior_id=new_behavior.behavior_id,
+                            image_url=base64_image
+                        )
+                        db.add(new_image)
+                        db.commit()
 
                         # Node.js 서버로 HTTP 요청 보내기
                         requests.post('http://172.30.1.56:3000/user/notify_abnormal_behavior', json={'behavior_id': new_behavior.behavior_id})
