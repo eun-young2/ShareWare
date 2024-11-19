@@ -117,11 +117,11 @@ class _AdminMainPageState extends State<AdminMainPage> {
               label: 'CCTV',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.access_time),
+              icon: Icon(Icons.lock),
               label: '출입 관리',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
+              icon: Icon(Icons.schedule),
               label: '예약 관리',
             ),
             BottomNavigationBarItem(
@@ -243,7 +243,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: _buildNavigationButton(
                     context,
                     '출입 관리',
-                    Icons.access_time,
+                    Icons.lock,
                     () {
                       Navigator.push(
                         context,
