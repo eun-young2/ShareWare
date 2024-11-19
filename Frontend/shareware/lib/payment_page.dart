@@ -74,7 +74,7 @@ class _PaymentPageState extends State<PaymentPage> {
             _buildInfoRow('지점', '${widget.warehouseName}'),
             _buildInfoRow('유닛 유형', '${widget.unitType} (${widget.unitSize})',
                 isLink: true),
-            _buildInfoRow('유닛 번호', '아직 백엔드랑 연결 안했다'),
+            _buildInfoRow('유닛 번호', 'sd-001'),
             _buildInfoRow('이용시작일',
                 DateFormat('yyyy.MM.dd (E)', 'ko_KR').format(widget.startDate)),
             Divider(height: 32),
@@ -83,11 +83,11 @@ class _PaymentPageState extends State<PaymentPage> {
             Text('결제 정보',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            _buildPriceRow('보증금', '어떻게할지 생각해보자'),
+         
             _buildPriceRow(
                 '이용요금', '${NumberFormat('#,###').format(discountedPrice)}원',
                 discount: '-${NumberFormat('#,###').format(discountAmount)}원'),
-            _buildPriceRow('총 결제금액', '1억 원', isTotal: true),
+            _buildPriceRow('총 결제금액', '18,050 원', isTotal: true),
             Divider(height: 32),
 
             // 결제 수단
