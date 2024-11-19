@@ -145,13 +145,18 @@ module.exports = function (wss) {
     router.post('/notify_abnormal_behavior', (req, res) => {
         console.log("여기 들어오니?");
 
-        const { behavior_id } = req.body;
+        const { behavior_id, image } = req.body;
         if (!behavior_id) {
             return res.status(400).json({ message: 'behavior_id is required' });
         }
 
         // tb_abnormal_behavior 테이블에서 해당 behavior_id의 정보 가져오기
-        const query = 'SELECT * FROM tb_abnormal_behavior WHERE behavior_id = ? AND alert = 0 AND behavior_type = "이상행동"';
+        const query = `
+        SELECT ab.*, abi.image_url 
+        FROM tb_abnormal_behavior ab
+        LEFT JOIN tb_abnormal_behavior_images abi ON ab.behavior_id = abi.behavior_id
+        WHERE ab.behavior_id = ? AND ab.alert = 0 AND ab.behavior_type = "이상행동"
+    `;
         conn.query(query, [behavior_id], (error, results) => {
             if (error) {
                 console.log('SQL 에러:', error);
@@ -163,6 +168,7 @@ module.exports = function (wss) {
 
                 // 관리자들에게 웹소켓으로 알림 보내기
                 const message = '이상행동이 탐지되었습니다';
+                const image = behavior.image_url; // Base64 인코딩된 이미지
 
                 wss.clients.forEach(function each(client) {
                     console.log(`Client state: ${client.readyState}`);
@@ -170,7 +176,7 @@ module.exports = function (wss) {
                     if (client.readyState === WebSocket.OPEN && client.user && client.user.role === 'admin') {
                         console.log("메세지 성공",message);
                         
-                        client.send(JSON.stringify({ type: 'notification', message }));
+                        client.send(JSON.stringify({ type: 'notification', message, image:image}));
                     }
                 });
 

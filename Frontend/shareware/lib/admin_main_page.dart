@@ -61,7 +61,7 @@ class _AdminMainPageState extends State<AdminMainPage> {
 
         // 알림 메시지 수신 시 처리
         if (data['type'] == 'notification') {
-          _showNotification(data['message']);
+          _showNotification(data['message'], data['image']);
         }
       });
     } catch (e) {
@@ -70,12 +70,26 @@ class _AdminMainPageState extends State<AdminMainPage> {
   }
 
   // 알림 표시
-  void _showNotification(String message) {
+  void _showNotification(String message, String? imageBase64) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("알림"),
-        content: Text(message),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message),
+            if (imageBase64 != null) ...[
+              SizedBox(height: 10),
+              Image.memory(
+                base64Decode(imageBase64),
+                height: 200,
+                width: 200,
+                fit: BoxFit.cover,
+              ),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
