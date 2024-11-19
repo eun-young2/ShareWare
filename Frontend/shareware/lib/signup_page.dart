@@ -50,6 +50,15 @@ class SignupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('회원가입'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);  // 뒤로 가기
+          },
+        ),
+      ),
       body: Center(  // 화면 중앙에 배치
         child: SingleChildScrollView(
           child: Padding(

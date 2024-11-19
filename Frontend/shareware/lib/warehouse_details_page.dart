@@ -118,7 +118,6 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
                 VerticalDivider(width: 12, thickness: 1, color: Colors.black),
                 SizedBox(width: 4),
                 _infoButton('📶', 'wifi', '와이파이'),
-               
               ],
             ),
             SizedBox(height: 4),
@@ -171,8 +170,9 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
   }
 
   Widget _infoButton(String emoji, String infoType, String label) {
-    bool isSelected = _currentInfo == infoType;
+  bool isSelected = _currentInfo == infoType;
 
+  if (infoType == 'wifi') {
     return Column(
       children: [
         TextButton(
@@ -183,10 +183,8 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
           },
           child: Column(
             children: [
-              Text(
-                emoji,
-                style: TextStyle(fontSize: 18),
-              ),
+              Icon(Icons.wifi, size: 20, color: Colors.black),
+              SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
@@ -201,6 +199,36 @@ class _WarehouseDetailsPageState extends State<WarehouseDetailsPage> {
       ],
     );
   }
+
+  return Column(
+    children: [
+      TextButton(
+        onPressed: () {
+          setState(() {
+            _currentInfo = infoType;
+          });
+        },
+        child: Column(
+          children: [
+            Text(
+              emoji,
+              style: TextStyle(fontSize: 18),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: isSelected ? Colors.black : Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+      if (isSelected) Divider(thickness: 1.5, color: Colors.black),
+    ],
+  );
+}
+
 
   void _showLoginDialog() {
     showDialog(
