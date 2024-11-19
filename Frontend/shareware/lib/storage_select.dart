@@ -23,6 +23,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
   double? _currentLat; // 현재 위치의 위도
   double? _currentLon; // 현재 위치의 경도
   bool _isLoading = false; // 로딩 상태 변수
+  Warehouse? _searchedWarehouse;
 
   @override
   void initState() {
@@ -214,18 +215,15 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
     try {
       _clearMarkers();
       final warehouse = await fetchWarehouseByName(name);
-
       if (warehouse != null) {
         final logoBase64 = await _loadLogoAsBase64();
         final logoDataUri = 'data:image/png;base64,$logoBase64';
-
         final searchMarkerScript = '''
           var searchMarkerPosition = new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon});
           var searchMarker = new kakao.maps.Marker({
             position: searchMarkerPosition
           });
           searchMarker.setMap(map);
-
           var content = `
             <div style="padding:10px; background-color:#fff; border:1px solid #AFD485; border-radius: 3px; font-size: 14px; white-space: nowrap; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); text-align: center;">
               <img src="$logoDataUri" style="width: 40px; height: 40px; margin-bottom: 5px;" />
@@ -240,17 +238,21 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
           });
           customOverlay.setMap(map);
         ''';
-
         _webViewController.runJavascript(searchMarkerScript).then((_) {
           print("검색된 창고 마커 추가 성공");
-
           _webViewController.runJavascript(
             'map.setCenter(new kakao.maps.LatLng(${warehouse.lat}, ${warehouse.lon}));',
           );
           _webViewController.runJavascript('map.setLevel(8);');
         });
+        setState(() {
+          _searchedWarehouse = warehouse;
+        });
       } else {
         print('창고를 찾을 수 없습니다.');
+        setState(() {
+          _searchedWarehouse = null;
+        });
       }
     } catch (e) {
       print('창고 검색 중 오류 발생: $e');
@@ -362,9 +364,11 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                     Expanded(
                       child: ListView.builder(
                         controller: scrollController,
-                        itemCount: _warehouses.length,
+                        itemCount:
+                            _searchedWarehouse != null ? 1 : _warehouses.length,
                         itemBuilder: (context, index) {
-                          final warehouse = _warehouses[index];
+                          final warehouse =
+                              _searchedWarehouse ?? _warehouses[index];
 
                           // warehouse.imageUrl 값이 비어있는지 확인하는 print문 추가
                           print(
