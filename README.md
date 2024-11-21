@@ -1,11 +1,12 @@
-# 📎 PetFor(팀명: 절절포)
-![Untitled](https://github.com/user-attachments/assets/7a399fae-8532-4f58-ae4b-f9b7ba372537)
+![전기매트_보이로_UB151](https://github.com/user-attachments/assets/e3975c1e-3033-4440-8c36-e38b9d174265)# 📎 ShareWare(팀명: 오은형과 금쪽이들)
+
+![캡처](https://github.com/user-attachments/assets/5c134c81-1539-460e-86fb-3ec4d08b452d)
 
 
 
 
 ## 👀 서비스 소개
-* 서비스명: 증상 검색을 통해 필요시 머신러닝을 이용한 전문 업체 추천 플랫폼
+* 서비스명: 비전 AI기반 공유형 창고 관리 서비스
 * 서비스설명: 반려 동물의 증상 검색으로 간단한 결과 출력 후 필요시 플랫폼에 등록된 업체중 사용자 정보를 기반으로 추천 후 채팅 상담 연결
 <br>
 
