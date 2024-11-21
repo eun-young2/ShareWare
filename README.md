@@ -7,7 +7,8 @@
 
 ## 👀 서비스 소개
 * 서비스명: 비전 AI기반 공유형 창고 관리 서비스
-* 서비스설명: 반려 동물의 증상 검색으로 간단한 결과 출력 후 필요시 플랫폼에 등록된 업체중 사용자 정보를 기반으로 추천 후 채팅 상담 연결
+* 서비스설명: 사용자에게는 창고 이용을 QR대조를 통해 보안을 높이고 물품이 창고에 보관이 가능한지 사진을 찍어서 확인이 가능하게해주며,
+	         관리자에게는 창고 서비스에 필요한 예약관리,출입관리,창고관리를 도와주며 CCTV의 이상행동 감지 모델을 도입하여 이상행동 감지시 알림발송을 해준다.
 <br>
 
 ## 📅 프로젝트 기간
@@ -15,63 +16,16 @@
 <br>
 
 ## ⭐ 주요 기능
-* DB에 저장된 증상 데이터 기반 검색 결과 출력
-* 검색 결과 출력 후 필요시 머신러닝 통한 전문 업체 추천
-* 추천된 업체와 혹은 일반 유저 간 채팅 기능
-* LLM 사용한 챗봇기능
-* 유저간 소통을 위한 커뮤니티
+* 사용자 위치 기반 가까운 창고 띄우기
+* 물품등록을 통한 보관물품 가능여부 확인
+* CCTV에 이상행동 감지 모델 도입을 통한 이상행동 발생시 알람 발송
+* QR코드와 데이터값의 대조를 통한 출입 허가
+* 관리자가 창고의 예약자를 관리할 수 있는 기능
 <br>
 
 ## ⛏ 기술스택
-<table>
-    <tr>
-        <th>구분</th>
-        <th>내용</th>
-    </tr>
-    <tr>
-        <td>사용언어</td>
-        <td>
-            <img src="https://github.com/user-attachments/assets/e5d0cd5b-a7bd-4760-9944-948996e7e7b4"/>
-            <img src="https://github.com/user-attachments/assets/4efa8058-5370-4359-b79c-2a22330e5480"/>
-            <img src="https://github.com/user-attachments/assets/8a4666f4-06a1-481b-ad5e-ece365299a44"/>
-        </td>
-    </tr>
-    <tr>
-        <td>라이브러리</td>
-        <td>
-            <img src="https://github.com/user-attachments/assets/c912d3ac-e680-497d-bfe2-937a41622f94"/>
-            <img src="https://github.com/user-attachments/assets/a81a90e4-e297-4679-9499-284d1786600b"/>
-            <img src="https://github.com/user-attachments/assets/607addd2-d19a-421e-8153-c6281586e5b2"/>
-            <img src="https://github.com/user-attachments/assets/e8b6a4d3-c0f4-43a9-b9d4-f6be972b3577"/>
-        </td>
-    </tr>
-    <tr>
-        <td>개발도구</td>
-        <td>
-            <img src="https://github.com/user-attachments/assets/222a7ff6-ef9e-40d0-887b-3069f4863293"/>
-        </td>
-    </tr>
-    <tr>
-        <td>서버환경</td>
-        <td>
-            <img src="https://github.com/user-attachments/assets/79bf1dba-0691-491a-8246-40dda8e2c501"/>
-            <img src="https://github.com/user-attachments/assets/6c9c8a89-c293-47d7-bb20-63ff873789ba"/>
-        </td>
-    </tr>
-    <tr>
-        <td>데이터베이스</td>
-        <td>
-            <img src="https://github.com/user-attachments/assets/5d632ad8-f5fc-4427-a0ff-d2c9264c3032"/>
-        </td>
-    </tr>
-    <tr>
-        <td>협업도구</td>
-        <td>
-            <img src="https://github.com/user-attachments/assets/e66c2905-e86e-4ed3-9e91-7a83ea450472"/>
-            <img src="https://github.com/user-attachments/assets/bab3474b-4f6c-40f8-bc92-9fc2e36c6268"/>
-        </td>
-    </tr>
-</table>
+
+![image](https://github.com/user-attachments/assets/cd79a51d-929b-420f-8740-2f456140147a)
 
 
 <br>
@@ -141,7 +95,8 @@
 <br>
 
 ## 👨‍👩‍👦‍👦 팀원 역할
-![image](https://github.com/user-attachments/assets/b8c2ee69-9b16-4d7d-bc8b-8bf53c284bfb)
+![image](https://github.com/user-attachments/assets/d421af97-ebd3-463d-8fad-cedf62568db6)
+
 
 
 ## 💡 트러블슈팅
