@@ -112,36 +112,29 @@
 
 <br>
 
-### 창고 검색/창고 예약/창고 결제
-![image](https://github.com/user-attachments/assets/765cc491-14b6-46d6-9bc8-9ce043498821)
+### 창고 검색/창고 정보/창고 예약/창고 결제
+![image](https://github.com/user-attachments/assets/f640d2c5-b28d-4bd0-8a3a-7e3d1253a367)
+
 
 
 
 <br>
 
 ### QR 발급/마이 창고/물품등록/마이 페이지
-![image](https://github.com/user-attachments/assets/d245b13c-e340-4092-97d0-230c0c669821)
+![image](https://github.com/user-attachments/assets/f44f9531-7662-49bc-bf4e-be362b959831)
 
 
-
-
-<br>
-
-### CCTV/ 출입 및 알림 리스트 / 예약자 관리
-![image](https://github.com/user-attachments/assets/e46003bc-ec42-4214-991f-488c81fd790d)
 
 
 
 <br>
 
-### 채팅/채팅방
-![004](https://github.com/user-attachments/assets/0b1000e5-f539-45bb-a8d4-05747605aebc)
+### 관리자메인/CCTV/ 출입 및 알림 리스트 / 예약자 관리
+![image](https://github.com/user-attachments/assets/4e6ed578-bb5a-4f88-b901-94b1ffe8a158)
 
 
-<br>
 
-### 챗봇/챗봇 결과
-![005](https://github.com/user-attachments/assets/f1378bc4-2f8b-4134-8d0f-585332914a73)
+
 
 
 
