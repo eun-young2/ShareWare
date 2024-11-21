@@ -1,4 +1,4 @@
-![전기매트_보이로_UB151](https://github.com/user-attachments/assets/e3975c1e-3033-4440-8c36-e38b9d174265)# 📎 ShareWare(팀명: 오은형과 금쪽이들)
+# 📎 ShareWare(팀명: 오은형과 금쪽이들)
 
 ![캡처](https://github.com/user-attachments/assets/5c134c81-1539-460e-86fb-3ec4d08b452d)
 
