@@ -77,40 +77,51 @@
 <br>
 
 ## ⚙ 시스템 아키텍처(구조) 예시 
-![image](https://github.com/user-attachments/assets/ba5ed8df-5320-42d6-8826-b52e6882f6d8)
+![image](https://github.com/user-attachments/assets/45dc3618-44a4-4a6b-bd68-eaad1dd8d789)
+
 
 <br>
 
 ## 📌 SW유스케이스
-![펫포유스케이스 drawio](https://github.com/user-attachments/assets/bcdc6686-a074-4feb-af4c-43e674821d65)
+![image](https://github.com/user-attachments/assets/71ebe37b-4ea2-45ac-8860-d61992224a6a)
+
+
 
 <br>
 
 ## 📌 서비스 흐름도
-![제목을 입력해주세요_-001 (4)](https://github.com/user-attachments/assets/07f7197b-e950-4f7d-8723-980a9751092a)
+![image](https://github.com/user-attachments/assets/1d71bfdc-7ad3-428e-8c6e-25529b7693ae)
+
 
 
 <br>
 
 ## 📌 ER다이어그램
-![펫포ERD](https://github.com/user-attachments/assets/e6bcff56-b6a7-4451-aa70-9abbda186408)
+![image](https://github.com/user-attachments/assets/3ca7b750-475f-4ec6-90f7-785b5554d554)
+
 
 <br>
 
 ## 🖥 화면 구성
 
-### 홈화면/증상 검색/업체 추천/추천 업체 채팅
-![001](https://github.com/user-attachments/assets/f7442904-2553-43af-afac-4e910888fa6d)
+### 메인/회원가입/ 로그인 
+![main_page](https://github.com/user-attachments/assets/615f8dc5-7de4-4fee-a64d-f21ffdb638f8)![login_page](https://github.com/user-attachments/assets/e2786ebb-068d-4e81-8d36-c6f1ca1307c8)
+
+
 
 <br>
 
-### 로그인/회원가입
-![006](https://github.com/user-attachments/assets/b337e9c7-1161-447c-99b5-df9626c4298e)
+### 창고 검색/창고 정보/창고 예약/창고 결제
+
 
 <br>
 
-### 등록업체/업체 등록 방식/사업자 등록/전문의 등록
-![002](https://github.com/user-attachments/assets/f3779084-35db-472a-92f9-622add723d96)
+### QR 발급/마이 창고/물품등록/마이 페이지
+![qr_page](https://github.com/user-attachments/assets/fe610cb9-0cad-4ffa-9040-ec1b85a32d5e)![my_warehouse_page](https://github.com/user-attachments/assets/3c4d2f21-febb-440b-b8b4-813f84434775)![register_items_page](https://github.com/user-attachments/assets/4b7cfa07-7739-4d7e-8ffa-b184b88e122f)![my_page](https://github.com/user-attachments/assets/61d741b4-277c-4176-8a01-6d263c900b31)
+
+
+
+
 
 <br>
 
