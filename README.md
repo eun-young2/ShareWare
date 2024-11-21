@@ -104,29 +104,32 @@
 
 ## 🖥 화면 구성
 
-### 메인/회원가입/ 로그인 
-![main_page](https://github.com/user-attachments/assets/615f8dc5-7de4-4fee-a64d-f21ffdb638f8)![login_page](https://github.com/user-attachments/assets/e2786ebb-068d-4e81-8d36-c6f1ca1307c8)
+### 메인/사용자 로그인/관리자 로그인/회원가입
+![image](https://github.com/user-attachments/assets/7acfa613-79c3-4dca-bded-97874229c50c)
+
 
 
 
 <br>
 
-### 창고 검색/창고 정보/창고 예약/창고 결제
+### 창고 검색/창고 예약/창고 결제
+![image](https://github.com/user-attachments/assets/765cc491-14b6-46d6-9bc8-9ce043498821)
+
 
 
 <br>
 
 ### QR 발급/마이 창고/물품등록/마이 페이지
-![qr_page](https://github.com/user-attachments/assets/fe610cb9-0cad-4ffa-9040-ec1b85a32d5e)![my_warehouse_page](https://github.com/user-attachments/assets/3c4d2f21-febb-440b-b8b4-813f84434775)![register_items_page](https://github.com/user-attachments/assets/4b7cfa07-7739-4d7e-8ffa-b184b88e122f)![my_page](https://github.com/user-attachments/assets/61d741b4-277c-4176-8a01-6d263c900b31)
-
+![image](https://github.com/user-attachments/assets/d245b13c-e340-4092-97d0-230c0c669821)
 
 
 
 
 <br>
 
-### 커뮤니티/글 쓰기/글 보기/글 수정
-![003](https://github.com/user-attachments/assets/16dd26ec-680f-4879-b08a-023fc54e8124)
+### CCTV/ 출입 및 알림 리스트 / 예약자 관리
+![image](https://github.com/user-attachments/assets/e46003bc-ec42-4214-991f-488c81fd790d)
+
 
 
 <br>
