@@ -101,25 +101,16 @@
 
 ## 💡 트러블슈팅
   
-* 문제1<br>
- fastAPI를 이용한 모델과 Node.js 서버를 연결하는 과정에서 오류 발생. 원인을 파악해보니 노드 서버에서 사용하는 axios의 baseURL 설정과 fastAPI 서버의 URL이 일치하지 않아 발생하는 문제였다.<br>
- ![image](https://github.com/user-attachments/assets/45bb94ac-7520-44fb-b5c5-33aac3cae7da)
+*<br>
+![image](https://github.com/user-attachments/assets/b00326ff-c94a-4cc2-be85-3edafb55ff5d)
+
 
 <br>
 
-* 해결1<br>
- 모델을 요청할 때 fastAPI 서버로 이동하는 URL을 따로 설정해주었다.<br>
- ![image](https://github.com/user-attachments/assets/f10088df-03d3-43d7-accb-e33102925ced)
+![image](https://github.com/user-attachments/assets/f8192e3c-6e2d-417c-bbab-90df3379c19d)
+
 
 <br><br>
 
-* 문제2<br>
-  Socket.IO를 이용한 실시간 채팅 기능 구현 중 상대방이 보낸 메세지를 실시간으로 띄울 수 없는 문제 발생. 서버에서 이전 대화를 불러올 때의 데이터 형식과 채팅을 주고 받을 때의 데이터 형식이 일치하지 않아서 발생하는 문제였다.<br>
-  ![image](https://github.com/user-attachments/assets/dfcd53cf-0213-4dcc-a928-8a5c84786ed8)
-
-<br>
-
-* 해결2<br>
-  서버의 chatRouter에서 메세지를 전송할 때, 서버에서 불러오는 데이터 형식과 동일하게 전송할 수 있도록 포맷팅 해주었다.
-  ![image](https://github.com/user-attachments/assets/bfe0732e-f4b4-47bf-b3ee-5aec2ee7ace3)
+![image](https://github.com/user-attachments/assets/80a1e725-58a7-4225-8142-7303d4329f34)
 
